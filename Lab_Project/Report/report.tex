@@ -1,0 +1,1583 @@
+% ==============================================================================
+% ELEC 481 Lab Report
+%
+% ==============================================================================
+
+% hey guys, this is the main template for our report. i set up all the sections
+% and packages so we should be good to go. just fill in the TODO parts.
+
+% --- HOW TO USE THIS TEMPLATE (just fyi) ---
+%
+% TO ADD A FIGURE:
+% 1. upload the image file to overleaf (the button on the top left).
+% 2. uncomment the code block below and change the filename.
+% 3. the label is super important for referencing it in the text, dont forget it.
+%    (to reference it, you type:  blabla...as shown in Figure~\ref{fig:my_label} )
+%
+% TO ADD AN EQUATION:
+% - use the 'equation' environment for one line, or the 'align' enviroment for multiple lines.
+% - the '&' symbol is for lining them up (usually at the = sign).
+% - the '\\' command makes a new line.
+% - again, label it so we can reference it with \ref{...}.
+%
+% TABLES:
+% - honestly the easiest way is to use a website like tablesgenerator.com and just paste the code here.
+%   i put a placeholder for our parameters table below.
+%
+% CITING:
+% - to cite something, just use \cite{label}. i already added the main books to the
+%   references section at the bottom. we can add more if we need to.
+%
+% COMMENTS:
+% - use a '%' to write a comment, latex will ignore it.
+%
+% PDF VIEW:
+% - To see the pdf, just hit the green 'Recompile' button.
+
+
+\documentclass[12pt, letterpaper]{IEEEtran}
+
+% --- PACKAGES ---
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}         % for math
+\usepackage{graphicx}        % for images
+\usepackage{booktabs}        % for nice tables
+\usepackage{hyperref}        % for clickable links
+\usepackage{float}           % for better figure placement
+\usepackage{siunitx}         % for SI units
+\setlength{\headheight}{14.5pt}
+
+% --- PAGE LAYOUT ---
+
+
+\hypersetup{
+    colorlinks=true, linkcolor=blue, urlcolor=cyan,
+}
+
+% --- TITLE PAGE INFO ---
+\begin{document}
+
+\title{{ELEC 481 Lab Report: \\ Torsional Control System)}
+    \vspace{50pt}\\
+   \large{Analysis of a 2-DOF Torsional Control System}
+    \vspace{50pt}
+    \\
+    {\normalsize Professor: \\ Dr. K. Khorasani}
+    \\
+    \vspace{100pt}
+    {\normalsize Fall 2025}
+    \\
+    \vspace{100pt}
+\normalsize{December 15, 2025}
+\vspace{60pt}
+\author{
+    \IEEEauthorblockN{Mathias Desrochers \\ 
+    Achal Patel \\
+    Kenza Tarek \\
+    }
+\vspace{60pt}
+    \IEEEauthorblockA{\textit{\\Department of Electrical and Computer Engineering} \\
+    \textit{Concordia University}\\
+    Montreal, QC, Canada \\}
+    }
+}
+\maketitle
+
+\thispagestyle{empty}
+
+\clearpage
+
+
+
+
+% ==============================================================================
+% --- DOCUMENT STARTS HERE ---
+% ==============================================================================
+\pagebreak
+\begin{abstract}
+    % TODO: Write abstract here; brief summary of the lab's objectives, methods, and key findings.
+    % This section should be written LAST.
+    abract todo
+\end{abstract}
+
+% ==============================================================================
+% --- REPORT SECTIONS ---
+% ==============================================================================
+
+
+\section{Introduction}
+% TODO: State the clear objective of the lab.
+% Briefly describe the ECP Model 205 system.
+% Outline the structure of the report (i.e., what each section covers).
+
+\section{System Modeling \& Open-Loop Analysis}
+% This is where Guidelines 1-5 will go.
+
+\subsection{Guideline 1: System Parameters and Equations of Motion}
+
+The modeling process begins by defining the physical parameters of the 2-DOF torsional plant, as provided in the ECP Model 205 lab manual \cite{b1}. These values are summarized in Table \ref{tab:params}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{ECP Model 205 System Parameters}
+    \label{tab:params}
+    \begin{tabular}{l c l}
+        \toprule
+        \textbf{Parameter} & \textbf{Symbol} & \textbf{Value} \\
+        \midrule
+         Disk 1 Inertia & $J_1$ & 0.0108 \si{\kg.m^2} \\
+        Disk 2 Inertia & $J_2$ & 0.0103 \si{\kg.m^2} \\
+        Disk 1 Damping & $c_1$ & 0.007 \si{\N.m.s/rad} \\
+        Disk 2 Damping & $c_2$ & 0.001 \si{\N.m.s/rad} \\
+        Shaft Stiffness & $k_1$ & 1.37 \si{\N.m/rad} \\
+        Voltage-to-Torque & $k_{hw}$ & 17.408 \si{\N.m/V} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Applying Newton's second law for rotation to each disk yields the coupled differential equations of motion:
+\begin{align}
+    J_1\ddot{\theta}_1 + c_1\dot{\theta}_1 + k_1(\theta_1 - \theta_2) &= T(t) \label{eq:eom1} \\
+    J_2\ddot{\theta}_2 + c_2\dot{\theta}_2 + k_1(\theta_2 - \theta_1) &= 0 \label{eq:eom2}
+\end{align}
+
+To formulate a state-space model, the state vector $\mathbf{x}$ is defined with the system's positions and velocities:
+\begin{equation}
+    \mathbf{x} = [\theta_1, \dot{\theta}_1, \theta_2, \dot{\theta}_2]^T
+\end{equation}
+
+
+% TODO: Define the state vector x.
+\begin{equation}
+    \mathbf{x} = 
+    \begin{bmatrix}
+        \theta_1 \\ \dot{\theta}_1 \\ \theta_2 \\ \dot{\theta}_2
+    \end{bmatrix}
+\end{equation}
+
+
+From this definition, the state-space matrices ($A, B, C$) for the form $\dot{\mathbf{x}} = A\mathbf{x} + B\mathbf{u}$ and $\mathbf{y} = C\mathbf{x}$ are derived. The input $\mathbf{u}$ is the motor voltage $V(t)$, and the output $\mathbf{y}$ consists of the disk positions $[\theta_1, \theta_2]^T$. The resulting matrices are:
+
+\begin{align}
+    A &= 
+    \begin{bmatrix}
+        0 & 1 & 0 & 0 \\
+        -126.85 & -0.648 & 126.85 & 0 \\
+        0 & 0 & 0 & 1 \\
+        133.01 & 0 & -133.01 & -0.097
+    \end{bmatrix} \label{eq:matrix_A} \\
+    B &= 
+    \begin{bmatrix}
+        0 \\ 1611.85 \\ 0 \\ 0
+    \end{bmatrix}, \quad
+    C = 
+    \begin{bmatrix}
+        1 & 0 & 0 & 0 \\
+        0 & 0 & 1 & 0
+    \end{bmatrix}
+\end{align}
+
+
+\subsection{Guideline 2: Transfer Function Derivation}
+
+The transfer function $G(s) = C(sI-A)^{-1}B$ is derived from the state-space model. The denominator of the transfer function is the characteristic polynomial $D(s) = \det(sI-A)$, which is found to be:
+\begin{equation}
+    D(s) = s^4 + 0.745s^3 + 259.9s^2 + 98.53s
+    \label{eq:char_poly}
+\end{equation}
+
+
+This yields two transfer functions, one for each output, from the input voltage $V(s)$ to the angular positions $\Theta_1(s)$ and $\Theta_2(s)$:
+\begin{align}
+    G_1(s) = \frac{\Theta_1(s)}{V(s)} &= \frac{1612s^2 + 156.5s + 214400}{D(s)} \label{eq:tf1} \\
+    G_2(s) = \frac{\Theta_2(s)}{V(s)} &= \frac{214400}{D(s)} \label{eq:tf2}
+\end{align}
+where $D(s)$ is the characteristic polynomial from (\ref{eq:char_poly}).
+
+
+\begin{align}
+    G_1(s) = \frac{\Theta_1(s)}{V(s)} &= \frac{...s^2 + ...s + ...}{D(s)} \label{eq:tf1} \\
+    G_2(s) = \frac{\Theta_2(s)}{V(s)} &= \frac{...}{D(s)} \label{eq:tf2}
+\end{align}
+
+% TODO: Explain that the system is controllable and observable because the matrices have full rank.
+\subsection{Guideline 3: Open-Loop System Properties}
+
+\subsubsection{Controllability and Observability}
+An analysis of the controllability and observability matrices, formed from the ($A,B$) and ($A,C$) pairs respectively, shows that both matrices have a rank of 4. Since the rank is equal to the order of the system, the system is confirmed to be both **fully controllable** and **fully observable**. This is a critical prerequisite, as it guarantees that a state-feedback controller and a state observer can be successfully designed.
+
+\subsubsection{System Poles and Stability}
+The open-loop poles are the roots of the characteristic polynomial in (\ref{eq:char_poly}). They dictate the natural response and stability of the system.
+\begin{itemize}
+    \item $p_{1,2} = -0.183 \pm j16.117$ (Complex pair, causing oscillations)
+    \item $p_3 = 0$ (Integrator at the origin)
+    \item $p_4 = -0.379$ (Stable real pole)
+\end{itemize}
+
+The presence of a pole at the origin makes the system **marginally stable**. The dominant complex poles have a natural frequency of $\omega_n = 16.12$ rad/s and a very low damping ratio of $\zeta = 0.0114$, indicating a highly oscillatory and underdamped natural response. Therefore, feedback control is essential to stabilize the system and achieve a desirable transient performance.
+
+
+\section{Classical Controller Design (PID Controller Design)}
+
+% ------------------------------------------------------------------------
+% Guideline 4: Open-Loop Time Response
+% ------------------------------------------------------------------------
+\subsection{Guideline 4: Open-Loop Time Response}
+
+Before designing a controller, we simulated the open-loop system to understand its natural behavior. The system was excited with both impulse and step inputs, under zero and non-zero initial conditions ($\mathbf{x}_0 = [0.1, 0, 0, 0]^T$). The Simulink model used for these simulations is shown in Figure \ref{fig:q4_simulink}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\columnwidth]{Q4-8_Figures/Q4_Simulink_OpenLoop.png}
+    \caption{Simulink model for open-loop time response analysis. Four configurations were tested: impulse and step inputs, each with zero and non-zero initial conditions. The state-space block implements $\dot{\mathbf{x}} = A\mathbf{x} + Bu$, $\mathbf{y} = C\mathbf{x}$.}
+    \label{fig:q4_simulink}
+\end{figure}
+
+\subsubsection{Mathematical Background}
+The time-domain response of a linear system is computed by solving the state equation. For the state-space model $\dot{\mathbf{x}} = A\mathbf{x} + Bu$, the general solution is:
+\begin{equation}
+    \mathbf{x}(t) = e^{At}\mathbf{x}_0 + \int_0^t e^{A(t-\tau)}Bu(\tau)\,d\tau
+    \label{eq:state_solution}
+\end{equation}
+
+For an \textbf{impulse input} $u(t) = \delta(t)$, the Laplace transform approach gives:
+\begin{equation}
+    Y(s) = G(s) \cdot 1 = G(s) \quad \Rightarrow \quad y(t) = \mathcal{L}^{-1}\{G(s)\}
+\end{equation}
+In MATLAB/Simulink, this is computed using the \texttt{impulse()} function or by applying a narrow pulse approximation.
+
+For a \textbf{step input} $u(t) = u_s(t)$, where $U(s) = 1/s$:
+\begin{equation}
+    Y(s) = G(s) \cdot \frac{1}{s} \quad \Rightarrow \quad y(t) = \mathcal{L}^{-1}\left\{\frac{G(s)}{s}\right\}
+\end{equation}
+
+Since our system has a pole at the origin ($s = 0$), the step response will contain a ramp component---this is why the output grows unboundedly.
+
+\subsubsection{Impulse Response}
+The impulse response reveals how the system reacts to an instantaneous input. As shown in Figures \ref{fig:q4_impulse_zero} and \ref{fig:q4_impulse_nz}, the output grows unboundedly over time. This is a direct consequence of the integrator pole at the origin ($p_4 = 0$), which causes the system to accumulate the effect of the impulse indefinitely.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\columnwidth]{Q4-8_Figures/Q4_1_Impulse_Zero_IC.png}
+    \caption{Open-loop impulse response with zero initial conditions. The output grows unboundedly due to the integrator pole. The inset shows the initial transient where the complex poles ($p_{1,2} \approx -0.18 \pm 16.1j$) cause high-frequency oscillations.}
+    \label{fig:q4_impulse_zero}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\columnwidth]{Q4-8_Figures/Q4_2_Impulse_NonZero_IC.png}
+    \caption{Open-loop impulse response with non-zero initial conditions ($\theta_1(0) = 0.1$ rad). The zoomed inset shows small oscillations before $t=1$s caused by the initial displacement of Disk 1. The overall unbounded behavior is identical to the zero-IC case.}
+    \label{fig:q4_impulse_nz}
+\end{figure}
+
+The key observation here is that the initial conditions only affect the early transient---the small oscillations visible in the zoomed inset of Figure \ref{fig:q4_impulse_nz}. Once the impulse is applied, the integrator dominates and the response diverges regardless of the starting point.
+
+\subsubsection{Step Response}
+The step response is even more dramatic. As shown in Figures \ref{fig:q4_step_zero} and \ref{fig:q4_step_nz}, when a unit step is applied at $t=1$s, the output ramps up to over 350 rad within just one second. This behavior is characteristic of an integrator: a constant input produces a ramp output.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\columnwidth]{Q4-8_Figures/Q4_3_Step_Zero_IC.png}
+    \caption{Open-loop step response with zero initial conditions. The unit step at $t=1$s causes the output to ramp unboundedly, reaching approximately 350 rad by $t=2$s. This confirms the presence of an integrator in the plant.}
+    \label{fig:q4_step_zero}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\columnwidth]{Q4-8_Figures/Q4_4_Step_NonZero_IC.png}
+    \caption{Open-loop step response with non-zero initial conditions. The zoomed inset shows oscillations from the initial displacement before the step is applied. The ramp behavior after $t=1$s is identical to the zero-IC case.}
+    \label{fig:q4_step_nz}
+\end{figure}
+
+These results clearly demonstrate why feedback control is essential for this system. Without it, any sustained input will cause the disk positions to grow without bound---the system is marginally stable at best.
+
+% ------------------------------------------------------------------------
+% Guideline 5: Bode Plot and Root Locus
+% ------------------------------------------------------------------------
+\subsection{Guideline 5: Frequency Response and Root Locus}
+
+To better understand the system's dynamics and prepare for controller design, we analyzed the frequency response (Bode plot) and root locus of the uncompensated plant $G_2(s) = \Theta_2(s)/U(s)$.
+
+\subsubsection{Transfer Function Derivation}
+The transfer function $G_2(s)$ was obtained from the state-space model using the MATLAB function \texttt{ss2tf()}. This function computes:
+\begin{equation}
+    G(s) = C(sI - A)^{-1}B + D
+    \label{eq:ss2tf}
+\end{equation}
+Expanding $(sI - A)^{-1}$ using Cramer's rule:
+\begin{equation}
+    (sI - A)^{-1} = \frac{\text{adj}(sI - A)}{\det(sI - A)}
+\end{equation}
+where $\det(sI - A)$ gives the characteristic polynomial (denominator), and the adjugate matrix determines the numerator polynomials for each output.
+
+\subsubsection{Bode Plot Theory}
+The Bode plot displays $|G(j\omega)|$ (magnitude in dB) and $\angle G(j\omega)$ (phase in degrees) versus frequency $\omega$. For stability analysis, two key metrics are computed:
+\begin{itemize}
+    \item \textbf{Gain Margin (GM)}: The factor by which loop gain can increase before instability. Computed at the \emph{phase crossover frequency} $\omega_{pc}$ where $\angle G(j\omega_{pc}) = -180°$:
+    \begin{equation}
+        GM = \frac{1}{|G(j\omega_{pc})|}
+    \end{equation}
+    \item \textbf{Phase Margin (PM)}: The additional phase lag the system can tolerate. Computed at the \emph{gain crossover frequency} $\omega_{gc}$ where $|G(j\omega_{gc})| = 1$:
+    \begin{equation}
+        PM = 180° + \angle G(j\omega_{gc})
+    \end{equation}
+\end{itemize}
+
+\subsubsection{Root Locus Theory}
+The root locus shows how closed-loop poles move as the loop gain $K$ varies from 0 to $\infty$. For a system with open-loop transfer function $KG(s)$, the closed-loop poles satisfy:
+\begin{equation}
+    1 + KG(s) = 0 \quad \Rightarrow \quad G(s) = -\frac{1}{K}
+\end{equation}
+This means the closed-loop poles lie on paths where $|G(s)| = 1/K$ and $\angle G(s) = \pm 180°$ (the \emph{angle condition}). MATLAB's \texttt{rlocus()} function numerically traces these paths.
+
+\subsubsection{Bode Plot Analysis}
+Figure \ref{fig:q5_bode} shows the Bode diagram of the open-loop plant. Several key features stand out:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Q4-8_Figures/Q5_1_Bode_Uncompensated.png}
+    \caption{Bode plot of the uncompensated system $G_2(s)$. The resonant peak near 16 rad/s corresponds to the lightly-damped complex poles. The phase starts at $-90°$ due to the integrator pole at the origin. The gain margin is \textbf{negative} ($-22.1$ dB), indicating the closed-loop system would be unstable with unity feedback.}
+    \label{fig:q5_bode}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Low-frequency behavior}: The magnitude starts high ($\sim$100 dB) and rolls off at $-20$ dB/decade, while the phase begins at $-90°$. This is the signature of an integrator.
+    \item \textbf{Resonant peak}: Around 16 rad/s, there is a sharp resonant peak caused by the lightly-damped complex poles at $p_{1,2} = -0.18 \pm 16.1j$. The very low damping ratio ($\zeta \approx 0.01$) makes this peak particularly pronounced.
+    \item \textbf{Gain margin}: The gain margin is $-22.1$ dB at $\omega_{pc} = 11.5$ rad/s. A \emph{negative} gain margin means the system is already unstable with unity feedback---we would need to \emph{reduce} the loop gain significantly just to achieve marginal stability.
+\end{itemize}
+
+\subsubsection{Root Locus Analysis}
+The root locus in Figure \ref{fig:q5_rlocus} shows how the closed-loop poles move as the loop gain increases. The open-loop poles are:
+\begin{itemize}
+    \item $p_{1,2} = -0.18 \pm 16.12j$ --- complex conjugate pair (oscillatory modes)
+    \item $p_3 = -0.38$ --- stable real pole
+    \item $p_4 = 0$ --- integrator at the origin
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Q4-8_Figures/Q5_2_RootLocus_Uncompensated.png}
+    \caption{Root locus of the open-loop system. The four branches originate from the open-loop poles (red X markers). The grid lines show the design targets: $\zeta = 0.69$ and $\omega_n = 3.33$ rad/s. Notice that the branches from the complex poles head toward the right-half plane, confirming the instability observed in the Bode analysis.}
+    \label{fig:q5_rlocus}
+\end{figure}
+
+The root locus reveals that simply adding proportional gain will not stabilize this system effectively. The branches from the complex poles move toward the right-half plane, which explains the negative gain margin. A more sophisticated controller (PID) is needed to reshape the root locus and achieve the desired closed-loop pole locations.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\columnwidth]{Q4-8_Figures/Q5_3_PoleZero_Map.png}
+    \caption{Pole-zero map of the open-loop system showing all four poles with their exact locations. The pole at the origin ($p_4 = 0$) is responsible for the integrator behavior observed in the time-domain responses.}
+    \label{fig:q5_pzmap}
+\end{figure}
+
+% ------------------------------------------------------------------------
+% Guideline 6: PID Controller Design
+% ------------------------------------------------------------------------
+\subsection{Guideline 6: PID Controller Design}
+
+Based on the analysis in the previous sections, we designed a PID controller to stabilize the system and achieve reasonable tracking performance. The design targets were:
+\begin{itemize}
+    \item Percent Overshoot: $PO \leq 5\%$ (corresponding to $\zeta \geq 0.69$)
+    \item Settling Time: $T_s \approx 2$ seconds (corresponding to $\omega_n \approx 3.33$ rad/s)
+\end{itemize}
+
+\subsubsection{Design Approach}
+The PID controller has the transfer function:
+\begin{equation}
+    C(s) = K_p + \frac{K_i}{s} + K_d s = \frac{K_d s^2 + K_p s + K_i}{s}
+\end{equation}
+
+Each term serves a specific purpose in shaping the closed-loop response:
+\begin{itemize}
+    \item \textbf{Proportional ($K_p$)}: Provides instantaneous correction proportional to error. Higher $K_p$ reduces steady-state error but can increase overshoot.
+    \item \textbf{Integral ($K_i/s$)}: Accumulates past errors, ensuring zero steady-state error for step inputs. Adds a pole at $s = 0$.
+    \item \textbf{Derivative ($K_d s$)}: Anticipates future error by acting on the rate of change. Adds damping but amplifies high-frequency noise.
+\end{itemize}
+
+\subsubsection{Root Locus Design Procedure}
+We used the root locus technique to tune the gains. The PID controller can be rewritten to expose its zeros:
+\begin{equation}
+    C(s) = K_d \cdot \frac{s^2 + (K_p/K_d)s + (K_i/K_d)}{s} = K_d \cdot \frac{(s - z_1)(s - z_2)}{s}
+\end{equation}
+where $z_1$ and $z_2$ are the controller zeros. The idea was to place these zeros to ``pull'' the root locus branches into the left-half plane.
+
+Starting with a PD compensator of the form $(s/3 + 1)$, we used MATLAB's \texttt{evalfr()} function to compute the required gain at a desired pole location $s^* = -\sigma + j\omega_d$:
+\begin{equation}
+    K = \frac{1}{|G_{compensated}(s^*)|}
+\end{equation}
+This satisfies the magnitude condition of the root locus at $s^*$.
+
+However, we quickly discovered that achieving the aggressive design specs ($\zeta = 0.69$, $\omega_n = 3.33$) with a PID controller on this plant was extremely difficult. The lightly-damped resonant modes at $\pm 16.1j$ made the system very sensitive to gain changes. Higher gains caused the closed-loop poles to move toward instability.
+
+We also attempted to use MATLAB's \texttt{pidTuner} auto-tuning tool, but even the automated optimization could not find gains that met our specifications while maintaining stability. This limitation is fundamental to the PID structure---it simply does not have enough degrees of freedom to independently control all four closed-loop poles.
+
+\subsubsection{Final PID Gains}
+After extensive manual tuning, we settled on the following conservative gains:
+\begin{equation}
+    K_p = 2.8 \times 10^{-4}, \quad K_i = 3.0 \times 10^{-6}, \quad K_d = 1.0 \times 10^{-4}
+\end{equation}
+
+These gains are deliberately small to avoid exciting the resonant modes. The trade-off is slower response and larger overshoot than originally targeted.
+
+% ------------------------------------------------------------------------
+% Guideline 7: PID Controller Responses
+% ------------------------------------------------------------------------
+\subsection{Guideline 7: PID Controller Time-Domain Responses}
+
+The designed PID controller was tested with step, square wave, and sinusoidal inputs. The closed-loop Simulink model is shown in Figure \ref{fig:q7_simulink}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\columnwidth]{Q4-8_Figures/Q7_Simulink_PID_Controller.png}
+    \caption{Simulink model for PID closed-loop control. The three parallel branches implement proportional ($K_p$), integral ($K_i/s$), and derivative ($K_d s$) actions. The feedback loop closes around the load position $\theta_2$.}
+    \label{fig:q7_simulink}
+\end{figure}
+
+\subsubsection{Step Response}
+Figure \ref{fig:q7_step} shows the closed-loop step response. The system successfully tracks the step input, but the performance differs from our design targets:
+\begin{itemize}
+    \item \textbf{Overshoot}: Approximately 20\% (target was 5\%)
+    \item \textbf{Settling time}: Approximately 15--20 seconds (target was 2 seconds)
+    \item \textbf{Steady-state error}: Zero (the integral action eliminates the error)
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Q4-8_Figures/Q7_1_PID_Step_Response.png}
+    \caption{PID closed-loop step response. The controller stabilizes the system and achieves zero steady-state error, but with higher overshoot ($\sim$20\%) and longer settling time ($\sim$15s) than the design targets. The oscillations during the transient are caused by the lightly-damped resonant modes that the PID cannot fully suppress.}
+    \label{fig:q7_step}
+\end{figure}
+
+The slower-than-expected response is a direct consequence of our conservative gain selection. Higher gains caused instability during testing, so we accepted slower performance in exchange for robustness.
+
+\subsubsection{Square Wave Response}
+The square wave input (Figure \ref{fig:q7_square}) reveals the bandwidth limitations of our controller. The system cannot track the sharp transitions of the square wave---instead, it produces a smoothed, almost sinusoidal response.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Q4-8_Figures/Q7_2_PID_Square_Response.png}
+    \caption{PID response to a 0.1 Hz square wave input. The controller acts as a low-pass filter, smoothing out the sharp transitions. The output never reaches the commanded 1 rad or 0 rad levels within each half-period, indicating limited bandwidth.}
+    \label{fig:q7_square}
+\end{figure}
+
+This behavior makes sense: our low PID gains result in a closed-loop bandwidth that is too narrow to track the high-frequency content of a square wave.
+
+\subsubsection{Sinusoidal Response}
+The sinusoidal tracking test (Figure \ref{fig:q7_sine}) at 1 rad/s further confirms the bandwidth limitation:
+\begin{itemize}
+    \item \textbf{Amplitude attenuation}: The output amplitude is only about 0.3 rad compared to the 1 rad input---a 70\% reduction.
+    \item \textbf{Phase lag}: There is visible phase delay between the input and output.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Q4-8_Figures/Q7_3_PID_Sine_Response.png}
+    \caption{PID response to a 1 rad/s sinusoidal input. The output is significantly attenuated (amplitude $\sim$0.3 rad vs. 1 rad input) and phase-lagged. This confirms that the closed-loop bandwidth is below 1 rad/s---a consequence of the conservative gain selection.}
+    \label{fig:q7_sine}
+\end{figure}
+
+% ------------------------------------------------------------------------
+% Guideline 8: Robustness Analysis
+% ------------------------------------------------------------------------
+\subsection{Guideline 8: Robustness to Measurement Noise}
+
+A practical concern with PID controllers is their sensitivity to measurement noise, particularly the derivative term which amplifies high-frequency noise. We tested the controller's robustness by adding white noise to the feedback signal. The Simulink model for noise injection is shown in Figure \ref{fig:q8_simulink}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\columnwidth]{Q4-8_Figures/Q8_Simulink_Noise_Test.png}
+    \caption{Simulink model for noise robustness testing. Band-limited white noise is added to the feedback signal before entering the PID controller. The ``pid\_small\_noise\_feedback'' and ``pid\_small\_noise\_response'' blocks log the corrupted measurement and actual plant output, respectively.}
+    \label{fig:q8_simulink}
+\end{figure}
+
+\subsubsection{Small Noise Test}
+With a noise power of $5 \times 10^{-7}$, the controller maintains acceptable performance (Figure \ref{fig:q8_small}). The measured feedback signal shows visible noise, but the actual plant output remains relatively clean. The integral action helps filter the noise over time.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\columnwidth]{Q4-8_Figures/Q8_1_PID_SmallNoise_Combined.png}
+    \caption{PID controller response with small measurement noise (power = $5 \times 10^{-7}$). (A) The noisy feedback signal fed to the controller. (B) The actual plant output, which remains relatively clean despite the noisy measurement. The controller successfully rejects this level of noise.}
+    \label{fig:q8_small}
+\end{figure}
+
+\subsubsection{Large Noise Test}
+With a noise power of 0.001, the controller fails dramatically (Figure \ref{fig:q8_large}). The noisy feedback causes the controller to generate erratic control signals, which in turn cause the actual plant output to deviate significantly from the reference.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\columnwidth]{Q4-8_Figures/Q8_2_PID_LargeNoise_Combined.png}
+    \caption{PID controller response with large measurement noise (power = 0.001). (A) The severely corrupted feedback signal. (B) The actual plant output, which fails to track the reference and shows large oscillations. This demonstrates a fundamental limitation of PID control---it cannot distinguish between actual system dynamics and measurement noise.}
+    \label{fig:q8_large}
+\end{figure}
+
+\subsubsection{Discussion}
+The robustness tests reveal an important lesson: \textbf{the derivative term in a PID controller is a double-edged sword}. While it improves transient response by anticipating future errors, it also amplifies high-frequency noise. In a real implementation, a derivative filter (e.g., $K_d s / (\tau s + 1)$) would be essential to limit the high-frequency gain.
+
+The large noise test also highlights why modern control techniques like state-feedback with observers (covered in the next section) can be advantageous---they provide a systematic way to filter noise while maintaining good tracking performance.
+
+\subsubsection{Summary of Classical Control Design}
+The PID controller successfully stabilized the marginally-stable open-loop plant and achieved zero steady-state error for step inputs. However, several limitations were observed:
+\begin{enumerate}
+    \item The transient performance (overshoot, settling time) did not meet the original design targets.
+    \item The closed-loop bandwidth was limited, resulting in poor tracking of fast-varying signals.
+    \item The controller was sensitive to measurement noise, particularly at higher noise levels.
+\end{enumerate}
+
+These limitations motivate the use of modern state-space control techniques, which offer more degrees of freedom for shaping the closed-loop dynamics. 
+
+
+\section{Modern Controller Design (State-Feedback)}
+This section presents the design, simulation, and validation of a full-state feedback controller and a Luenberger observer. The design objective is to arbitrarily place the closed-loop poles to achieve specific time-domain performance metrics, specifically dealing with the system's resonant modes more effectively than the classical approach.
+
+% ------------------------------------------------------------------------
+% Guideline 9: State Feedback Design
+% ------------------------------------------------------------------------
+\subsection{Guideline 9: State-Feedback Control Law}
+
+The control law is defined as $u = -K\mathbf{x} + \bar{N}r$. The gain matrix $K$ is designed to meet the following specifications:
+\begin{itemize}
+    \item Percent Overshoot ($PO$) $\approx 5\%$
+    \item Settling Time ($T_s$) $\approx 2.0$ seconds
+\end{itemize}
+
+Using the standard second-order approximation, the required damping ratio ($\zeta$) and natural frequency ($\omega_n$) are derived as follows:
+\begin{equation}
+    \zeta = \frac{-\ln(0.05)}{\sqrt{\pi^2 + \ln^2(0.05)}} \approx 0.69
+\end{equation}
+\begin{equation}
+    \omega_n = \frac{4.6}{\zeta T_s} = \frac{4.6}{0.69 \times 2.0} \approx 3.33 \text{ rad/s}
+\end{equation}
+
+To implement this, the dominant closed-loop poles were placed at:
+\begin{equation}
+    p_{1,2} = -\zeta\omega_n \pm j\omega_n\sqrt{1-\zeta^2} \approx -2.31 \pm j2.39
+\end{equation}
+To minimize their impact on the transient response, the remaining two non-dominant poles were placed $10\times$ further to the left in the complex plane at $p_{3,4} \approx -23.1$.
+
+\subsubsection{MATLAB Implementation}
+The gain matrix $K$ was computed using the MATLAB \texttt{place(A,B,p)} function, which numerically solves the pole placement problem (Ackermann's formula). The resulting state-feedback gain matrix is:
+\begin{equation}
+    K = 
+    \begin{bmatrix} 
+    5.5561 & 0.5492 & -5.0580 & -0.3127 
+    \end{bmatrix}
+\end{equation}
+
+To ensure unity steady-state gain for a step input ($y_{ss} = r$), the feedforward gain $\bar{N}$ was calculated as:
+\begin{equation}
+    \bar{N} = \frac{1}{G_{closed-loop}(0)} = 0.4980
+\end{equation}
+
+% ------------------------------------------------------------------------
+% Guideline 10: State Feedback Response
+% ------------------------------------------------------------------------
+\subsection{Guideline 10: State-Feedback Simulation Results}
+
+The state-feedback controller was simulated using the Simulink model shown in Figure \ref{fig:simulink_sf}. The system was tested against Step, Square, and Sinusoidal inputs.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/Simulink 9-12/part10_simulink_diagrahm.png}
+    \caption{Simulink model used for state-feedback simulation.}
+    \label{fig:simulink_sf}
+\end{figure}
+
+\subsubsection{Response to Initial Conditions}
+To verify the regulator properties, the system was simulated with an arbitrary initial displacement $\mathbf{x}_0 = [0.1, 0, -0.1, 0]^T$ (twisting the disks in opposite directions) with zero reference input.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/Figures/Part9_step_input.png}
+    \caption{Zero-input response to initial conditions $\mathbf{x}_0 = [0.1, 0, -0.1, 0]^T$.}
+    \label{fig:sf_initial}
+\end{figure}
+
+As shown in Figure \ref{fig:sf_initial}, the controller successfully drives the initial error in $\theta_1$ (0.1 rad) to zero within approximately 1.9 seconds. This effectively meets the 2.0-second settling time requirement and confirms the system's stability.
+
+\subsubsection{Tracking Performance}
+The tracking performance for various reference inputs is presented below.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/Figures/Part9_step_big_init.png}
+    \caption{Closed-loop Step Response (State-Feedback).}
+    \label{fig:sf_step}
+\end{figure}
+
+\textbf{Analysis:} The step response (Fig. \ref{fig:sf_step}) shows a rise time consistent with the design frequency $\omega_n = 3.33$ rad/s. The overshoot is slightly higher than the theoretical 5\%, which is attributed to the influence of the plant zeros that were not accounted for in the all-pole approximation used for the design.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/Figures/Part10_squareWave_input.png}
+    \caption{Closed-loop Square Wave Response.}
+    \label{fig:sf_square}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/Figures/Part10_SineWave_input_smaller_init_cond.png}
+    \caption{Closed-loop Sinusoidal Response (4 rad/s).}
+    \label{fig:sf_sine}
+\end{figure}
+
+\textbf{Analysis:} In the sinusoidal response (Fig. \ref{fig:sf_sine}), the system tracks the 1 rad/s input with unity magnitude ratio. A small phase lag is observed, which is expected for a Type 0 system tracking a time-varying signal; however, the output remains stable and smooth.
+
+% ------------------------------------------------------------------------
+% Guideline 11: Observer Design
+% ------------------------------------------------------------------------
+\subsection{Guideline 11: Observer Design \& Simulation}
+
+In practical applications, measuring all state variables (specifically angular velocities) is often noisy or expensive. Therefore, an observer is designed to estimate the state vector $\hat{\mathbf{x}}$ from the available position measurements $\mathbf{y} = [\theta_1, \theta_2]^T$.
+
+\subsubsection{Full-Order Observer Implementation}
+A **Full-Order Luenberger Observer** was first designed to estimate the complete state vector. The observer dynamics are governed by:
+\begin{equation}
+    \dot{\hat{\mathbf{x}}} = (A - LC)\hat{\mathbf{x}} + Bu + L\mathbf{y}
+\end{equation}
+To ensure the estimation error $e(t) = x(t) - \hat{x}(t)$ converges to zero significantly faster than the controller dynamics, the observer poles were placed at locations $4\times$ faster (further left in the complex plane) than the controller poles.
+
+The calculated observer gain matrix $L$ is:
+\begin{equation}
+    L = 
+    \begin{bmatrix} 
+    103.2 & 4.7 \\
+    743.7 & 415.5 \\
+    -30.0 & 102.5 \\
+    -2870.9 & 596.3 
+    \end{bmatrix}
+\end{equation}
+
+The combined Controller-Observer system was simulated using the model in Figure \ref{fig:simulink_obs}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/Simulink 9-12/Part_11_simulink_diagrahm.png}
+    \caption{Simulink model including the Plant and the Full-Order Observer.}
+    \label{fig:simulink_obs}
+\end{figure}
+
+The tracking performance using the estimated states $\hat{\mathbf{x}}$ is shown below.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/Figures/part_11_step_input.png}
+    \caption{Step Response using Full-Order Observer States.}
+    \label{fig:obs_step}
+\end{figure}
+
+\textbf{Analysis:} In Figure \ref{fig:obs_step}, a transient "spike" is visible at $t=0$. This occurs because the observer is initialized at zero ($\hat{x}_0 = 0$) while the plant has non-zero initial conditions. The error dynamics converge rapidly (within approx. 0.5s), after which the system tracks the reference perfectly.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/Figures/part_11_square_input.png}
+    \caption{Square Wave Response using Full-Order Observer.}
+    \label{fig:obs_square}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/Figures/part_11_sine_input.png}
+    \caption{Sinusoidal Response using Full-Order Observer.}
+    \label{fig:obs_sine}
+\end{figure}
+
+% ------------------------------------------------------------------------
+% Reduced Order Section
+% ------------------------------------------------------------------------
+\subsubsection{Reduced-Order Observer Implementation}
+As per Guideline 11, a Reduced-Order Observer was also designed. Since the positions $\mathbf{x}_a = [\theta_1, \theta_2]^T$ are directly measured, it is theoretically sufficient to estimate only the unmeasured velocities $\mathbf{x}_b = [\dot{\theta}_1, \dot{\theta}_2]^T$.
+
+To design this, the state vector is partitioned into measured ($a$) and unmeasured ($b$) components:
+\begin{equation}
+    \dot{\mathbf{x}} = 
+    \begin{bmatrix} A_{aa} & A_{ab} \\ A_{ba} & A_{bb} \end{bmatrix} 
+    \begin{bmatrix} \mathbf{x}_a \\ \mathbf{x}_b \end{bmatrix} + 
+    \begin{bmatrix} B_a \\ B_b \end{bmatrix} u
+\end{equation}
+
+The dynamics of the reduced-order estimate $\hat{\mathbf{x}}_b$ are derived to be:
+\begin{equation}
+    \dot{\hat{\mathbf{x}}}_b = (A_{bb} - L_{red}A_{ab})\hat{\mathbf{x}}_b + A_{ba}\mathbf{x}_a + B_b u + L_{red}(\dot{\mathbf{x}}_a - A_{aa}\mathbf{x}_a)
+\end{equation}
+
+In implementation, a change of variables is often used to avoid differentiating the noisy measurement $\mathbf{x}_a$. The resulting step response for the reduced-order system is shown below.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/reduced_order step response.png}
+    \caption{Step Response using Reduced-Order Observer States.}
+    \label{fig:red_obs_step}
+\end{figure}
+
+As shown in Figure \ref{fig:red_obs_step}, the reduced-order observer achieves similar tracking performance to the full-order design under ideal conditions, successfully stabilizing the system.
+
+% ------------------------------------------------------------------------
+% Robustness Section
+% ------------------------------------------------------------------------
+\subsubsection{Robustness Testing \& Comparison}
+To evaluate the robustness of both designs, a noise injection test was performed. Band-limited white noise (Power $= 5 \times 10^{-7}$) was added to the plant output measurements $y$ to simulate sensor quantization and electromagnetic interference. We also added the same noise but on the order of 0.001 so see more dramatic effect on both full order and reduced order.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/Simulink_noise_diagram.png}
+    \caption{Simulink setup for noise injection testing.}
+    \label{fig:noise_diagram}
+\end{figure}
+
+The system response under noise for both observer types is presented below.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/n_full_order_step_response_with_noise.png}
+    \caption{Full-Order Observer Response with Measurement Noise.}
+    \label{fig:full_noise}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/n_reduced_order_step_response_with_noise.png}
+    \caption{Reduced-Order Observer Response with Measurement Noise.}
+    \label{fig:red_noise}
+\end{figure}
+
+
+Now testing with bigger noise 0.001 to clearly see the impact and stability
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/np_full_order_step_response_with_noise.png}
+    \caption{Full-Order Observer Response with Measurement Noise.}
+    \label{fig:full_noise}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/np_reduced_order_step_response_with_noise.png}
+    \caption{Reduced-Order Observer Response with Measurement Noise.}
+    \label{fig:red_noise}
+\end{figure}
+
+
+
+\textbf{Comparative Analysis:} 
+Both observers demonstrated robust performance, maintaining stability and tracking the reference step despite the noisy measurements. As observed in Figures \ref{fig:full_noise} and \ref{fig:red_noise}, the impact of the noise on the final load position ($\theta_2$) was negligible in both casesfor the normal noise and even with the exaggerated noise, the system remained stable.
+
+However, a theoretical distinction exists between the two:
+\begin{itemize}
+    \item \textbf{Full-Order Observer:} Utilizes the system model to estimate \textit{all} states. It effectively acts as a low-pass filter, smoothing out the high-frequency measurement noise before it enters the control loop.
+    \item \textbf{Reduced-Order Observer:} Assumes the measured states ($\theta_1, \theta_2$) are perfect and feeds them directly into the state vector. While computationally more efficient (Order 2 vs. Order 4), it lacks the inherent filtering property for the position states.
+\end{itemize}
+
+For this application, the Full-Order observer is preferred as it provides a cleaner internal state estimate without relying on the assumption of noise-free sensors.
+
+
+
+
+
+
+% ------------------------------------------------------------------------
+% Guideline 12: Compensator Analysis
+% ------------------------------------------------------------------------
+\subsection{Guideline 12: Compensator Transfer Function}
+
+The combination of the state-feedback law $u = -K\hat{\mathbf{x}}$ and the observer constitutes a single dynamic compensator $C(s)$. This compensator processes the measurements $\mathbf{y} = [\theta_1, \theta_2]^T$ to produce the control signal $u$ (Voltage).
+
+\subsubsection{Mathematical Derivation}
+Defining the compensator state matrix $A_{comp} = A - BK - LC$, input matrix $B_{comp} = L$, and output matrix $C_{comp} = -K$, the transfer function matrix is:
+\begin{equation}
+    C(s) = \frac{U(s)}{\mathbf{Y}(s)} = C_{comp}(sI - A_{comp})^{-1}B_{comp}
+\end{equation}
+
+Since the system has two measured outputs, the total control law is:
+\begin{equation}
+    U(s) = C_1(s)\Theta_1(s) + C_2(s)\Theta_2(s)
+\end{equation}
+
+Based on the design parameters, the resulting transfer functions from the Motor Position ($\theta_1$) and Load Position ($\theta_2$) to the Control Voltage ($u$) are:
+
+\begin{align}
+    \frac{U(s)}{\Theta_1(s)} &= 
+    \frac{-2031.4 \left(s + 95.3\right)\left(s^2 + 3.02s + 41.8\right)}
+         {\left(s - 3.8\right)\left(s + 95.3\right)\left(s^2 + 165.8s + 8643\right)}
+    \label{eq:U_theta1}
+    \\[6pt]
+    \frac{U(s)}{\Theta_2(s)} &= 
+    \frac{450.3 \left(s + 101\right)\left(s^2 + 1.98s + 160.6\right)}
+         {\left(s - 3.8\right)\left(s + 95.3\right)\left(s^2 + 165.8s + 8643\right)}
+    \label{eq:U_theta2}
+\end{align}
+
+Where we scaled the B matrix by k kw = 17.4, Voltage
+to Torque, so instead of the book given derived equation where we have Torque to position, here we have voltage to position.
+
+\subsubsection{Controller Type Analysis}
+Figure \ref{fig:comp_bode} displays the frequency response of the derived compensator.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/Figures/Compensator Bode Plot.png}
+    \caption{Bode plot of the combined Observer-Controller compensator.}
+    \label{fig:comp_bode}
+\end{figure}
+
+The Bode plot reveals that the state-space design automatically synthesized a sophisticated controller structure equivalent to a **Notch Filter cascaded with a Lead-Lag Compensator**:
+
+\begin{itemize}
+    \item \textbf{Notch Filter (Resonance Suppression):} 
+    Looking at the response from the Load ($\theta_2$) in the top-right subplot of Figure \ref{fig:comp_bode}, a distinct attenuation ("notch") is visible. This corresponds mathematically to the complex zeros in Equation (\ref{eq:U_theta2}):
+    \begin{equation}
+        \omega_{\text{notch}} = \sqrt{160.6} \approx 12.67 \text{ rad/s}
+    \end{equation}
+    This frequency aligns with the plant's resonant mode ($\omega_{res} \approx 12$ rad/s). The modern controller effectively "notches out" this frequency to prevent exciting the flexible shaft.
+    
+    \item \textbf{Phase Lead (Damping):} 
+    The phase plot exhibits a significant phase lead near the crossover frequency. This mimics the derivative ("D") action in classical control, providing the necessary damping ($\zeta \approx 0.69$) to stabilize the oscillatory plant.
+    
+    \item \textbf{Integral Action:} 
+    The high gain at low frequencies acts similarly to an integrator, ensuring zero steady-state error for step inputs.
+\end{itemize}
+
+
+
+
+
+
+
+% ========================================================================
+% Guidelines 13 & 14: Comparative Study
+% ========================================================================
+\section{Comparative Study: Classical vs. Modern Control}
+
+After spending considerable time designing and testing both control approaches on the same plant, this section summarizes what we learned about the strengths and weaknesses of each method. Both the PID controller (Guidelines 6--8) and the state-feedback controller (Guidelines 9--12) were designed for the same specs: 5\% overshoot and 2-second settling time.
+
+\subsection{Guideline 13: Advantages and Disadvantages}
+
+\subsubsection{Classical Control (PID) --- What We Observed}
+
+The PID approach was our first attempt, and honestly, it was frustrating. The controller structure is simple:
+\begin{equation}
+    u(t) = K_p e(t) + K_i \int e \, d\tau + K_d \dot{e}(t)
+\end{equation}
+
+We have three knobs to turn ($K_p$, $K_i$, $K_d$), but the plant is 4th-order with those nasty resonant poles at $\pm 16.1j$ rad/s. No matter how we tuned the gains, we could not get the settling time below about 15 seconds. The root locus showed us why: the branches from the complex poles kept heading toward the right-half plane whenever we increased gain.
+
+\textbf{What PID does well:}
+\begin{itemize}
+    \item Simple to implement---just three gains
+    \item Does not require a mathematical model of the plant (we could tune it by trial and error)
+    \item The integral term eliminated steady-state error, which was nice
+    \item Only needs one sensor (the output $\theta_2$)
+\end{itemize}
+
+\textbf{Where PID struggled:}
+\begin{itemize}
+    \item Could not handle the resonant modes---any attempt to speed up the response excited oscillations
+    \item The derivative term amplified sensor noise badly (we saw this in the large noise test)
+    \item Three degrees of freedom are simply not enough for a 4th-order system
+    \item Tuning felt like guesswork; there was no systematic way to place poles where we wanted them
+\end{itemize}
+
+\subsubsection{Modern Control (State Feedback) --- What We Observed}
+
+The state-feedback approach was more work upfront (we needed the full state-space model), but the results were much better. The control law is:
+\begin{equation}
+    u = -K\mathbf{x} + \bar{N}r
+\end{equation}
+
+With four gains (one per state), we could place all four closed-loop poles exactly where we wanted them using MATLAB's \texttt{place()} command. The math just worked---we asked for poles at $-2.3 \pm 2.4j$ and $-23$, and that is exactly what we got.
+
+\textbf{What state feedback does well:}
+\begin{itemize}
+    \item Guaranteed pole placement---if the system is controllable, we can put poles anywhere
+    \item Handled the resonant modes by moving them to well-damped locations
+    \item The observer acts as a built-in noise filter (we saw this in the robustness tests)
+    \item Systematic design procedure: pick desired poles $\rightarrow$ compute $K$ $\rightarrow$ done
+\end{itemize}
+
+\textbf{Where state feedback is harder:}
+\begin{itemize}
+    \item Requires an accurate mathematical model (garbage in, garbage out)
+    \item Cannot measure all states directly---we needed an observer to estimate velocities
+    \item More complex to implement (4 gains for controller + 8 gains for observer)
+    \item If the model is wrong, performance degrades (though we did not test this)
+\end{itemize}
+
+\subsection{Guideline 14: Numerical Comparison Through Simulation}
+
+To make a fair comparison, we tested both controllers under identical conditions in Simulink. Table \ref{tab:final_comparison} summarizes the results.
+
+\begin{table}[H]
+    \centering
+    \caption{Side-by-Side Performance Comparison}
+    \label{tab:final_comparison}
+    \begin{tabular}{l c c c}
+        \toprule
+        \textbf{Metric} & \textbf{Target} & \textbf{PID Result} & \textbf{State FB Result} \\
+        \midrule
+        Percent Overshoot & $\leq 5\%$ & $\sim$20\% & $\sim$7\% \\
+        Settling Time ($T_s$) & $\leq 2$ s & $\sim$15--20 s & $\sim$1.9 s \\
+        Steady-State Error & 0 & 0 & 0 \\
+        Small Noise Response & Stable & Stable & Stable \\
+        Large Noise Response & Stable & \textbf{Failed} & Stable \\
+        \midrule
+        \textbf{Specs Met?} & --- & \textbf{No} & \textbf{Yes} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsubsection{Step Response Comparison}
+
+The difference is stark. Figure \ref{fig:compare_step} shows both step responses side-by-side for direct comparison.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Q4-8_Figures/Q7_1_PID_Step_Response.png}
+        \textbf{(a) PID Controller}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Figure Part 9-11/Figures/Part9_step_input.png}
+        \textbf{(b) State Feedback}
+    \end{minipage}
+    \caption{Step response comparison: (a) PID controller with $T_s \approx 15$s and $\sim$20\% overshoot; (b) State-feedback controller with $T_s \approx 1.9$s and $\sim$7\% overshoot. The state-feedback design meets the 2-second settling time specification while PID does not.}
+    \label{fig:compare_step}
+\end{figure}
+
+Key observations:
+\begin{itemize}
+    \item \textbf{PID}: Slow rise, significant overshoot ($\sim$20\%), lots of oscillation during settling, takes about 15 seconds to settle.
+    \item \textbf{State Feedback}: Fast rise, small overshoot ($\sim$7\%), smooth settling, meets the 2-second target.
+\end{itemize}
+
+The PID's slow response is not because we tuned it poorly---we tried many different gain combinations. The problem is fundamental: with only 3 parameters, we cannot independently control where all 4 poles end up. The lightly-damped plant poles at $-0.18 \pm 16.1j$ constrain the achievable performance.
+
+\subsubsection{Tracking Performance}
+
+For the square wave and sinusoidal inputs, the bandwidth limitation of PID became obvious. Figure \ref{fig:compare_square} compares the square wave tracking, and Figure \ref{fig:compare_sine} compares the sinusoidal tracking.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Q4-8_Figures/Q7_2_PID_Square_Response.png}
+        \textbf{(a) PID Controller}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Figure Part 9-11/Figures/Part10_squareWave_input.png}
+        \textbf{(b) State Feedback}
+    \end{minipage}
+    \caption{Square wave tracking comparison: (a) PID controller smooths out the sharp transitions due to limited bandwidth---output never reaches the commanded levels; (b) State-feedback tracks the square wave much more accurately with faster rise/fall times.}
+    \label{fig:compare_square}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Q4-8_Figures/Q7_3_PID_Sine_Response.png}
+        \textbf{(a) PID Controller}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Figure Part 9-11/Figures/Part10_SineWave_input_smaller_init_cond.png}
+        \textbf{(b) State Feedback}
+    \end{minipage}
+    \caption{Sinusoidal tracking comparison: (a) PID controller shows significant amplitude attenuation ($\sim$70\%) and phase lag at 1 rad/s; (b) State-feedback tracks with near-unity gain and minimal phase lag due to higher closed-loop bandwidth.}
+    \label{fig:compare_sine}
+\end{figure}
+
+Key observations:
+\begin{itemize}
+    \item The PID controller smoothed out the square wave transitions---it simply could not respond fast enough.
+    \item For the 1 rad/s sine wave, the PID output was attenuated to about 30\% of the input amplitude with noticeable phase lag.
+\end{itemize}
+
+The state-feedback controller tracked both inputs much better because we could design for higher bandwidth without worrying about exciting the resonant modes---we had already moved those poles to safe locations.
+
+\subsubsection{Noise Robustness}
+
+This test was eye-opening. With small noise (power $= 5 \times 10^{-7}$), both controllers worked fine. But with larger noise (power $= 0.001$), the difference was dramatic, as shown in Figure \ref{fig:compare_noise}.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Q4-8_Figures/Q8_2_PID_LargeNoise_Combined.png}
+        \textbf{(a) PID with Large Noise}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\columnwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Figure Part 9-11/n_full_order_step_response_with_noise.png}
+        \textbf{(b) State FB with Noise}
+    \end{minipage}
+    \caption{Noise robustness comparison: (a) PID controller fails with large measurement noise---the derivative term amplifies high-frequency content, causing erratic output; (b) State-feedback with full-order observer successfully filters noise through the model-based estimation, maintaining clean tracking.}
+    \label{fig:compare_noise}
+\end{figure}
+
+Key observations:
+\begin{itemize}
+    \item \textbf{PID}: The derivative term amplified the noise, causing the control signal to become erratic. The output failed to track the reference.
+    \item \textbf{State Feedback with Observer}: The observer filtered out the high-frequency noise before it reached the controller. The output remained clean.
+\end{itemize}
+
+This makes sense in hindsight: the derivative term in PID computes $\dot{e}$, which is basically a high-pass filter on the error signal. High-frequency noise goes straight through. The observer, on the other hand, uses the plant model as a prediction, and only corrects based on the innovation (measurement minus prediction). This inherently filters noise.
+
+\subsection{Why PID Failed: The Degrees of Freedom Argument}
+
+The core issue is mathematical. A PID controller adds one pole (at the origin from the integrator) and two zeros (from the PD part) to the loop. The closed-loop characteristic equation becomes:
+\begin{equation}
+    1 + \underbrace{\frac{K_d s^2 + K_p s + K_i}{s}}_{\text{PID}} \cdot \underbrace{\frac{N(s)}{D(s)}}_{\text{Plant}} = 0
+\end{equation}
+
+This gives us a 5th-order polynomial with only 3 tunable coefficients ($K_p$, $K_i$, $K_d$). We simply cannot specify all 5 roots independently.
+
+State feedback, in contrast, directly modifies the state matrix:
+\begin{equation}
+    \dot{\mathbf{x}} = (A - BK)\mathbf{x}
+\end{equation}
+
+The closed-loop poles are the eigenvalues of $(A - BK)$, and with 4 elements in $K$, we have 4 degrees of freedom for a 4th-order system. This is exactly what we need.
+
+\subsection{What We Learned}
+
+This lab taught us several important lessons:
+
+\begin{enumerate}
+    \item \textbf{PID is not always enough.} For low-order systems with well-separated, well-damped poles, PID works great. For higher-order systems with resonant modes (like our torsional plant), it struggles.
+    
+    \item \textbf{Modern control requires more effort upfront.} We needed to derive the state-space model, check controllability/observability, design the observer, and compute the feedforward gain. But the payoff was guaranteed performance.
+    
+    \item \textbf{Observers are powerful.} Beyond just estimating unmeasured states, the observer provides built-in noise filtering. This was a nice bonus we did not initially expect.
+    
+    \item \textbf{The separation principle is real.} We designed the controller and observer independently (using the \texttt{place()} command twice), and the combined system worked exactly as predicted. The theory from class actually holds up.
+    
+    \item \textbf{Simulation is essential.} We could not have debugged the PID tuning or verified the observer design without Simulink. The ability to test different scenarios (noise, initial conditions, various inputs) saved us a lot of time.
+\end{enumerate}
+
+\subsection{When to Use Which Approach}
+
+Based on our experience, here is our recommendation:
+
+\textbf{Use PID when:}
+\begin{itemize}
+    \item The system is 1st or 2nd order
+    \item You do not have (or do not trust) a mathematical model
+    \item Implementation simplicity is a priority
+    \item The system has no lightly-damped resonances
+\end{itemize}
+
+\textbf{Use State Feedback when:}
+\begin{itemize}
+    \item The system is 3rd order or higher
+    \item You have a reliable state-space model
+    \item Strict performance specifications must be guaranteed
+    \item The system has resonant or oscillatory modes
+    \item Noise rejection is important
+\end{itemize}
+
+For our 2-DOF torsional plant, the choice was clear: state feedback with an observer was the right tool for the job. The PID controller was a useful learning exercise, but it could not meet the design specifications no matter how we tuned it.
+\section{Conclusion}
+% TODO: Final summary.
+
+\newpage
+
+% --- REFERENCES ---
+\begin{thebibliography}{9}
+    \bibitem{b1}
+    ECP Model 205 Lab Manual, Chapter 5: Plant Dynamic Models.
+    
+    \bibitem{b2}
+    ELEC 481 Linear Systems Lecture Notes, 2025.
+    
+    \bibitem{b3}
+    Ogata, K. (2010). \textit{Modern Control Engineering} (5th ed.). Prentice Hall.
+
+\end{thebibliography}
+
+\newpage
+
+% --- APPENDIX ---
+\onecolumn
+\appendix
+
+% ========================================================================
+% Appendix A: Guidelines 4-8 MATLAB Code
+% ========================================================================
+\section{Guideline 4 to 8 MATLAB Scripts}
+
+\subsection{System Parameters and Workspace Setup (sys\_params.m)}
+This script initializes all system parameters, derives the state-space model, computes the transfer function using \texttt{ss2tf()}, and sets up PID gains for Simulink.
+
+\begin{footnotesize}
+\begin{verbatim}
+%% ELEC 481 - Q4-Q8 Parameter Setup for Simulink
+clear; clc; close all;
+
+%% Hardware Gain
+kc = 10/32768;
+kaktkp = 0.70;
+ke = 16000/(2*pi);
+ka = 32;
+khw = kc * kaktkp * ke * ka;
+
+%% Plant #2 Parameters
+J1 = 0.0108;    % Disk 1 inertia (kg-m^2)
+J2 = 0.0103;    % Disk 2 inertia (kg-m^2)
+c1 = 0.007;     % Disk 1 damping (N-m-s/rad)
+c2 = 0.001;     % Disk 2 damping (N-m-s/rad)
+k1 = 1.37;      % Shaft stiffness (N-m/rad)
+
+%% State-Space Matrices (x = [theta1; omega1; theta2; omega2])
+A = [0,        1,         0,        0;
+     -k1/J1,   -c1/J1,    k1/J1,    0;
+     0,        0,         0,        1;
+     k1/J2,    0,         -k1/J2,   -c2/J2];
+
+B = [0; khw/J1; 0; 0];
+C = [1, 0, 0, 0;    % theta1
+     0, 0, 1, 0];   % theta2
+D = [0; 0];
+
+%% Transfer Functions (using ss2tf)
+sys_ss = ss(A, B, C, D);
+[num_tf, den_tf] = ss2tf(A, B, C, D);
+G2 = tf(num_tf(2,:), den_tf);  % theta2/u
+
+%% Open-Loop Pole Analysis
+poles_ol = pole(G2);
+fprintf('Open-Loop Poles:\n');
+for i = 1:length(poles_ol)
+    fprintf('  p%d = %.4f %+.4fj\n', i, real(poles_ol(i)), imag(poles_ol(i)));
+end
+
+%% Design Specs
+zeta_desired = 0.69;   % For 5% overshoot
+wn_desired = 3.33;     % For 2s settling time
+
+%% Initial Conditions
+X0_zero = [0; 0; 0; 0];
+X0_nonzero = [0.1; 0; 0; 0];
+
+%% PID Gains (conservative tuning)
+Kp = 0.00028;
+Ki = 0.000003;
+Kd = 0.0001;
+
+save('Q4_to_Q8_Workspace.mat');
+\end{verbatim}
+\end{footnotesize}
+
+\subsection{Q4: Open-Loop Figure Generation (Q4\_OpenLoop\_Figures.m)}
+This script generates impulse and step response plots for the open-loop system.
+
+\begin{footnotesize}
+\begin{verbatim}
+%% Q4: Open-Loop System Figure Generation
+clc;
+fprintf('Q4: Open-Loop System Figures\n');
+
+output_folder = 'Figures';
+if ~exist(output_folder, 'dir'), mkdir(output_folder); end
+
+%% Figure Q4.1: Impulse Response (Zero IC)
+t = out.impulse_response_zero_ic.Time;
+y = out.impulse_response_zero_ic.Data;
+
+figure('Color', 'w', 'Position', [100, 100, 800, 500]);
+hold on;
+plot(t, y(:,1), 'k--', 'LineWidth', 1.5, 'DisplayName', 'Cmd Position');
+plot(t, y(:,2), 'b-', 'LineWidth', 1.5, 'DisplayName', 'Disk 1');
+plot(t, y(:,3), 'r-.', 'LineWidth', 2, 'DisplayName', 'Disk 2');
+grid on; xlabel('Time (s)'); ylabel('Position (rad)');
+title('Open-Loop Impulse Response (Zero IC)');
+legend('show', 'Location', 'best');
+saveas(gcf, fullfile(output_folder, 'Q4_1_Impulse_Zero_IC.png'));
+
+% Similar code for Q4.2, Q4.3, Q4.4 (Non-Zero IC, Step responses)
+\end{verbatim}
+\end{footnotesize}
+
+\subsection{Q5: Bode and Root Locus (Q5\_Bode\_RootLocus\_Figures.m)}
+This script generates frequency-domain analysis plots.
+
+\begin{footnotesize}
+\begin{verbatim}
+%% Q5: Bode Plot and Root Locus
+clc;
+if ~exist('G2', 'var')
+    load('Q4_to_Q8_Workspace.mat');
+end
+
+output_folder = 'Figures';
+zeta_desired = 0.69;
+wn_desired = 3.33;
+
+%% System Analysis
+[poles_sys, zeros_sys] = pzmap(G2);
+[Gm, Pm, Wcg, Wcp] = margin(G2);
+fprintf('Gain Margin: %.2f dB at %.2f rad/s\n', 20*log10(Gm), Wcg);
+fprintf('Phase Margin: %.2f deg at %.2f rad/s\n', Pm, Wcp);
+
+%% Bode Plot
+figure('Color', 'w');
+[mag, phase, w] = bode(G2);
+subplot(2,1,1);
+semilogx(w, 20*log10(squeeze(mag)), 'b-', 'LineWidth', 2);
+ylabel('Magnitude (dB)'); grid on;
+subplot(2,1,2);
+semilogx(w, squeeze(phase), 'b-', 'LineWidth', 2);
+xlabel('Frequency (rad/s)'); ylabel('Phase (deg)'); grid on;
+saveas(gcf, fullfile(output_folder, 'Q5_1_Bode_Uncompensated.png'));
+
+%% Root Locus
+figure('Color', 'w');
+[r, k] = rlocus(G2);
+hold on;
+for i = 1:size(r,1)
+    plot(real(r(i,:)), imag(r(i,:)), '-', 'LineWidth', 2);
+end
+sgrid(zeta_desired, wn_desired);
+plot(real(poles_sys), imag(poles_sys), 'rx', 'MarkerSize', 14);
+xlabel('Real Axis'); ylabel('Imaginary Axis');
+title('Root Locus: G_2(s)');
+saveas(gcf, fullfile(output_folder, 'Q5_2_RootLocus_Uncompensated.png'));
+\end{verbatim}
+\end{footnotesize}
+
+\subsection{Q7-Q8: PID Response and Noise Testing (Q7\_Q8\_PID\_Figures.m)}
+This script generates PID closed-loop response and robustness test plots.
+
+\begin{footnotesize}
+\begin{verbatim}
+%% Q7 & Q8: PID Controller Figure Generation
+clc;
+output_folder = 'Figures';
+
+% Load PID gains
+if ~exist('Kp', 'var')
+    load('Q4_to_Q8_Workspace.mat', 'Kp', 'Ki', 'Kd');
+end
+pid_gains_str = sprintf('Kp=%.2e, Ki=%.2e, Kd=%.2e', Kp, Ki, Kd);
+
+%% Q7.1: PID Step Response
+t = out.pid_step_response.Time;
+y = out.pid_step_response.Data;
+figure('Color', 'w');
+plot(t, y(:,1), 'k--', t, y(:,2), 'b-', t, y(:,3), 'r-.', 'LineWidth', 1.5);
+xlabel('Time (s)'); ylabel('Position (rad)');
+title({'PID Step Response'; pid_gains_str});
+legend('Reference', 'Disk 1', 'Disk 2');
+saveas(gcf, fullfile(output_folder, 'Q7_1_PID_Step_Response.png'));
+
+%% Q8: Noise Robustness Test
+% Small noise (power = 5e-7)
+t_resp = out.pid_small_noise_response.Time;
+y_resp = out.pid_small_noise_response.Data;
+t_fb = out.pid_small_noise_feedback.Time;
+y_fb = out.pid_small_noise_feedback.Data;
+
+figure('Color', 'w');
+subplot(2,1,1);
+plot(t_resp, y_resp(:,1), 'k--', t_fb, y_fb(:,1), 'm-', 'LineWidth', 1.5);
+title('(A) Noisy Feedback'); ylabel('Position (rad)');
+subplot(2,1,2);
+plot(t_resp, y_resp(:,1), 'k--', t_resp, y_resp(:,3), 'b-', 'LineWidth', 1.5);
+title('(B) Actual Response'); xlabel('Time (s)'); ylabel('Position (rad)');
+sgtitle('Small Noise Test (Power = 5e-7)');
+saveas(gcf, fullfile(output_folder, 'Q8_1_PID_SmallNoise_Combined.png'));
+\end{verbatim}
+\end{footnotesize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.7\columnwidth]{Q4-8_Figures/Appendix_Q4_Simulink_Simple.png}
+    \caption{Simplified Simulink model for Q4 open-loop step response testing with zero initial conditions.}
+    \label{fig:appendix_q4_simple}
+\end{figure}
+
+% ========================================================================
+% Appendix B: Guidelines 9-12 MATLAB Code
+% ========================================================================
+\section{Guideline 9 to 12 MATLAB Scripts}
+Below is the MATLAB script used to derive the controller gain ($K$), observer gain ($L$), and compensator transfer function.
+
+\begin{footnotesize}
+\begin{verbatim}
+%% ELEC 481 - FINAL State-Feedback & Observer Design Script
+% author : Mathias Desrochers 40241734
+%
+% This script designs for Modern controller Section  (Guidelines 9-12):
+%   1. The State-Feedback Controller (K)
+%   2. The State-Observer (L)
+%   2. Full and reduced order
+%   3. The Feedforward Gain (Nbar)
+%   4. The matrices for the Simulink Observer Block (A_obs, B_obs...)
+%
+%  Must be Ran Before the simulink to initiat all fo teh variable 
+clc;
+clear;
+close all;
+
+%% ========================================================================
+%  PHASE 1: Ini9t variable 
+%  ========================================================================
+fprintf('PHASE 1: given parameters\n');
+%given Parameters
+J1 = 0.0108;    % kg-m^2 (Inertia of Disk 1 + motor)
+J2 = 0.0103;    % kg-m^2 (Inertia of Disk 2)
+k1 = 1.37;      % N-m/rad (Spring constant between J1 and J2)
+k2 = 0;         % N-m/rad (Spring constant of J2 to frame, 0 for free-clamped)
+c1 = 0.007;     % N-m-s/rad (Damping coefficient at J1)
+c2 = 0.001;     % N-m-s/rad (Damping coefficient at J2)
+
+% --- State-Space Matrices (from manual 2dofsection, Eq 5.1-3) ---
+% State vector x = [theta1; theta1_dot; theta2; theta2_dot]
+A = [0,             1,            0,                0;
+     -k1/J1,        -c1/J1,       k1/J1,            0;
+     0,             0,            0,                1;
+     k1/J2,         0,            -(k1+k2)/J2,      -c2/J2];
+
+B = [0;
+     1/J1;
+     0;
+     0];
+
+% We can measure theta1 and theta2 with the encoders.
+% y = [theta1; theta2]
+C = [1, 0, 0, 0;
+     0, 0, 1, 0];
+
+D = [0;
+     0];
+
+% Check Controllability & Observability
+ctrb_rank = rank(ctrb(A, B));
+obsv_rank = rank(obsv(A, C));
+fprintf('Controllability Rank: %d (Must be 4)\n', ctrb_rank);
+fprintf('Observability Rank: %d (Must be 4)\n', obsv_rank);
+if ctrb_rank < 4 || obsv_rank < 4
+    error('System is not controllable or observable. Check parameters.');
+end
+
+%% ========================================================================
+%  PHASE 2: CONTROLLER DESIGN (Guideline 9)
+%  ========================================================================
+fprintf('Designing Controller K...\n');
+
+zeta = 0.69;      % ~5% Overshoot
+sigma = 2.3;    %  Ts = 4.6/sigma = 2 sec
+wn = sigma / zeta; % Natural frequency
+wd = wn * sqrt(1-zeta^2); % Damped natural frequency
+
+p1 = -sigma + 1j*wd;
+p2 = -sigma - 1j*wd;
+p3 = -sigma * 10;
+p4 = -sigma * 10 - 1; 
+
+P_controller = [p1, p2, p3, p4];
+
+% --- Calculate Controller Gain K ---
+K = place(A, B, P_controller);
+fprintf('Controller Gain K:\n');
+disp(K);
+
+%% ========================================================================
+%  PHASE 3: OBSERVER DESIGN (Guideline 11)
+%  ========================================================================
+fprintf('Designing Observer L...\n');
+% --- Observer Poles (4x faster than controller) ---
+observer_speed_factor = 4; 
+P_observer = P_controller * observer_speed_factor;
+
+% --- Calculate Observer Gain L ---
+L = place(A', C', P_observer)';
+fprintf('Observer Gain L:\n');
+disp(L);
+
+%% ========================================================================
+%  PHASE 3.5: REDUCED-ORDER OBSERVER (SIMULINK MATRICES)
+%  ========================================================================
+
+% first we have to partition the original matrices (Measured 'a' vs Unmeasured 'b')
+% x_a = [theta1; theta2] (Measured)
+% x_b = [theta1_dot; theta2_dot] (Estimated)
+Aaa = A([1,3], [1,3]);
+Aab = A([1,3], [2,4]);
+Aba = A([2,4], [1,3]);
+Abb = A([2,4], [2,4]);
+
+Ba = B([1,3]);
+Bb = B([2,4]);
+
+% now calculate Reduced Gain L_red
+% we place 2 poles (since we only estimate 2 states)
+P_red = P_observer(1:2); 
+L_red = place(Abb', Aab', P_red)'; 
+
+% 3. Calculate the Internal Matrices (Dynamics of z)
+% z_dot = Ar_obs * z + Br_obs * y + Gr_obs * u
+Ar_obs = Abb - L_red * Aab;
+Br_obs = Ar_obs * L_red + Aba - L_red * Aaa;
+Gr_obs = Bb - L_red * Ba;
+
+% we need to resize it for simulink
+
+% A_sim: The dynamics of the observer state 'z' (2x2)
+Ar_sim = Ar_obs;
+ 
+% [u; theta1; theta2], so we concat Gr and Br.
+Br_sim = [Gr_obs, Br_obs]; 
+
+% C_sim & D_sim: Reconstructing the full state x_hat from z and y.
+% x_hat_a = y
+% x_hat_b = z + L_red * y
+
+% We construct rows to match the order: [th1, th1_dot, th2, th2_dot]
+
+% row 1 (Theta1): Just passes through measurement y1
+C1 = [0, 0];                % No z dependence
+D1 = [0, 1, 0];             % Selects y1 from input [u, y1, y2]
+
+% row 2 z1 + L_red terms
+C2 = [1, 0];                % Selects z1
+D2 = [0, L_red(1,1), L_red(1,2)]; % Adds L_red * y
+
+% Row 3 (Theta2): Just passes through measurement y2
+C3 = [0, 0];                % No z dependence
+D3 = [0, 0, 1];             % Selects y2 from input [u, y1, y2]
+
+% Row 4 z2 + L_red terms
+C4 = [0, 1];                % Selects z2
+D4 = [0, L_red(2,1), L_red(2,2)]; % Adds L_red * y
+
+% Combine them
+Cr_sim = [C1; C2; C3; C4];
+Dr_sim = [D1; D2; D3; D4];
+
+fprintf('Reduced Order Matrices done: Ar_sim, Br_sim, Cr_sim, Dr_sim\n');
+
+
+
+%% ========================================================================
+%  PHASE 4: FEEDFORWARD GAIN (Guideline 10)
+%  ========================================================================
+fprintf('Calculating Feedforward Gain Nbar...\n');
+C_theta2 = C(2, :); % C_theta2 = [0 0 1 0]
+D_theta2 = D(2);   % D_theta2 = 0
+
+
+sys_cl = ss(A - B*K, B, C_theta2, D_theta2); % closed-loop system dynamics ($A-BK$) 
+gain = dcgain(sys_cl); %Calculates the steady-state value (DC gain)
+
+
+Nbar = 1 / gain;
+fprintf('Feedforward Gain Nbar:\n');
+disp(Nbar);
+
+%% ========================================================================
+%  PHASE 5: the oberserver
+%  ========================================================================
+%  matrices for Observer block in Simulink.
+%  observer's state equation is:
+% x_hat_dot = (A-LC)x_hat + [B, L] * [u; y]
+%
+fprintf(' Observer Matrices for Simulink...\n');
+
+A_obs = A - L*C;
+
+% The observer block has 2 inputs:
+% 1. The control signal 'u'
+% 2. The measurement 'y'  theta1  theta2
+% So, B_obs combines the B and L matrices.
+B_obs = [B, L]; % This will be [4x3]
+
+% The observer's output is the full estimated state x_hat
+C_obs = eye(4); % This is a [4x4] identity matrix
+
+% The D matrix for the observer
+% It has 4 outputs (C_obs) and 3 inputs (B_obs)
+D_obs = zeros(4, 3);
+
+C_system = eye(4);
+D_system = zeros(4,1);
+
+
+x0_arbitrary = [0.5; 0; -0.5; 0];
+
+fprintf('\n-done ---');
+fprintf('\nAll variables (A, B, C, D, K, L, Nbar, A_obs, B_obs, C_obs, D_obs) are in the workspace.\n');
+
+%% ========================================================================
+%  PHASE 6: COMPENSATOR ANALYSIS (Guideline 12)
+%  ========================================================================
+fprintf('\nCompensator Transfer Function...\n');
+
+%  Compensator State-Space Matrices
+A_comp = A - B*K - L*C;
+B_comp = L;              
+C_comp = -K;             
+D_comp = zeros(1, 2);    
+
+% Create State-Space Object
+Compensator_Sys = ss(A_comp, B_comp, C_comp, D_comp);
+
+% Add Labels
+Compensator_Sys.InputName = {'\theta_1 (Motor)', '\theta_2 (Load)'};
+Compensator_Sys.OutputName = {'Voltage (u)'};
+
+% Convert to Transfer Function 
+[num, den] = tfdata(Compensator_Sys, 'v');
+
+
+fprintf('Compensator Transfer Functions (u / y):\n');
+display(zpk(Compensator_Sys));
+
+%Generate Bode plot
+figure('Color', 'w', 'Name', 'Compensator Bode Plot');
+h = bodeplot(Compensator_Sys);
+
+% Plot Appearance
+grid on;
+title('Frequency Response of the Designed Compensator (Guideline 12)', 'FontSize', 12);
+
+% Use plotting options to make it cleaner
+opts = getoptions(h);
+opts.Title.FontSize = 12;
+opts.XLabel.FontSize = 11;
+opts.YLabel.FontSize = 11;
+setoptions(h, opts);
+
+fprintf('done.\n');
+
+\end{verbatim}
+\end{footnotesize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/Simulink 9-12/part10_simulink_diagrahm.png}
+    \caption{Simulink model used for state-feedback simulation.}
+    \label{fig:simulink_sf}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/Simulink 9-12/Part_11_simulink_diagrahm.png}
+    \caption{Simulink model including the Plant and the Full-Order Observer.}
+    \label{fig:simulink_obs}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Figure Part 9-11/Simulink_noise_diagram.png}
+    \caption{Simulink setup for noise injection testing.}
+    \label{fig:noise_diagram}
+\end{figure}
+
+\end{document}
