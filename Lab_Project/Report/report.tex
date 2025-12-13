@@ -97,10 +97,9 @@ Fall 2025
 \onecolumn
 \begin{abstract}
 
-    % TODO: Write abstract here; brief summary of the lab's objectives, methods, and key findings.
-    % This section should be written LAST.
+This laboratory investigates the control of a two-degree-of-freedom torsional system using classical PID and modern state-feedback techniques. The fourth-order plant exhibits marginal stability and lightly damped resonant modes ($\zeta \approx 0.01$), posing significant control challenges. Design targets are 5\% overshoot and 2-second settling time.
 
-This laboratory investigates the modeling, analysis, and control of a two-degree-of-freedom (2-DOF) torsional system using both classical and modern control techniques. The plant is first characterized using a single-input, multiple-output transfer-function representation, from which an equivalent state-space model is derived. Open-loop properties, including stability, resonance, controllability, and observability, are analyzed. A classical proportional–integral–derivative (PID) controller is designed and evaluated using time- and frequency-domain methods. Due to performance limitations imposed by lightly damped resonant modes, a full state-feedback controller with a Luenberger observer is subsequently implemented. Both approaches are compared through simulation in terms of transient response, tracking performance, and robustness to measurement noise. The results demonstrate that while PID control can stabilize the system and eliminate steady-state error, state-feedback control provides superior transient performance and noise robustness for higher-order systems with resonant dynamics.
+A PID controller stabilizes the system but achieves only $\sim$20\% overshoot and 15--20s settling time due to insufficient degrees of freedom for independent pole placement. In contrast, state-feedback control with a Luenberger observer meets the specifications ($\sim$7\% overshoot, 1.9s settling time) by explicitly placing all closed-loop poles. Robustness testing shows that the observer-based design rejects measurement noise effectively, whereas the PID derivative term amplifies high-frequency disturbances. Results are validated through MATLAB/Simulink simulation.
 \end{abstract}
 
 % ==============================================================================
