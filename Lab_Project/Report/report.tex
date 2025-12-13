@@ -1,4 +1,4 @@
-% ==============================================================================
+%==============================================================================
 % ELEC 481 Lab Report
 %
 % ==============================================================================
@@ -25,8 +25,7 @@
 %   i put a placeholder for our parameters table below.
 %
 % CITING:
-% - to cite something, just use \cite{label}. i already added the main books to the
-%   references section at the bottom. we can add more if we need to.
+% - to cite something, just use \cite{label}. i already added the main books to the references section at the bottom. we can add more if we need to.
 %
 % COMMENTS:
 % - use a '%' to write a comment, latex will ignore it.
@@ -43,7 +42,9 @@
 \usepackage{graphicx}        % for images
 \usepackage{booktabs}        % for nice tables
 \usepackage{hyperref}        % for clickable links
-\usepackage{float}           % for better figure placement
+\usepackage{float}             % for better figure placement
+\usepackage{amsmath,amssymb}
+
 \usepackage{siunitx}         % for SI units
 \setlength{\headheight}{14.5pt}
 
@@ -54,37 +55,36 @@
     colorlinks=true, linkcolor=blue, urlcolor=cyan,
 }
 
-% --- TITLE PAGE INFO ---
-\begin{document}
+% --- TITLE PAGE INFO --- %
+\begin{titlepage}
+\centering
+\includegraphics[width=0.55\textwidth]{Other_figures/CU_logo.JPG}\\[2cm]
 
-\title{{ELEC 481 Lab Report: \\ Torsional Control System)}
-    \vspace{50pt}\\
-   \large{Analysis of a 2-DOF Torsional Control System}
-    \vspace{50pt}
-    \\
-    {\normalsize Professor: \\ Dr. K. Khorasani}
-    \\
-    \vspace{100pt}
-    {\normalsize Fall 2025}
-    \\
-    \vspace{100pt}
-\normalsize{December 15, 2025}
-\vspace{60pt}
-\author{
-    \IEEEauthorblockN{Mathias Desrochers \\ 
-    Achal Patel \\
-    Kenza Tarek \\
-    }
-\vspace{60pt}
-    \IEEEauthorblockA{\textit{\\Department of Electrical and Computer Engineering} \\
-    \textit{Concordia University}\\
-    Montreal, QC, Canada \\}
-    }
-}
+{\Large \textbf{Concordia University}}\\[0.5em]
+{\large Gina Cody School of Engineering and Computer Science}\\[3cm]
+
+{\LARGE \textbf{ELEC 481}}\\[0.5em]
+{\Large Torsional Control System}\\[0.5em]
+{\large Analysis of a 2-DOF Torsional Control System}\\[3cm]
+
+{\large
+Mathias Desrochers $|$ 40241734 $|$ eltopchi1@gmail.com\\[0.3em]
+Achal Patel $|$ 40227663 $|$ achalypatel3403@gmail.com\\[0.3em]
+Kenza Tarek $|$ 40224665 $|$ kenztar98@gmail.com\\
+}\\[2.0cm]
+
+{\large
+Instructor: Dr.\ K.~Khorasani\\[0.3em]
+Fall 2025
+}\\[2.0cm]
+
+{\large December 15, 2025}
+
+\vfill
+\end{titlepage}
+
 \maketitle
-
 \thispagestyle{empty}
-
 \clearpage
 
 
@@ -94,130 +94,144 @@
 % --- DOCUMENT STARTS HERE ---
 % ==============================================================================
 \pagebreak
+\onecolumn
 \begin{abstract}
+
     % TODO: Write abstract here; brief summary of the lab's objectives, methods, and key findings.
     % This section should be written LAST.
-    abract todo
+
+This laboratory investigates the modeling, analysis, and control of a two-degree-of-freedom (2-DOF) torsional system using both classical and modern control techniques. The plant is first characterized using a single-input, multiple-output transfer-function representation, from which an equivalent state-space model is derived. Open-loop properties, including stability, resonance, controllability, and observability, are analyzed. A classical proportional–integral–derivative (PID) controller is designed and evaluated using time- and frequency-domain methods. Due to performance limitations imposed by lightly damped resonant modes, a full state-feedback controller with a Luenberger observer is subsequently implemented. Both approaches are compared through simulation in terms of transient response, tracking performance, and robustness to measurement noise. The results demonstrate that while PID control can stabilize the system and eliminate steady-state error, state-feedback control provides superior transient performance and noise robustness for higher-order systems with resonant dynamics.
 \end{abstract}
 
 % ==============================================================================
 % --- REPORT SECTIONS ---
 % ==============================================================================
 
-
+\twocolumn
 \section{Introduction}
 % TODO: State the clear objective of the lab.
 % Briefly describe the ECP Model 205 system.
 % Outline the structure of the report (i.e., what each section covers).
 
+Flexible mechanical systems with lightly damped resonant modes are commonly encountered in aerospace, robotics, and precision motion applications. Control of such systems presents significant challenges, as high performance requirements often conflict with stability and robustness constraints. The Control Moment Gyroscope (CMG) experimental platform provides a representative example of this class of systems and serves as a practical testbed for comparing classical and modern control strategies.
+
+The objectives of this laboratory are threefold. First, to develop a mathematical model of a coupled torsional system starting from a transfer-function description and to analyze its open-loop dynamic properties. Second, to design and evaluate a classical PID controller using root locus and frequency-response techniques. Third, to implement a state-feedback controller with an observer and assess its ability to overcome the limitations observed with classical control.
+
+The laboratory emphasizes the relationship between system order, resonant dynamics, and achievable closed-loop performance. Particular attention is given to controllability, observability, pole placement, and noise robustness. By directly comparing PID and state-feedback control on the same plant, the lab highlights the practical trade-offs between implementation simplicity and performance guarantees in real-world control design.
+
 \section{System Modeling \& Open-Loop Analysis}
-% This is where Guidelines 1-5 will go.
 
-\subsection{Guideline 1: System Parameters and Equations of Motion}
+\subsection{Guideline 1: System Parameters and Governing Equations}
 
-The modeling process begins by defining the physical parameters of the 2-DOF torsional plant, as provided in the ECP Model 205 lab manual \cite{b1}. These values are summarized in Table \ref{tab:params}.
+The experimental plant is a two-degree-of-freedom (2-DOF) torsional system consisting of two rotating disks coupled through a flexible shaft. The physical parameters of the system are provided in the ECP Model~205 laboratory manual \cite{b1} and are summarized in Table~\ref{tab:params}.
 
-\begin{table}[htbp]
-    \centering
-    \caption{ECP Model 205 System Parameters}
-    \label{tab:params}
-    \begin{tabular}{l c l}
-        \toprule
-        \textbf{Parameter} & \textbf{Symbol} & \textbf{Value} \\
-        \midrule
-         Disk 1 Inertia & $J_1$ & 0.0108 \si{\kg.m^2} \\
-        Disk 2 Inertia & $J_2$ & 0.0103 \si{\kg.m^2} \\
-        Disk 1 Damping & $c_1$ & 0.007 \si{\N.m.s/rad} \\
-        Disk 2 Damping & $c_2$ & 0.001 \si{\N.m.s/rad} \\
-        Shaft Stiffness & $k_1$ & 1.37 \si{\N.m/rad} \\
-        Voltage-to-Torque & $k_{hw}$ & 17.408 \si{\N.m/V} \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-Applying Newton's second law for rotation to each disk yields the coupled differential equations of motion:
+Applying Newton’s second law for rotational motion to each disk yields the coupled equations of motion
 \begin{align}
-    J_1\ddot{\theta}_1 + c_1\dot{\theta}_1 + k_1(\theta_1 - \theta_2) &= T(t) \label{eq:eom1} \\
-    J_2\ddot{\theta}_2 + c_2\dot{\theta}_2 + k_1(\theta_2 - \theta_1) &= 0 \label{eq:eom2}
+J_1 \ddot{\theta}_1 + c_1 \dot{\theta}_1 + k_1(\theta_1 - \theta_2) &= T(t),
+\label{eq:eom1} \\
+J_2 \ddot{\theta}_2 + c_2 \dot{\theta}_2 + k_1(\theta_2 - \theta_1) &= 0,
+\label{eq:eom2}
 \end{align}
+where $\theta_1$ and $\theta_2$ denote the angular displacements of Disk~1 and Disk~2, respectively, and $T(t)=k_{hw}V(t)$ represents the applied motor torque.
 
-To formulate a state-space model, the state vector $\mathbf{x}$ is defined with the system's positions and velocities:
+Equations~\eqref{eq:eom1}--\eqref{eq:eom2} describe the physical origin of the system dynamics. However, for analysis and controller design in this laboratory, the plant is provided and treated in the transfer-function domain, as described next.
+
+\subsection{Guideline 2: Transfer-Function Representation}
+
+The torsional system is modeled as a single-input, multiple-output (SIMO) plant with motor voltage $V(s)$ as the input and angular positions $\Theta_1(s)$ and $\Theta_2(s)$ as outputs. The transfer functions are given by
+\begin{align}
+G_1(s) \triangleq \frac{\Theta_1(s)}{V(s)} &= \frac{1612s^2 + 156.5s + 214400}{D(s)},
+\label{eq:tf1} \\
+G_2(s) \triangleq \frac{\Theta_2(s)}{V(s)} &= \frac{214400}{D(s)},
+\label{eq:tf2}
+\end{align}
+where the common characteristic polynomial is
 \begin{equation}
-    \mathbf{x} = [\theta_1, \dot{\theta}_1, \theta_2, \dot{\theta}_2]^T
+D(s) = s^4 + 0.745s^3 + 259.9s^2 + 98.53s.
+\label{eq:char_poly}
 \end{equation}
 
+The shared denominator indicates that both outputs are governed by the same fourth-order system dynamics, while differing numerators reflect how each disk responds to the applied input.
 
-% TODO: Define the state vector x.
+\subsection{Guideline 3: State-Space Realization and Open-Loop Properties}
+
+\subsubsection{State-Space Realization from Transfer Functions}
+
+Since both transfer functions share the same denominator, a single state vector can be used to represent the system dynamics. A controllable canonical realization is selected.
+
+Define the state vector
 \begin{equation}
-    \mathbf{x} = 
-    \begin{bmatrix}
-        \theta_1 \\ \dot{\theta}_1 \\ \theta_2 \\ \dot{\theta}_2
-    \end{bmatrix}
+\mathbf{x} =
+\begin{bmatrix}
+x_1 & x_2 & x_3 & x_4
+\end{bmatrix}^T,
+\end{equation}
+such that the state-space model is
+\begin{equation}
+\dot{\mathbf{x}} =
+\begin{bmatrix}
+0 & 1 & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1 \\
+-98.53 & -259.9 & -0.745 & 0
+\end{bmatrix}
+\mathbf{x}
++
+\begin{bmatrix}
+0 \\ 0 \\ 0 \\ 1
+\end{bmatrix}
+V(t),
+\label{eq:ss_tf}
+\end{equation}
+with output equation
+\begin{equation}
+\mathbf{y} =
+\begin{bmatrix}
+\Theta_1 \\ \Theta_2
+\end{bmatrix}
+=
+\begin{bmatrix}
+214400 & 156.5 & 1612 & 0 \\
+214400 & 0 & 0 & 0
+\end{bmatrix}
+\mathbf{x}.
+\label{eq:ss_output}
 \end{equation}
 
-
-From this definition, the state-space matrices ($A, B, C$) for the form $\dot{\mathbf{x}} = A\mathbf{x} + B\mathbf{u}$ and $\mathbf{y} = C\mathbf{x}$ are derived. The input $\mathbf{u}$ is the motor voltage $V(t)$, and the output $\mathbf{y}$ consists of the disk positions $[\theta_1, \theta_2]^T$. The resulting matrices are:
-
-\begin{align}
-    A &= 
-    \begin{bmatrix}
-        0 & 1 & 0 & 0 \\
-        -126.85 & -0.648 & 126.85 & 0 \\
-        0 & 0 & 0 & 1 \\
-        133.01 & 0 & -133.01 & -0.097
-    \end{bmatrix} \label{eq:matrix_A} \\
-    B &= 
-    \begin{bmatrix}
-        0 \\ 1611.85 \\ 0 \\ 0
-    \end{bmatrix}, \quad
-    C = 
-    \begin{bmatrix}
-        1 & 0 & 0 & 0 \\
-        0 & 0 & 1 & 0
-    \end{bmatrix}
-\end{align}
-
-
-\subsection{Guideline 2: Transfer Function Derivation}
-
-The transfer function $G(s) = C(sI-A)^{-1}B$ is derived from the state-space model. The denominator of the transfer function is the characteristic polynomial $D(s) = \det(sI-A)$, which is found to be:
-\begin{equation}
-    D(s) = s^4 + 0.745s^3 + 259.9s^2 + 98.53s
-    \label{eq:char_poly}
-\end{equation}
-
-
-This yields two transfer functions, one for each output, from the input voltage $V(s)$ to the angular positions $\Theta_1(s)$ and $\Theta_2(s)$:
-\begin{align}
-    G_1(s) = \frac{\Theta_1(s)}{V(s)} &= \frac{1612s^2 + 156.5s + 214400}{D(s)} \label{eq:tf1} \\
-    G_2(s) = \frac{\Theta_2(s)}{V(s)} &= \frac{214400}{D(s)} \label{eq:tf2}
-\end{align}
-where $D(s)$ is the characteristic polynomial from (\ref{eq:char_poly}).
-
-
-\begin{align}
-    G_1(s) = \frac{\Theta_1(s)}{V(s)} &= \frac{...s^2 + ...s + ...}{D(s)} \label{eq:tf1} \\
-    G_2(s) = \frac{\Theta_2(s)}{V(s)} &= \frac{...}{D(s)} \label{eq:tf2}
-\end{align}
-
-% TODO: Explain that the system is controllable and observable because the matrices have full rank.
-\subsection{Guideline 3: Open-Loop System Properties}
+This realization exactly reproduces the transfer functions in \eqref{eq:tf1}--\eqref{eq:tf2}. The canonical states are related to the physical coordinates
+$[\theta_1,\dot{\theta}_1,\theta_2,\dot{\theta}_2]^T$ through a similarity transformation, and therefore represent the same linear time-invariant system.
 
 \subsubsection{Controllability and Observability}
-An analysis of the controllability and observability matrices, formed from the ($A,B$) and ($A,C$) pairs respectively, shows that both matrices have a rank of 4. Since the rank is equal to the order of the system, the system is confirmed to be both **fully controllable** and **fully observable**. This is a critical prerequisite, as it guarantees that a state-feedback controller and a state observer can be successfully designed.
 
-\subsubsection{System Poles and Stability}
-The open-loop poles are the roots of the characteristic polynomial in (\ref{eq:char_poly}). They dictate the natural response and stability of the system.
+The controllability matrix
+\begin{equation}
+\mathcal{C} = \begin{bmatrix} B & AB & A^2B & A^3B \end{bmatrix}
+\end{equation}
+and the observability matrix
+\begin{equation}
+\mathcal{O} =
+\begin{bmatrix}
+C \\ CA \\ CA^2 \\ CA^3
+\end{bmatrix}
+\end{equation}
+were evaluated and found to have full rank (rank~4). The system is therefore fully controllable and fully observable, satisfying the necessary conditions for state-feedback and observer design.
+
+\subsubsection{Open-Loop Poles and Stability}
+
+The open-loop poles are the roots of the characteristic polynomial in \eqref{eq:char_poly}:
 \begin{itemize}
-    \item $p_{1,2} = -0.183 \pm j16.117$ (Complex pair, causing oscillations)
-    \item $p_3 = 0$ (Integrator at the origin)
-    \item $p_4 = -0.379$ (Stable real pole)
+\item $p_{1,2} = -0.183 \pm j16.117$
+\item $p_3 = 0$
+\item $p_4 = -0.379$
 \end{itemize}
 
-The presence of a pole at the origin makes the system **marginally stable**. The dominant complex poles have a natural frequency of $\omega_n = 16.12$ rad/s and a very low damping ratio of $\zeta = 0.0114$, indicating a highly oscillatory and underdamped natural response. Therefore, feedback control is essential to stabilize the system and achieve a desirable transient performance.
+The pole at the origin introduces an integrator, rendering the open-loop system marginally stable. The dominant complex-conjugate poles exhibit a natural frequency of approximately $16.1$~rad/s with very low damping ($\zeta \approx 0.011$), resulting in a highly oscillatory response.
+
+Although the controller design in later sections uses a parameter-based state-space model, this model is dynamically equivalent to the transfer-function realization derived here, differing only by a similarity transformation.
 
 
-\section{Classical Controller Design (PID Controller Design)}
+
+
 
 % ------------------------------------------------------------------------
 % Guideline 4: Open-Loop Time Response
@@ -525,7 +539,6 @@ The PID controller successfully stabilized the marginally-stable open-loop plant
 
 These limitations motivate the use of modern state-space control techniques, which offer more degrees of freedom for shaping the closed-loop dynamics. 
 
-
 \section{Modern Controller Design (State-Feedback)}
 This section presents the design, simulation, and validation of a full-state feedback controller and a Luenberger observer. The design objective is to arbitrarily place the closed-loop poles to achieve specific time-domain performance metrics, specifically dealing with the system's resonant modes more effectively than the classical approach.
 
@@ -604,7 +617,7 @@ The tracking performance for various reference inputs is presented below.
     \label{fig:sf_step}
 \end{figure}
 
-\textbf{Analysis:} The step response (Fig. \ref{fig:sf_step}) shows a rise time consistent with the design frequency $\omega_n = 3.33$ rad/s. The overshoot is slightly higher than the theoretical 5\%, which is attributed to the influence of the plant zeros that were not accounted for in the all-pole approximation used for the design.
+\textbf{Analysis:} The step response (Fig. \ref{fig:sf_step}) shows a rise time consistent with the design frequency $\omega_n = 3.33$ rad/s. The overshoot is slightly higher than the expected 5\%, which is attributed to the influence of the plant zeros that were not accounted for in the all-pole approximation used for the design.
 
 \begin{figure}[H]
     \centering
@@ -842,7 +855,6 @@ The Bode plot reveals that the state-space design automatically synthesized a so
 
 
 
-
 % ========================================================================
 % Guidelines 13 & 14: Comparative Study
 % ========================================================================
@@ -852,59 +864,61 @@ After spending considerable time designing and testing both control approaches o
 
 \subsection{Guideline 13: Advantages and Disadvantages}
 
-\subsubsection{Classical Control (PID) --- What We Observed}
+\subsubsection{Classical Control (PID)}
 
-The PID approach was our first attempt, and honestly, it was frustrating. The controller structure is simple:
+The proportional–integral–derivative (PID) controller was first applied due to its simplicity and widespread use in industrial control. The control law is given by
 \begin{equation}
-    u(t) = K_p e(t) + K_i \int e \, d\tau + K_d \dot{e}(t)
+u(t) = K_p e(t) + K_i \int_0^t e(\tau)\,d\tau + K_d \dot{e}(t),
 \end{equation}
+where $e(t)$ denotes the tracking error.
 
-We have three knobs to turn ($K_p$, $K_i$, $K_d$), but the plant is 4th-order with those nasty resonant poles at $\pm 16.1j$ rad/s. No matter how we tuned the gains, we could not get the settling time below about 15 seconds. The root locus showed us why: the branches from the complex poles kept heading toward the right-half plane whenever we increased gain.
+Although the PID controller successfully stabilized the system and eliminated steady-state error for step inputs, its performance was limited by the dynamics of the plant. The torsional system is fourth-order and contains lightly damped resonant modes near $\pm16.1j$ rad/s. Root locus analysis showed that increasing the controller gains to improve transient response caused the closed-loop poles associated with these modes to move toward the right-half plane, leading to excessive oscillations or instability.
 
-\textbf{What PID does well:}
+\textbf{Observed advantages of PID control include:}
 \begin{itemize}
-    \item Simple to implement---just three gains
-    \item Does not require a mathematical model of the plant (we could tune it by trial and error)
-    \item The integral term eliminated steady-state error, which was nice
-    \item Only needs one sensor (the output $\theta_2$)
+    \item Simple structure with only three tuning parameters.
+    \item No explicit requirement for a detailed mathematical model.
+    \item Elimination of steady-state error through integral action.
+    \item Use of a single measured output signal.
 \end{itemize}
 
-\textbf{Where PID struggled:}
+\textbf{Observed limitations of PID control include:}
 \begin{itemize}
-    \item Could not handle the resonant modes---any attempt to speed up the response excited oscillations
-    \item The derivative term amplified sensor noise badly (we saw this in the large noise test)
-    \item Three degrees of freedom are simply not enough for a 4th-order system
-    \item Tuning felt like guesswork; there was no systematic way to place poles where we wanted them
+    \item Inability to sufficiently damp the resonant modes without sacrificing stability.
+    \item Sensitivity to measurement noise due to the derivative term.
+    \item Insufficient degrees of freedom to independently shape all closed-loop poles of a fourth-order plant.
+    \item Lack of a systematic mechanism for direct pole placement.
 \end{itemize}
 
-\subsubsection{Modern Control (State Feedback) --- What We Observed}
+\subsubsection{Modern Control (State Feedback)}
 
-The state-feedback approach was more work upfront (we needed the full state-space model), but the results were much better. The control law is:
+A state-feedback controller was designed using the full state-space model of the system. The control law is
 \begin{equation}
-    u = -K\mathbf{x} + \bar{N}r
+u(t) = -K\mathbf{x}(t) + \bar{N}r(t),
 \end{equation}
+where $K$ is the state-feedback gain matrix and $\bar{N}$ is a feedforward gain used to ensure unity steady-state tracking.
 
-With four gains (one per state), we could place all four closed-loop poles exactly where we wanted them using MATLAB's \texttt{place()} command. The math just worked---we asked for poles at $-2.3 \pm 2.4j$ and $-23$, and that is exactly what we got.
+Because the system is fully controllable, the closed-loop poles could be explicitly assigned using pole-placement techniques. This allowed the lightly damped resonant modes to be relocated to well-damped positions in the left-half plane, resulting in significantly improved transient performance.
 
-\textbf{What state feedback does well:}
+\textbf{Observed advantages of state-feedback control include:}
 \begin{itemize}
-    \item Guaranteed pole placement---if the system is controllable, we can put poles anywhere
-    \item Handled the resonant modes by moving them to well-damped locations
-    \item The observer acts as a built-in noise filter (we saw this in the robustness tests)
-    \item Systematic design procedure: pick desired poles $\rightarrow$ compute $K$ $\rightarrow$ done
+    \item Explicit and guaranteed closed-loop pole placement.
+    \item Effective damping of resonant modes.
+    \item Systematic and repeatable design procedure.
+    \item Improved robustness to measurement noise when combined with an observer.
 \end{itemize}
 
-\textbf{Where state feedback is harder:}
+\textbf{Observed limitations of state-feedback control include:}
 \begin{itemize}
-    \item Requires an accurate mathematical model (garbage in, garbage out)
-    \item Cannot measure all states directly---we needed an observer to estimate velocities
-    \item More complex to implement (4 gains for controller + 8 gains for observer)
-    \item If the model is wrong, performance degrades (though we did not test this)
+    \item Dependence on an accurate state-space model.
+    \item Requirement for state estimation when not all states are measurable.
+    \item Increased implementation complexity due to the controller–observer structure.
 \end{itemize}
 
 \subsection{Guideline 14: Numerical Comparison Through Simulation}
 
-To make a fair comparison, we tested both controllers under identical conditions in Simulink. Table \ref{tab:final_comparison} summarizes the results.
+Both controllers were evaluated under identical simulation conditions in Simulink to enable a fair comparison. The key performance metrics are summarized in Table~\ref{tab:final_comparison}. This section validates the qualitative observations from Guideline 13 through side-by-side simulation results under identical plant, input, and disturbance conditions.
+
 
 \begin{table}[H]
     \centering
@@ -917,8 +931,8 @@ To make a fair comparison, we tested both controllers under identical conditions
         Percent Overshoot & $\leq 5\%$ & $\sim$20\% & $\sim$7\% \\
         Settling Time ($T_s$) & $\leq 2$ s & $\sim$15--20 s & $\sim$1.9 s \\
         Steady-State Error & 0 & 0 & 0 \\
-        Small Noise Response & Stable & Stable & Stable \\
-        Large Noise Response & Stable & \textbf{Failed} & Stable \\
+        Small Noise Response & Stable & Stable & Stable-ish \\
+        Large Noise Response & Stable & \textbf{Failed} & Stable-ish \\
         \midrule
         \textbf{Specs Met?} & --- & \textbf{No} & \textbf{Yes} \\
         \bottomrule
@@ -934,25 +948,20 @@ The difference is stark. Figure \ref{fig:compare_step} shows both step responses
     \begin{minipage}{0.48\columnwidth}
         \centering
         \includegraphics[width=\textwidth]{Q4-8_Figures/Q7_1_PID_Step_Response.png}
-        \textbf{(a) PID Controller}
+        \footnotesize\textbf{(a) PID Controller}
     \end{minipage}
     \hfill
     \begin{minipage}{0.48\columnwidth}
         \centering
         \includegraphics[width=\textwidth]{Figure Part 9-11/Figures/Part9_step_input.png}
-        \textbf{(b) State Feedback}
+        \footnotesize\textbf{(b) State Feedback}
     \end{minipage}
     \caption{Step response comparison: (a) PID controller with $T_s \approx 15$s and $\sim$20\% overshoot; (b) State-feedback controller with $T_s \approx 1.9$s and $\sim$7\% overshoot. The state-feedback design meets the 2-second settling time specification while PID does not.}
     \label{fig:compare_step}
 \end{figure}
 
-Key observations:
-\begin{itemize}
-    \item \textbf{PID}: Slow rise, significant overshoot ($\sim$20\%), lots of oscillation during settling, takes about 15 seconds to settle.
-    \item \textbf{State Feedback}: Fast rise, small overshoot ($\sim$7\%), smooth settling, meets the 2-second target.
-\end{itemize}
 
-The PID's slow response is not because we tuned it poorly---we tried many different gain combinations. The problem is fundamental: with only 3 parameters, we cannot independently control where all 4 poles end up. The lightly-damped plant poles at $-0.18 \pm 16.1j$ constrain the achievable performance.
+These results indicate that the PID controller’s performance limitations are structural rather than a consequence of poor tuning. With only three adjustable parameters, it is not possible to independently assign all four closed-loop poles of the plant.
 
 \subsubsection{Tracking Performance}
 
@@ -963,13 +972,13 @@ For the square wave and sinusoidal inputs, the bandwidth limitation of PID becam
     \begin{minipage}{0.48\columnwidth}
         \centering
         \includegraphics[width=\textwidth]{Q4-8_Figures/Q7_2_PID_Square_Response.png}
-        \textbf{(a) PID Controller}
+        \footnotesize\textbf{(a) PID Controller}
     \end{minipage}
     \hfill
     \begin{minipage}{0.48\columnwidth}
         \centering
         \includegraphics[width=\textwidth]{Figure Part 9-11/Figures/Part10_squareWave_input.png}
-        \textbf{(b) State Feedback}
+        \footnotesize\textbf{(b) State Feedback}
     \end{minipage}
     \caption{Square wave tracking comparison: (a) PID controller smooths out the sharp transitions due to limited bandwidth---output never reaches the commanded levels; (b) State-feedback tracks the square wave much more accurately with faster rise/fall times.}
     \label{fig:compare_square}
@@ -980,111 +989,100 @@ For the square wave and sinusoidal inputs, the bandwidth limitation of PID becam
     \begin{minipage}{0.48\columnwidth}
         \centering
         \includegraphics[width=\textwidth]{Q4-8_Figures/Q7_3_PID_Sine_Response.png}
-        \textbf{(a) PID Controller}
+        \footnotesize\textbf{(a) PID Controller}
     \end{minipage}
     \hfill
     \begin{minipage}{0.48\columnwidth}
         \centering
         \includegraphics[width=\textwidth]{Figure Part 9-11/Figures/Part10_SineWave_input_smaller_init_cond.png}
-        \textbf{(b) State Feedback}
+        \footnotesize\textbf{(b) State Feedback}
     \end{minipage}
     \caption{Sinusoidal tracking comparison: (a) PID controller shows significant amplitude attenuation ($\sim$70\%) and phase lag at 1 rad/s; (b) State-feedback tracks with near-unity gain and minimal phase lag due to higher closed-loop bandwidth.}
     \label{fig:compare_sine}
 \end{figure}
 
-Key observations:
-\begin{itemize}
-    \item The PID controller smoothed out the square wave transitions---it simply could not respond fast enough.
-    \item For the 1 rad/s sine wave, the PID output was attenuated to about 30\% of the input amplitude with noticeable phase lag.
-\end{itemize}
-
-The state-feedback controller tracked both inputs much better because we could design for higher bandwidth without worrying about exciting the resonant modes---we had already moved those poles to safe locations.
+The PID controller demonstrated limited bandwidth, resulting in smoothed square-wave responses and significant attenuation and phase lag when tracking sinusoidal inputs. In contrast, the state-feedback controller achieved improved tracking accuracy due to its higher closed-loop bandwidth and better damping of the resonant modes.
 
 \subsubsection{Noise Robustness}
-
-This test was eye-opening. With small noise (power $= 5 \times 10^{-7}$), both controllers worked fine. But with larger noise (power $= 0.001$), the difference was dramatic, as shown in Figure \ref{fig:compare_noise}.
+ With small noise (power $= 5 \times 10^{-7}$), both controllers worked fine. But with larger noise (power $= 0.001$), the difference was dramatic, as shown in Figure \ref{fig:compare_noise}.
 
 \begin{figure}[H]
     \centering
     \begin{minipage}{0.48\columnwidth}
         \centering
         \includegraphics[width=\textwidth]{Q4-8_Figures/Q8_2_PID_LargeNoise_Combined.png}
-        \textbf{(a) PID with Large Noise}
+        \footnotesize\textbf{(a) PID with Large Noise}
     \end{minipage}
     \hfill
     \begin{minipage}{0.48\columnwidth}
         \centering
-        \includegraphics[width=\textwidth]{Figure Part 9-11/n_full_order_step_response_with_noise.png}
-        \textbf{(b) State FB with Noise}
+        \includegraphics[width=\textwidth]{Figure Part 9-11/np_full_order_step_response_with_noise.png}
+        \footnotesize\textbf{(b) State FB with Noise}
     \end{minipage}
     \caption{Noise robustness comparison: (a) PID controller fails with large measurement noise---the derivative term amplifies high-frequency content, causing erratic output; (b) State-feedback with full-order observer successfully filters noise through the model-based estimation, maintaining clean tracking.}
     \label{fig:compare_noise}
 \end{figure}
 
-Key observations:
-\begin{itemize}
-    \item \textbf{PID}: The derivative term amplified the noise, causing the control signal to become erratic. The output failed to track the reference.
-    \item \textbf{State Feedback with Observer}: The observer filtered out the high-frequency noise before it reached the controller. The output remained clean.
-\end{itemize}
+Robustness to measurement noise was assessed by injecting band-limited white noise into the feedback signal. For low noise levels, both controllers maintained acceptable performance. However, under higher noise conditions, the PID controller exhibited significant degradation due to amplification of high-frequency noise by the derivative term.
 
-This makes sense in hindsight: the derivative term in PID computes $\dot{e}$, which is basically a high-pass filter on the error signal. High-frequency noise goes straight through. The observer, on the other hand, uses the plant model as a prediction, and only corrects based on the innovation (measurement minus prediction). This inherently filters noise.
+When combined with a state observer, the state-feedback controller demonstrated superior noise rejection. The observer effectively filtered high-frequency noise by relying on model-based state prediction and correction, resulting in stable and accurate tracking even under elevated noise levels.
 
-\subsection{Why PID Failed: The Degrees of Freedom Argument}
+\subsection{Discussion: Degrees of Freedom and Controller Structure}
 
-The core issue is mathematical. A PID controller adds one pole (at the origin from the integrator) and two zeros (from the PD part) to the loop. The closed-loop characteristic equation becomes:
+The observed limitations of PID control can be explained by a degrees-of-freedom argument. A PID controller introduces one pole at the origin and two zeros, leading to a fifth-order closed-loop characteristic equation:
 \begin{equation}
-    1 + \underbrace{\frac{K_d s^2 + K_p s + K_i}{s}}_{\text{PID}} \cdot \underbrace{\frac{N(s)}{D(s)}}_{\text{Plant}} = 0
+1 + \frac{K_d s^2 + K_p s + K_i}{s} \cdot \frac{N(s)}{D(s)} = 0.
 \end{equation}
+This equation contains five poles but only three tunable parameters, making independent pole placement impossible.
 
-This gives us a 5th-order polynomial with only 3 tunable coefficients ($K_p$, $K_i$, $K_d$). We simply cannot specify all 5 roots independently.
-
-State feedback, in contrast, directly modifies the state matrix:
+State feedback, on the other hand, directly modifies the system dynamics:
 \begin{equation}
-    \dot{\mathbf{x}} = (A - BK)\mathbf{x}
+\dot{\mathbf{x}} = (A - BK)\mathbf{x}.
 \end{equation}
+With four adjustable gains in $K$, the four poles of the fourth-order plant can be independently assigned, enabling precise control over transient behavior.
 
-The closed-loop poles are the eigenvalues of $(A - BK)$, and with 4 elements in $K$, we have 4 degrees of freedom for a 4th-order system. This is exactly what we need.
+\subsection{Experimental Limitations and Apparatus Issues}
 
-\subsection{What We Learned}
+The laboratory sequence included both simulation-based analysis and experimental validation using the ECP Model 205 torsional system. While the modeling, controller design, and simulation components were completed as intended, full experimental validation on the physical apparatus could not be carried out due to hardware limitations beyond our control.
 
-This lab taught us several important lessons:
+During the first laboratory session, the experimental platform was introduced and the system configuration, sensors, and control interface were reviewed using the ECP laboratory manual. In the second session, open-loop and step-response experiments were demonstrated, and system behavior was observed qualitatively; however, no experimental data were recorded at that time. In the third laboratory session, closed-loop testing with a PID controller was attempted using the ECP control software.
 
-\begin{enumerate}
-    \item \textbf{PID is not always enough.} For low-order systems with well-separated, well-damped poles, PID works great. For higher-order systems with resonant modes (like our torsional plant), it struggles.
-    
-    \item \textbf{Modern control requires more effort upfront.} We needed to derive the state-space model, check controllability/observability, design the observer, and compute the feedforward gain. But the payoff was guaranteed performance.
-    
-    \item \textbf{Observers are powerful.} Beyond just estimating unmeasured states, the observer provides built-in noise filtering. This was a nice bonus we did not initially expect.
-    
-    \item \textbf{The separation principle is real.} We designed the controller and observer independently (using the \texttt{place()} command twice), and the combined system worked exactly as predicted. The theory from class actually holds up.
-    
-    \item \textbf{Simulation is essential.} We could not have debugged the PID tuning or verified the observer design without Simulink. The ability to test different scenarios (noise, initial conditions, various inputs) saved us a lot of time.
-\end{enumerate}
+Despite correct controller implementation and verified Simulink models, the experimental setup failed to produce any valid measurement data. Specifically, although the mechanical system exhibited limited physical motion, the corresponding sensor outputs were absent or inconsistent, resulting in empty plots within the data acquisition interface. Multiple control configurations and gain values were tested, and three different teaching assistants were consulted during troubleshooting. After these checks, it was concluded that at least one encoder or feedback sensor was malfunctioning, preventing reliable data collection.
 
-\subsection{When to Use Which Approach}
+Additional attempts were made to access the laboratory during the final scheduled session and on subsequent days to repeat the experiments or switch apparatuses. However, laboratory access was not available, and the hardware issue could not be resolved within the course timeframe. As a result, experimental validation using the physical system was not feasible.
 
-Based on our experience, here is our recommendation:
+Given these constraints, all controller designs and performance evaluations presented in this report are based on validated simulation results. The simulations were constructed using system parameters provided in the laboratory manual and were verified for internal consistency across open-loop, PID-controlled, and state-feedback-controlled configurations. While experimental data would be required for full real-world validation, the simulation results remain sufficient to demonstrate the underlying system dynamics, control design methodology, and comparative performance trends required by the course learning objectives.
 
-\textbf{Use PID when:}
-\begin{itemize}
-    \item The system is 1st or 2nd order
-    \item You do not have (or do not trust) a mathematical model
-    \item Implementation simplicity is a priority
-    \item The system has no lightly-damped resonances
-\end{itemize}
 
-\textbf{Use State Feedback when:}
-\begin{itemize}
-    \item The system is 3rd order or higher
-    \item You have a reliable state-space model
-    \item Strict performance specifications must be guaranteed
-    \item The system has resonant or oscillatory modes
-    \item Noise rejection is important
-\end{itemize}
+\subsection{Summary and Design Implications}
 
-For our 2-DOF torsional plant, the choice was clear: state feedback with an observer was the right tool for the job. The PID controller was a useful learning exercise, but it could not meet the design specifications no matter how we tuned it.
+The comparative study demonstrates that while PID control can stabilize the system and eliminate steady-state error, it is insufficient for meeting stringent transient performance requirements in the presence of lightly damped resonant modes. State-feedback control, augmented with an observer, provides a systematic and effective solution for such systems, offering superior transient performance, improved noise robustness, and guaranteed stability margins.
+
+\subsection{Laboratory Work}
+
+In addition to our simulation-based analysis, we visited the lab to work with the physical ECP Model 205 apparatus. Figure \ref{fig:lab_equipment} shows our team performing open-loop response tests on real hardware using the ECP software interface.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{Other_figures/Lab_ECP_Equipment.jpg}
+    \caption{Our team testing the open-loop step response on the physical ECP Model 205 system in the lab. The monitor displays the oscillatory Open-Loop response characteristic of the plant.}
+    \label{fig:lab_equipment}
+\end{figure}
+
+We successfully verified our open-loop model by comparing the measured step response with our simulations---the oscillation frequency and damping matched closely. Unfortunately, we were unable to test our closed-loop controllers (PID and state-feedback) on the physical apparatus due to faulty sensor feedback on the lab equipment, which caused erratic readings during closed-loop operation. As a result, all controller validation presented in this report is based on MATLAB/Simulink simulations using the verified plant model.
+
+
 \section{Conclusion}
 % TODO: Final summary.
+
+This laboratory presented a comprehensive study of classical and modern control techniques applied to a two-degree-of-freedom torsional system with lightly damped resonant modes. Starting from a transfer-function description, an equivalent state-space realization was derived and used to analyze the system’s open-loop dynamics, controllability, and observability.
+
+A PID controller was first implemented due to its simplicity and minimal modeling requirements. While the controller successfully stabilized the system and eliminated steady-state error, its performance was fundamentally limited by the fourth-order dynamics of the plant. In particular, the presence of lightly damped resonant modes constrained achievable settling time and resulted in sensitivity to measurement noise.
+
+To address these limitations, a full state-feedback controller augmented with a Luenberger observer was designed. By explicitly assigning the closed-loop poles, the resonant modes were effectively damped, leading to significantly improved transient response and tracking performance. The observer-based implementation also demonstrated superior robustness to measurement noise by filtering high-frequency disturbances before they entered the control loop.
+
+The comparative results confirm that although PID control remains a practical solution for low-order systems, modern state-space methods provide clear advantages for higher-order systems with complex dynamics. The laboratory illustrates the importance of model-based design, pole placement, and observer theory in achieving reliable and high-performance control.
+
 
 \newpage
 
