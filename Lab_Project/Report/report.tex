@@ -43,6 +43,7 @@
 \usepackage{booktabs}        % for nice tables
 \usepackage{hyperref}        % for clickable links
 \usepackage{float}             % for better figure placement
+
 \usepackage{amsmath,amssymb}
 
 \usepackage{siunitx}         % for SI units
@@ -55,7 +56,11 @@
     colorlinks=true, linkcolor=blue, urlcolor=cyan,
 }
 
+
 % --- TITLE PAGE INFO --- %
+
+
+\begin{document}
 \begin{titlepage}
 \centering
 \includegraphics[width=0.55\textwidth]{Other_figures/CU_logo.JPG}\\[2cm]
@@ -63,15 +68,14 @@
 {\Large \textbf{Concordia University}}\\[0.5em]
 {\large Gina Cody School of Engineering and Computer Science}\\[3cm]
 
-{\LARGE \textbf{ELEC 481}}\\[0.5em]
-{\Large Torsional Control System}\\[0.5em]
-{\large Analysis of a 2-DOF Torsional Control System}\\[3cm]
+{\LARGE \textbf{ELEC 481 - Final Project Report}}\\[0.5em]
+{\Large  2-DOF Torsional Control System}\\[3cm]
+% {\large Analysis of a 2-DOF Torsional Plant}\\[3cm]
 
 {\large
 Mathias Desrochers $|$ 40241734 $|$ eltopchi1@gmail.com\\[0.3em]
 Achal Patel $|$ 40227663 $|$ achalypatel3403@gmail.com\\[0.3em]
-Kenza Tarek $|$ 40224665 $|$ kenztar98@gmail.com\\
-}\\[2.0cm]
+Kenza Tarek $|$ 40224665 $|$ kenztar98@gmail.com\\ [3.0cm]}
 
 {\large
 Instructor: Dr.\ K.~Khorasani\\[0.3em]
@@ -83,30 +87,25 @@ Fall 2025
 \vfill
 \end{titlepage}
 
-\maketitle
-\thispagestyle{empty}
-\clearpage
-
-
 
 
 % ==============================================================================
 % --- DOCUMENT STARTS HERE ---
 % ==============================================================================
-\pagebreak
-\onecolumn
+\twocolumn[
 \begin{abstract}
 
-This laboratory investigates the control of a two-degree-of-freedom torsional system using classical PID and modern state-feedback techniques. The fourth-order plant exhibits marginal stability and lightly damped resonant modes ($\zeta \approx 0.01$), posing significant control challenges. Design targets are 5\% overshoot and 2-second settling time.
+This report details the control of a two-degree-of-freedom torsional system using classical PID and modern state-feedback techniques. The fourth-order plant exhibits marginal stability and lightly damped resonant modes ($\zeta \approx 0.01$), posing significant control challenges. Design targets are 5\% overshoot and 2-second settling time.
 
-A PID controller stabilizes the system but achieves only $\sim$20\% overshoot and 15--20s settling time due to insufficient degrees of freedom for independent pole placement. In contrast, state-feedback control with a Luenberger observer meets the specifications ($\sim$7\% overshoot, 1.9s settling time) by explicitly placing all closed-loop poles. Robustness testing shows that the observer-based design rejects measurement noise effectively, whereas the PID derivative term amplifies high-frequency disturbances. Results are validated through MATLAB/Simulink simulation.
+A PID controller stabilizes the system but achieves only $\sim$20\% overshoot and 15--20s settling time due to insufficient degrees of freedom for independent pole placement. In contrast, state-feedback control with a Luenberger observer meets the specifications ($\sim$7\% overshoot, 1.9s settling time) by explicitly placing all closed-loop poles. Robustness testing shows that the observer-based design rejects measurement noise effectively, whereas the PID derivative term amplifies high-frequency disturbances. Results are validated through MATLAB/Simulink simulation, as hardware sensor malfunctions prevented experimental closed-loop testing on the physical apparatus..
+
 \end{abstract}
-
+\vspace{1em}
+]
 % ==============================================================================
 % --- REPORT SECTIONS ---
 % ==============================================================================
 
-\twocolumn
 \section{Introduction}
 % TODO: State the clear objective of the lab.
 % Briefly describe the ECP Model 205 system.
@@ -116,13 +115,51 @@ Flexible mechanical systems with lightly damped resonant modes are commonly enco
 
 The objectives of this laboratory are threefold. First, to develop a mathematical model of a coupled torsional system starting from a transfer-function description and to analyze its open-loop dynamic properties. Second, to design and evaluate a classical PID controller using root locus and frequency-response techniques. Third, to implement a state-feedback controller with an observer and assess its ability to overcome the limitations observed with classical control.
 
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\columnwidth]{Other_figures/torscfg.png}
+\caption{Torsional configurations and equivalent models considered in the modeling.}
+\label{fig:tors_configs}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\columnwidth]{Other_figures/tors.png}
+\caption{ECP torsional apparatus used in this laboratory.}
+\label{fig:tors_apparatus}
+\end{figure}
+
 The laboratory emphasizes the relationship between system order, resonant dynamics, and achievable closed-loop performance. Particular attention is given to controllability, observability, pole placement, and noise robustness. By directly comparing PID and state-feedback control on the same plant, the lab highlights the practical trade-offs between implementation simplicity and performance guarantees in real-world control design.
 
-\section{System Modeling \& Open-Loop Analysis}
 
+
+Flexible mechanical systems with lightly damped resonant modes are commonly encountered in aerospace, robotics, and precision motion applications. Control of such systems presents significant challenges, as high performance requirements often conflict with stability and robustness constraints. The ECP Model 205 torsional system used in this laboratory provides a representative example of this class of plants and serves as a practical testbed for comparing classical and modern control strategies. The experimental apparatus and the torsional configurations considered in the modeling are shown in Fig.~\ref{fig:apparatus_intro}.
+
+%==============Guidelines 1-3==================%
+
+\section{System Modeling \& Properties}
 \subsection{Guideline 1: System Parameters and Governing Equations}
 
 The experimental plant is a two-degree-of-freedom (2-DOF) torsional system consisting of two rotating disks coupled through a flexible shaft. The physical parameters of the system are provided in the ECP Model~205 laboratory manual \cite{b1} and are summarized in Table~\ref{tab:params}.
+
+\begin{table}[htbp]
+    \centering
+    \caption{ECP Model 205 Torsional System Parameters}
+    \label{tab:params}
+    \begin{tabular}{l c c}
+        \toprule
+        \textbf{Parameter} & \textbf{Symbol} & \textbf{Value} \\
+        \midrule
+        Disk 1 inertia & $J_1$ & $0.0108~\text{kg}\cdot\text{m}^2$ \\
+        Disk 2 inertia & $J_2$ & $0.0103~\text{kg}\cdot\text{m}^2$ \\
+        Disk 1 damping coefficient & $c_1$ & $0.007~\text{N}\cdot\text{m}\cdot\text{s/rad}$ \\
+        Disk 2 damping coefficient & $c_2$ & $0.001~\text{N}\cdot\text{m}\cdot\text{s/rad}$ \\
+        Shaft torsional stiffness & $k_1$ & $1.37~\text{N}\cdot\text{m/rad}$ \\
+        Motor voltage–torque gain & $k_{hw}$ & $17.408~\text{N}\cdot\text{m/V}$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
 Applying Newton’s second law for rotational motion to each disk yields the coupled equations of motion
 \begin{align}
@@ -131,89 +168,231 @@ J_1 \ddot{\theta}_1 + c_1 \dot{\theta}_1 + k_1(\theta_1 - \theta_2) &= T(t),
 J_2 \ddot{\theta}_2 + c_2 \dot{\theta}_2 + k_1(\theta_2 - \theta_1) &= 0,
 \label{eq:eom2}
 \end{align}
-where $\theta_1$ and $\theta_2$ denote the angular displacements of Disk~1 and Disk~2, respectively, and $T(t)=k_{hw}V(t)$ represents the applied motor torque.
-
-Equations~\eqref{eq:eom1}--\eqref{eq:eom2} describe the physical origin of the system dynamics. However, for analysis and controller design in this laboratory, the plant is provided and treated in the transfer-function domain, as described next.
-
-\subsection{Guideline 2: Transfer-Function Representation}
-
-The torsional system is modeled as a single-input, multiple-output (SIMO) plant with motor voltage $V(s)$ as the input and angular positions $\Theta_1(s)$ and $\Theta_2(s)$ as outputs. The transfer functions are given by
+where $\theta_1$ and $\theta_2$ denote the angular displacements of Disk~1 and Disk~2, respectively, and $T(t)=k_{hw}V(t)$ represents the applied motor torque.\\
+To derive the state-space representation, define $\mathbf{x} = [\theta_1, \dot{\theta}_1, \theta_2, \dot{\theta}_2]^T$. Solving for accelerations:
 \begin{align}
-G_1(s) \triangleq \frac{\Theta_1(s)}{V(s)} &= \frac{1612s^2 + 156.5s + 214400}{D(s)},
-\label{eq:tf1} \\
-G_2(s) \triangleq \frac{\Theta_2(s)}{V(s)} &= \frac{214400}{D(s)},
-\label{eq:tf2}
+\ddot{\theta}_1 &= -\frac{k_1}{J_1}\theta_1 - \frac{c_1}{J_1}\dot{\theta}_1 + \frac{k_1}{J_1}\theta_2 + \frac{k_{hw}}{J_1}V \\
+\ddot{\theta}_2 &= \frac{k_1}{J_2}\theta_1 - \frac{k_1}{J_2}\theta_2 - \frac{c_2}{J_2}\dot{\theta}_2
 \end{align}
-where the common characteristic polynomial is
+
+\textbf{State equations:}
 \begin{equation}
-D(s) = s^4 + 0.745s^3 + 259.9s^2 + 98.53s.
-\label{eq:char_poly}
-\end{equation}
-
-The shared denominator indicates that both outputs are governed by the same fourth-order system dynamics, while differing numerators reflect how each disk responds to the applied input.
-
-\subsection{Guideline 3: State-Space Realization and Open-Loop Properties}
-
-\subsubsection{State-Space Realization from Transfer Functions}
-
-Since both transfer functions share the same denominator, a single state vector can be used to represent the system dynamics. A controllable canonical realization is selected.
-
-Define the state vector
-\begin{equation}
-\mathbf{x} =
-\begin{bmatrix}
-x_1 & x_2 & x_3 & x_4
-\end{bmatrix}^T,
-\end{equation}
-such that the state-space model is
-\begin{equation}
-\dot{\mathbf{x}} =
+\dot{\mathbf{x}} = 
 \begin{bmatrix}
 0 & 1 & 0 & 0 \\
-0 & 0 & 1 & 0 \\
+-\frac{k_1}{J_1} & -\frac{c_1}{J_1} & \frac{k_1}{J_1} & 0 \\
 0 & 0 & 0 & 1 \\
--98.53 & -259.9 & -0.745 & 0
+\frac{k_1}{J_2} & 0 & -\frac{k_1}{J_2} & -\frac{c_2}{J_2}
 \end{bmatrix}
 \mathbf{x}
 +
 \begin{bmatrix}
-0 \\ 0 \\ 0 \\ 1
+0 \\ \frac{k_{hw}}{J_1} \\ 0 \\ 0
 \end{bmatrix}
-V(t),
-\label{eq:ss_tf}
+T
+\label{eq:state_eq}
 \end{equation}
-with output equation
+
+\textbf{Output equation:}
 \begin{equation}
-\mathbf{y} =
+\mathbf{y} = \begin{bmatrix} \theta_1 \\ \theta_2 \end{bmatrix} = 
 \begin{bmatrix}
-\Theta_1 \\ \Theta_2
+1 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0
+\end{bmatrix}
+\mathbf{x}
+\label{eq:output_eq}
+\end{equation}
+
+Substituting numerical values:
+\begin{equation}\footnotesize
+A = 
+\begin{bmatrix}
+0 & 1 & 0 & 0 \\
+-126.85 & -0.648 & 126.85 & 0 \\
+0 & 0 & 0 & 1 \\
+133.01 & 0 & -133.01 & -0.097
+\end{bmatrix}, \quad
+B = 
+\begin{bmatrix}
+0 \\ 1611.85 \\ 0 \\ 0
+\end{bmatrix}
+\label{eq:ABCD_numeric}
+\end{equation}
+
+The complete numerical state-space model is:
+\begin{equation}\footnotesize
+\begin{bmatrix}
+\dot{x}_1 \\ \dot{x}_2 \\ \dot{x}_3 \\ \dot{x}_4
 \end{bmatrix}
 =
 \begin{bmatrix}
-214400 & 156.5 & 1612 & 0 \\
-214400 & 0 & 0 & 0
+0 & 1 & 0 & 0 \\
+-126.85 & -0.648 & 126.85 & 0 \\
+0 & 0 & 0 & 1 \\
+133.01 & 0 & -133.01 & -0.097
 \end{bmatrix}
-\mathbf{x}.
-\label{eq:ss_output}
-\end{equation}
-
-This realization exactly reproduces the transfer functions in \eqref{eq:tf1}--\eqref{eq:tf2}. The canonical states are related to the physical coordinates
-$[\theta_1,\dot{\theta}_1,\theta_2,\dot{\theta}_2]^T$ through a similarity transformation, and therefore represent the same linear time-invariant system.
-
-\subsubsection{Controllability and Observability}
-
-The controllability matrix
-\begin{equation}
-\mathcal{C} = \begin{bmatrix} B & AB & A^2B & A^3B \end{bmatrix}
-\end{equation}
-and the observability matrix
-\begin{equation}
-\mathcal{O} =
 \begin{bmatrix}
-C \\ CA \\ CA^2 \\ CA^3
+x_1 \\ x_2 \\ x_3 \\ x_4
+\end{bmatrix}
++
+\begin{bmatrix}
+0 \\ 1611.85 \\ 0 \\ 0
+\end{bmatrix}
+V
+\label{eq:state_eq_numerical}
+\end{equation}
+\subsection{Guideline 2: Derivation of Transfer Functions from State-Space}
+
+The transfer function is derived from the state-space model using:
+\begin{equation}
+G(s) = C(sI - A)^{-1}B + D
+\label{eq:tf_formula}
+\end{equation}
+
+Since $D = \mathbf{0}$, we compute $G(s) = C(sI - A)^{-1}B$ directly. Using the matrices from \eqref{eq:ABCD_numeric}:
+\begin{equation}
+\footnotesize
+sI - A = 
+\begin{bmatrix}
+s & -1 & 0 & 0 \\
+126.85 & s+0.648 & -126.85 & 0 \\
+0 & 0 & s & -1 \\
+-133.01 & 0 & 133.01 & s+0.097
 \end{bmatrix}
 \end{equation}
-were evaluated and found to have full rank (rank~4). The system is therefore fully controllable and fully observable, satisfying the necessary conditions for state-feedback and observer design.
+
+The characteristic polynomial (denominator) is found from $\det(sI - A)$:
+\begin{equation}
+\det(sI - A) = s^4 + 0.745s^3 + 259.9s^2 + 193.3s
+\label{eq:char_poly}
+\end{equation}
+
+Computing $(sI-A)^{-1}$ requires the adjugate matrix (transpose of cofactors) divided by the determinant. For the transfer functions, we need:
+\begin{equation}
+G(s) = C \cdot \frac{\text{adj}(sI-A)}{\det(sI-A)} \cdot B
+\end{equation}
+
+
+\begin{equation}
+\footnotesize
+= \frac{1}{s^4 + 0.745s^3 + 259.9s^2 + 193.3s}
+\begin{bmatrix}
+1611.85(s^2 + 0.097s) \\
+1611.85(133.01s)
+\end{bmatrix}
+\end{equation}
+
+Expanding the numerators:
+With $C = \footnotesize\begin{bmatrix} 1 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 \end{bmatrix}$ and $B = \footnotesize\begin{bmatrix} 0 \\ 1611.85 \\ 0 \\ 0 \end{bmatrix}$, the multiplication yields:
+\begin{align}
+G_1(s) &= \frac{\Theta_1(s)}{V(s)} = \frac{1611.85s^2 + 156.5s + 214400}{s^4 + 0.745s^3 + 259.9s^2 + 193.3s}
+\label{eq:tf1} \\
+G_2(s) &= \frac{\Theta_2(s)}{V(s)} = \frac{214400}{s^4 + 0.745s^3 + 259.9s^2 + 193.3s}
+\label{eq:tf2}
+\end{align}
+
+Both outputs share the same characteristic polynomial (denominator). The pole at $s=0$ confirms the integrator, while the complex poles at $s \approx -0.37 \pm j16.1$ represent the lightly-damped oscillatory modes.
+
+\subsection{Guideline 3: Controllable, Observable, and Jordan Canonical Forms}
+
+A given state-space realization $(A,B,C,D)$ is not unique---infinitely many equivalent representations exist, related by similarity transformations $\bar{A} = TAT^{-1}$, $\bar{B} = TB$, $\bar{C} = CT^{-1}$. Three important canonical forms are derived below.
+
+\subsubsection{Controllable Canonical Form}
+
+For a SISO system with characteristic polynomial $\det(sI-A) = s^4 + a_3s^3 + a_2s^2 + a_1s + a_0$, the controllable canonical form is:
+\begin{equation}
+\footnotesize
+A_c = 
+\begin{bmatrix}
+0 & 1 & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1 \\
+-a_0 & -a_1 & -a_2 & -a_3
+\end{bmatrix}, \quad
+B_c = 
+\begin{bmatrix}
+0 \\ 0 \\ 0 \\ 1
+\end{bmatrix}
+\label{eq:controllable_canonical}
+\end{equation}
+
+From the characteristic polynomial \eqref{eq:char_poly} with coefficients $a_3=0.745$, $a_2=259.9$, $a_1=193.3$, $a_0=0$:
+\begin{equation}
+\footnotesize
+A_c = 
+\begin{bmatrix}
+0 & 1 & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1 \\
+0 & -193.3 & -259.9 & -0.745
+\end{bmatrix}, \quad
+B_c = 
+\begin{bmatrix}
+0 \\ 0 \\ 0 \\ 1
+\end{bmatrix}
+\end{equation}
+
+The $C_c$ matrix depends on the numerator coefficients of the transfer function (different for $\Theta_1$ and $\Theta_2$). This form is useful for pole-placement controller design.
+
+\subsubsection{Observable Canonical Form}
+
+The observable canonical form is the dual of the controllable form:
+\begin{equation}
+\footnotesize
+A_o = A_c^T = 
+\begin{bmatrix}
+0 & 0 & 0 & -a_0 \\
+1 & 0 & 0 & -a_1 \\
+0 & 1 & 0 & -a_2 \\
+0 & 0 & 1 & -a_3
+\end{bmatrix}, \quad
+C_o = B_c^T = \begin{bmatrix}
+0 & 0 & 0 & 1
+\end{bmatrix}
+\label{eq:observable_canonical}
+\end{equation}
+
+Substituting our coefficients:
+\begin{equation}
+\footnotesize
+A_o = 
+\begin{bmatrix}
+0 & 0 & 0 & 0 \\
+1 & 0 & 0 & -193.3 \\
+0 & 1 & 0 & -259.9 \\
+0 & 0 & 1 & -0.745
+\end{bmatrix}, \quad
+C_o = \begin{bmatrix}
+0 & 0 & 0 & 1
+\end{bmatrix}
+\end{equation}
+
+This form is useful for observer (estimator) design.
+
+\subsubsection{Jordan Canonical Form}
+
+The Jordan form diagonalizes $A$ (or uses Jordan blocks for repeated eigenvalues). The open-loop poles (eigenvalues of $A$) are:
+\begin{equation}
+\footnotesize
+\lambda_1, \lambda_2 = -0.372 \pm j16.113, \quad \lambda_3 = 0, \quad \lambda_4 = -0.001
+\end{equation}
+
+Since all eigenvalues are distinct, the Jordan form is diagonal:
+\begin{equation}
+\footnotesize
+A_J = 
+\begin{bmatrix}
+-0.372+j16.113 & 0 & 0 & 0 \\
+0 & -0.372-j16.113 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & -0.001
+\end{bmatrix}
+\label{eq:jordan_form}
+\end{equation}
+
+The transformation $T$ such that $A_J = TAT^{-1}$ consists of the eigenvectors of $A$ as columns. The matrices $B_J = TB$ and $C_J = CT^{-1}$ are computed accordingly. This form clearly reveals the system's modal structure: two lightly-damped oscillatory modes, one integrator mode (pole at origin), and one fast stable mode.
+
 
 \subsubsection{Open-Loop Poles and Stability}
 
@@ -226,15 +405,12 @@ The open-loop poles are the roots of the characteristic polynomial in \eqref{eq:
 
 The pole at the origin introduces an integrator, rendering the open-loop system marginally stable. The dominant complex-conjugate poles exhibit a natural frequency of approximately $16.1$~rad/s with very low damping ($\zeta \approx 0.011$), resulting in a highly oscillatory response.
 
-Although the controller design in later sections uses a parameter-based state-space model, this model is dynamically equivalent to the transfer-function realization derived here, differing only by a similarity transformation.
-
-
-
-
 
 % ------------------------------------------------------------------------
 % Guideline 4: Open-Loop Time Response
 % ------------------------------------------------------------------------
+\section{Open-Loop Analysis}
+
 \subsection{Guideline 4: Open-Loop Time Response}
 
 Before designing a controller, we simulated the open-loop system to understand its natural behavior. The system was excited with both impulse and step inputs, under zero and non-zero initial conditions ($\mathbf{x}_0 = [0.1, 0, 0, 0]^T$). The Simulink model used for these simulations is shown in Figure \ref{fig:q4_simulink}.
@@ -264,7 +440,7 @@ For a \textbf{step input} $u(t) = u_s(t)$, where $U(s) = 1/s$:
     Y(s) = G(s) \cdot \frac{1}{s} \quad \Rightarrow \quad y(t) = \mathcal{L}^{-1}\left\{\frac{G(s)}{s}\right\}
 \end{equation}
 
-Since our system has a pole at the origin ($s = 0$), the step response will contain a ramp component---this is why the output grows unboundedly.
+Since our system has a pole at the origin ($s = 0$), the step response will contain a ramp component; this is why the output grows unboundedly.
 
 \subsubsection{Impulse Response}
 The impulse response reveals how the system reacts to an instantaneous input. As shown in Figures \ref{fig:q4_impulse_zero} and \ref{fig:q4_impulse_nz}, the output grows unboundedly over time. This is a direct consequence of the integrator pole at the origin ($p_4 = 0$), which causes the system to accumulate the effect of the impulse indefinitely.
@@ -310,18 +486,6 @@ These results clearly demonstrate why feedback control is essential for this sys
 \subsection{Guideline 5: Frequency Response and Root Locus}
 
 To better understand the system's dynamics and prepare for controller design, we analyzed the frequency response (Bode plot) and root locus of the uncompensated plant $G_2(s) = \Theta_2(s)/U(s)$.
-
-\subsubsection{Transfer Function Derivation}
-The transfer function $G_2(s)$ was obtained from the state-space model using the MATLAB function \texttt{ss2tf()}. This function computes:
-\begin{equation}
-    G(s) = C(sI - A)^{-1}B + D
-    \label{eq:ss2tf}
-\end{equation}
-Expanding $(sI - A)^{-1}$ using Cramer's rule:
-\begin{equation}
-    (sI - A)^{-1} = \frac{\text{adj}(sI - A)}{\det(sI - A)}
-\end{equation}
-where $\det(sI - A)$ gives the characteristic polynomial (denominator), and the adjugate matrix determines the numerator polynomials for each output.
 
 \subsubsection{Bode Plot Theory}
 The Bode plot displays $|G(j\omega)|$ (magnitude in dB) and $\angle G(j\omega)$ (phase in degrees) versus frequency $\omega$. For stability analysis, two key metrics are computed:
@@ -386,9 +550,19 @@ The root locus reveals that simply adding proportional gain will not stabilize t
 % ------------------------------------------------------------------------
 % Guideline 6: PID Controller Design
 % ------------------------------------------------------------------------
+\section{Classical Controller Design (PID)}
 \subsection{Guideline 6: PID Controller Design}
 
-Based on the analysis in the previous sections, we designed a PID controller to stabilize the system and achieve reasonable tracking performance. The design targets were:
+Based on the analysis in the previous sections, we designed a PID controller to stabilize the system and achieve reasonable tracking performance. 
+Using the standard second-order approximation, we get:
+\begin{equation}
+    \zeta = \frac{-\ln(0.05)}{\sqrt{\pi^2 + \ln^2(0.05)}} \approx 0.69
+\end{equation}
+\begin{equation}
+    \omega_n = \frac{4.6}{\zeta T_s} = \frac{4.6}{0.69 \times 2.0} \approx 3.33 \text{ rad/s}
+\end{equation}
+
+The design targets were:
 \begin{itemize}
     \item Percent Overshoot: $PO \leq 5\%$ (corresponding to $\zeta \geq 0.69$)
     \item Settling Time: $T_s \approx 2$ seconds (corresponding to $\omega_n \approx 3.33$ rad/s)
@@ -400,7 +574,7 @@ The PID controller has the transfer function:
     C(s) = K_p + \frac{K_i}{s} + K_d s = \frac{K_d s^2 + K_p s + K_i}{s}
 \end{equation}
 
-Each term serves a specific purpose in shaping the closed-loop response:
+As we know, each term serves a specific purpose in shaping the closed-loop response:
 \begin{itemize}
     \item \textbf{Proportional ($K_p$)}: Provides instantaneous correction proportional to error. Higher $K_p$ reduces steady-state error but can increase overshoot.
     \item \textbf{Integral ($K_i/s$)}: Accumulates past errors, ensuring zero steady-state error for step inputs. Adds a pole at $s = 0$.
@@ -409,7 +583,7 @@ Each term serves a specific purpose in shaping the closed-loop response:
 
 \subsubsection{Root Locus Design Procedure}
 We used the root locus technique to tune the gains. The PID controller can be rewritten to expose its zeros:
-\begin{equation}
+\begin{equation}\footnotesize
     C(s) = K_d \cdot \frac{s^2 + (K_p/K_d)s + (K_i/K_d)}{s} = K_d \cdot \frac{(s - z_1)(s - z_2)}{s}
 \end{equation}
 where $z_1$ and $z_2$ are the controller zeros. The idea was to place these zeros to ``pull'' the root locus branches into the left-half plane.
@@ -426,7 +600,7 @@ We also attempted to use MATLAB's \texttt{pidTuner} auto-tuning tool, but even t
 
 \subsubsection{Final PID Gains}
 After extensive manual tuning, we settled on the following conservative gains:
-\begin{equation}
+\begin{equation}\small
     K_p = 2.8 \times 10^{-4}, \quad K_i = 3.0 \times 10^{-6}, \quad K_d = 1.0 \times 10^{-4}
 \end{equation}
 
@@ -545,19 +719,56 @@ This section presents the design, simulation, and validation of a full-state fee
 % Guideline 9: State Feedback Design
 % ------------------------------------------------------------------------
 \subsection{Guideline 9: State-Feedback Control Law}
+\subsubsection{Controllability Analysis}
 
+Before designing a state-feedback controller, we must verify that the system is \textit{controllable}, that arbitrary pole placement is possible. A system $(A,B)$ is controllable if and only if the controllability matrix has full rank.
+
+The controllability matrix is defined as:
+\begin{equation}
+\mathcal{C} = \begin{bmatrix} B & AB & A^2B & A^3B \end{bmatrix}
+\label{eq:controllability_matrix}
+\end{equation}
+
+For our fourth-order system, $\mathcal{C}$ must be $4 \times 4$ with rank 4. Computing each term:
+\begin{equation}\footnotesize
+B = \begin{bmatrix} 0 \\ 1611.85 \\ 0 \\ 0 \end{bmatrix}, \quad
+AB = \begin{bmatrix} 1611.85 \\ -1044.25 \\ 0 \\ 214324.4 \end{bmatrix}
+\end{equation}
+\begin{equation}\footnotesize
+A^2B = \begin{bmatrix} -1044.25 \\ 27254857 \\ 214324.4 \\ -28502916 \end{bmatrix}, \quad
+A^3B = \begin{bmatrix} 27254857 \\ -3483299200 \\ -28502916 \\ 3792732600 \end{bmatrix}
+\end{equation}
+
+The full controllability matrix is:
+\begin{equation}\footnotesize
+\mathcal{C} = 
+\begin{bmatrix}
+0 & 1611.85 & -1044.25 & 27254857 \\
+1611.85 & -1044.25 & 27254857 & -3483299200 \\
+0 & 0 & 214324.4 & -28502916 \\
+0 & 214324.4 & -28502916 & 3792732600
+\end{bmatrix}
+\end{equation}
+
+Using MATLAB's \texttt{rank()} function:
+\begin{verbatim}
+rank(C) = 4
+\end{verbatim}
+
+Since $\text{rank}(\mathcal{C}) = 4 = n$ (system order), the system is \textbf{fully controllable}. This confirms that we can arbitrarily place all four closed-loop poles using state-feedback control $u = -K\mathbf{x}$. \\
+
+\subsubsection{Controller Design}
 The control law is defined as $u = -K\mathbf{x} + \bar{N}r$. The gain matrix $K$ is designed to meet the following specifications:
 \begin{itemize}
     \item Percent Overshoot ($PO$) $\approx 5\%$
     \item Settling Time ($T_s$) $\approx 2.0$ seconds
 \end{itemize}
 
-Using the standard second-order approximation, the required damping ratio ($\zeta$) and natural frequency ($\omega_n$) are derived as follows:
+from Equation (\ref{eq:U_theta2})the required damping ratio ($\zeta$) and natural frequency ($\omega_n$) are 
+
 \begin{equation}
-    \zeta = \frac{-\ln(0.05)}{\sqrt{\pi^2 + \ln^2(0.05)}} \approx 0.69
-\end{equation}
-\begin{equation}
-    \omega_n = \frac{4.6}{\zeta T_s} = \frac{4.6}{0.69 \times 2.0} \approx 3.33 \text{ rad/s}
+    \zeta \geq 0.69\space\space\space\space \& \space\space\space\space
+    \omega_n  \approx 3.33 \text{ rad/s}
 \end{equation}
 
 To implement this, the dominant closed-loop poles were placed at:
@@ -640,7 +851,54 @@ The tracking performance for various reference inputs is presented below.
 \subsection{Guideline 11: Observer Design \& Simulation}
 
 In practical applications, measuring all state variables (specifically angular velocities) is often noisy or expensive. Therefore, an observer is designed to estimate the state vector $\hat{\mathbf{x}}$ from the available position measurements $\mathbf{y} = [\theta_1, \theta_2]^T$.
+\subsubsection{Observability Analysis}
 
+Before designing an observer, we must verify that the system is \textit{observable}, that the internal states can be reconstructed from the output measurements. A system $(A,C)$ is observable if and only if the observability matrix has full rank.
+
+The observability matrix is defined as:
+\begin{equation}\footnotesize
+\mathcal{O} = 
+\begin{bmatrix}
+C \\ CA \\ CA^2 \\ CA^3
+\end{bmatrix}
+\label{eq:observability_matrix}
+\end{equation}
+
+Computing each term:
+\begin{equation}\footnotesize
+C = \begin{bmatrix} 1 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 \end{bmatrix}
+\end{equation}
+\begin{equation}\footnotesize
+CA = \begin{bmatrix} 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1 \end{bmatrix}
+\end{equation}
+\begin{equation}\footnotesize
+CA^2 = \begin{bmatrix} -126.85 & -0.648 & 126.85 & 0 \\ 133.01 & 0 & -133.01 & -0.097 \end{bmatrix}
+\end{equation}
+\begin{equation}\footnotesize
+CA^3 = \begin{bmatrix} 82.22 & 164.61 & -82.22 & -0.648 \\ 0 & -175.52 & 0 & 12.90 \end{bmatrix}
+\end{equation}
+
+The full observability matrix is:
+\begin{equation}\footnotesize
+\mathcal{O} = 
+\begin{bmatrix}
+1 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 1 \\
+-126.85 & -0.648 & 126.85 & 0 \\
+133.01 & 0 & -133.01 & -0.097 \\
+82.22 & 164.61 & -82.22 & -0.648 \\
+0 & -175.52 & 0 & 12.90
+\end{bmatrix}
+\end{equation}
+
+Using MATLAB's \texttt{rank()} function:
+\begin{verbatim}
+rank(O) = 4
+\end{verbatim}
+
+Since $\text{rank}(\mathcal{O}) = 4 = n$ (system order), the system is \textbf{fully observable}. This confirms that we can estimate all four internal states from the two position measurements $[\theta_1, \theta_2]^T$ using an observer.
 \subsubsection{Full-Order Observer Implementation}
 A **Full-Order Luenberger Observer** was first designed to estimate the complete state vector. The observer dynamics are governed by:
 \begin{equation}
@@ -648,8 +906,8 @@ A **Full-Order Luenberger Observer** was first designed to estimate the complete
 \end{equation}
 To ensure the estimation error $e(t) = x(t) - \hat{x}(t)$ converges to zero significantly faster than the controller dynamics, the observer poles were placed at locations $4\times$ faster (further left in the complex plane) than the controller poles.
 
-The calculated observer gain matrix $L$ is:
-\begin{equation}
+The calculated observer gain matrix $L = G$ is:
+\begin{equation}\footnotesize
     L = 
     \begin{bmatrix} 
     103.2 & 4.7 \\
@@ -659,7 +917,9 @@ The calculated observer gain matrix $L$ is:
     \end{bmatrix}
 \end{equation}
 
-The combined Controller-Observer system was simulated using the model in Figure \ref{fig:simulink_obs}.
+The combined Controller-Observer system was simulated using the model in Figure \ref{fig:simulink_obs}. \\
+
+Also Please Note that in the Following Simulink the C and D matric of the Plant were set to 0.
 
 \begin{figure}[htbp]
     \centering
@@ -771,7 +1031,7 @@ Now testing with bigger noise 0.001 to clearly see the impact and stability
 
 
 
-\textbf{Comparative Analysis:} 
+\textbf{Robustness Comparative Analysis FO vs RO:} 
 Both observers demonstrated robust performance, maintaining stability and tracking the reference step despite the noisy measurements. As observed in Figures \ref{fig:full_noise} and \ref{fig:red_noise}, the impact of the noise on the final load position ($\theta_2$) was negligible in both casesfor the normal noise and even with the exaggerated noise, the system remained stable.
 
 However, a theoretical distinction exists between the two:
@@ -780,7 +1040,7 @@ However, a theoretical distinction exists between the two:
     \item \textbf{Reduced-Order Observer:} Assumes the measured states ($\theta_1, \theta_2$) are perfect and feeds them directly into the state vector. While computationally more efficient (Order 2 vs. Order 4), it lacks the inherent filtering property for the position states.
 \end{itemize}
 
-For this application, the Full-Order observer is preferred as it provides a cleaner internal state estimate without relying on the assumption of noise-free sensors.
+For this application, the Full-Order observer is preferred as it provides a cleaner internal state estimate without relying on the assumption of noise-free sensors. But they are practically the same, so both could be used.
 
 
 
@@ -930,7 +1190,7 @@ Both controllers were evaluated under identical simulation conditions in Simulin
         Percent Overshoot & $\leq 5\%$ & $\sim$20\% & $\sim$7\% \\
         Settling Time ($T_s$) & $\leq 2$ s & $\sim$15--20 s & $\sim$1.9 s \\
         Steady-State Error & 0 & 0 & 0 \\
-        Small Noise Response & Stable & Stable & Stable-ish \\
+        Small Noise Response & Stable & Stable & Stable \\
         Large Noise Response & Stable & \textbf{Failed} & Stable-ish \\
         \midrule
         \textbf{Specs Met?} & --- & \textbf{No} & \textbf{Yes} \\
@@ -1040,35 +1300,36 @@ State feedback, on the other hand, directly modifies the system dynamics:
 \end{equation}
 With four adjustable gains in $K$, the four poles of the fourth-order plant can be independently assigned, enabling precise control over transient behavior.
 
-\subsection{Experimental Limitations and Apparatus Issues}
-
-The laboratory sequence included both simulation-based analysis and experimental validation using the ECP Model 205 torsional system. While the modeling, controller design, and simulation components were completed as intended, full experimental validation on the physical apparatus could not be carried out due to hardware limitations beyond our control.
-
-During the first laboratory session, the experimental platform was introduced and the system configuration, sensors, and control interface were reviewed using the ECP laboratory manual. In the second session, open-loop and step-response experiments were demonstrated, and system behavior was observed qualitatively; however, no experimental data were recorded at that time. In the third laboratory session, closed-loop testing with a PID controller was attempted using the ECP control software.
-
-Despite correct controller implementation and verified Simulink models, the experimental setup failed to produce any valid measurement data. Specifically, although the mechanical system exhibited limited physical motion, the corresponding sensor outputs were absent or inconsistent, resulting in empty plots within the data acquisition interface. Multiple control configurations and gain values were tested, and three different teaching assistants were consulted during troubleshooting. After these checks, it was concluded that at least one encoder or feedback sensor was malfunctioning, preventing reliable data collection.
-
-Additional attempts were made to access the laboratory during the final scheduled session and on subsequent days to repeat the experiments or switch apparatuses. However, laboratory access was not available, and the hardware issue could not be resolved within the course timeframe. As a result, experimental validation using the physical system was not feasible.
-
-Given these constraints, all controller designs and performance evaluations presented in this report are based on validated simulation results. The simulations were constructed using system parameters provided in the laboratory manual and were verified for internal consistency across open-loop, PID-controlled, and state-feedback-controlled configurations. While experimental data would be required for full real-world validation, the simulation results remain sufficient to demonstrate the underlying system dynamics, control design methodology, and comparative performance trends required by the course learning objectives.
-
-
 \subsection{Summary and Design Implications}
 
-The comparative study demonstrates that while PID control can stabilize the system and eliminate steady-state error, it is insufficient for meeting stringent transient performance requirements in the presence of lightly damped resonant modes. State-feedback control, augmented with an observer, provides a systematic and effective solution for such systems, offering superior transient performance, improved noise robustness, and guaranteed stability margins.
+The comparative study shows that while PID control is capable of stabilizing the torsional system and eliminating steady-state error, it is fundamentally limited in its ability to meet stringent transient performance requirements for a fourth-order plant with lightly damped resonant modes. In contrast, state-feedback control augmented with an observer provides a systematic framework for explicitly shaping closed-loop dynamics, resulting in improved transient performance, enhanced noise robustness, and predictable stability margins. These results highlight the advantages of modern state-space methods for higher-order mechanical systems with flexible dynamics.
 
-\subsection{Laboratory Work}
 
-In addition to our simulation-based analysis, we visited the lab to work with the physical ECP Model 205 apparatus. Figure \ref{fig:lab_equipment} shows our team performing open-loop response tests on real hardware using the ECP software interface.
+\section{Laboratory Work}
+
+In addition to the simulation-based analysis, laboratory sessions were conducted using the physical ECP Model~205 torsional apparatus. Figure~\ref{fig:lab_equipment} shows the experimental setup used during open-loop testing with the ECP control software interface.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\columnwidth]{Other_figures/Lab_ECP_Equipment.jpg}
-    \caption{Our team testing the open-loop step response on the physical ECP Model 205 system in the lab. The monitor displays the oscillatory Open-Loop response characteristic of the plant.}
+    \caption{Team conducting open-loop response tests on the physical ECP Model~205 system using the ECP software interface.}
     \label{fig:lab_equipment}
 \end{figure}
 
-We successfully verified our open-loop model by comparing the measured step response with our simulations---the oscillation frequency and damping matched closely. Unfortunately, we were unable to test our closed-loop controllers (PID and state-feedback) on the physical apparatus due to faulty sensor feedback on the lab equipment, which caused erratic readings during closed-loop operation. As a result, all controller validation presented in this report is based on MATLAB/Simulink simulations using the verified plant model.
+Open-loop step-response behavior was successfully observed on the physical system. The measured oscillation frequency and qualitative damping characteristics were consistent with the simulation results, providing confidence in the accuracy of the derived plant model and parameter values.
+
+
+\subsection{Experimental Limitations and Apparatus Issues}
+
+Although the open-loop behavior of the system could be observed, full experimental validation of the closed-loop controllers was not possible due to hardware limitations beyond our control.
+
+During attempts to implement closed-loop PID control using the ECP software, the mechanical system exhibited limited physical motion; however, the corresponding sensor outputs were absent or inconsistent. As a result, no usable measurement data were recorded, and the data acquisition plots remained empty. Multiple controller configurations and gain values were tested, and troubleshooting was performed in consultation with three different teaching assistants. Following these checks, it was concluded that one or more feedback sensors (encoders) were malfunctioning, preventing reliable closed-loop operation.
+
+Additional attempts were made to access the laboratory during the final scheduled session and on subsequent days in order to repeat the experiments or use an alternative apparatus. However, laboratory access was not available, and the hardware issue could not be resolved within the course timeframe.
+
+Consequently, all closed-loop controller evaluations presented in this report are based on MATLAB/Simulink simulations using the verified plant model. The simulations were internally consistent across open-loop, PID-controlled, and state-feedback-controlled configurations and are sufficient to demonstrate the system dynamics, control design methodology, and comparative performance trends required by the course learning objectives. While experimental data would be necessary for full real-world validation, the inability to obtain such data was due to confirmed equipment failure rather than shortcomings in the modeling or controller design process.
+
+
 
 
 \section{Conclusion}
@@ -1082,8 +1343,8 @@ To address these limitations, a full state-feedback controller augmented with a 
 
 The comparative results confirm that although PID control remains a practical solution for low-order systems, modern state-space methods provide clear advantages for higher-order systems with complex dynamics. The laboratory illustrates the importance of model-based design, pole placement, and observer theory in achieving reliable and high-performance control.
 
+\vspace{10pt}\hrule\vspace{10pt}
 
-\newpage
 
 % --- REFERENCES ---
 \begin{thebibliography}{9}

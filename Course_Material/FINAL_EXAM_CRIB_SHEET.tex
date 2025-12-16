@@ -1,0 +1,1228 @@
+% ELEC 481 Final Exam Crib Sheet - Maximum Density
+\documentclass[a4paper,5pt,landscape]{article}
+\usepackage[landscape,margin=0.15in]{geometry}
+\usepackage{multicol}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage[compact]{titlesec}
+\usepackage[fleqn,tbtags]{mathtools}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\columnsep}{0.1in}
+\setlength{\columnseprule}{0.2pt}
+\titlespacing*{\section}{0pt}{0pt}{0pt}
+\titlespacing*{\subsection}{0pt}{0pt}{0pt}
+\setlist[enumerate]{nosep,leftmargin=6pt,itemsep=0pt,topsep=0pt}
+
+\renewcommand{\familydefault}{\rmdefault}
+\pagestyle{empty}
+
+% Make section headings smaller
+\titleformat{\section}{\footnotesize\bfseries}{\thesection}{0pt}{}
+\titleformat{\subsection}{\small\bfseries}{\thesubsection}{0pt}{}
+
+\begin{document}
+\tiny
+
+% ============ PAGE 1: ALGORITHMS ============
+\begin{multicols}{4}
+
+\section*{\underline{QUICK FORMULAS}}
+$H(s)=C(sI-A)^{-1}B+D$; $\det(sI-A)=0$ for $\lambda$\\
+\textbf{2$\times$2 inverse: }$\begin{bsmallmatrix}a&b\\c&d\end{bsmallmatrix}^{-1}=\frac{1}{ad-bc}\begin{bsmallmatrix}d&-b\\-c&a\end{bsmallmatrix}$\\
+\textbf{2$\times$2 eigenvalues:} $\lambda=\frac{\text{tr}(A)\pm\sqrt{\text{tr}(A)^2-4\det(A)}}{2}$\\
+\textbf{Stability (2$\times$2):} tr$(A)<0$ AND det$(A)>0$\\
+\textbf{Pole Specs:}\\
+$\zeta=\frac{-\ln(\%OS/100)}{\sqrt{\pi^2+\ln^2(\%OS/100)}}$; $\omega_n=\frac{4}{\zeta T_s}$; $s=-\zeta\omega_n\pm j\omega_n\sqrt{1-\zeta^2}$\\
+\textbf{Separation Principle:} Closed-loop poles = controller poles + observer poles\\
+Char. poly = det$(sI-A+BK)\cdot$det$(sI-A+GC)$ (2$n$ poles total)
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{CONTROLLABILITY \& OBSERVABILITY}}
+$\mathcal{C}_x=[B~AB~A^2B~\cdots~A^{n-1}B]$; rank=$n\Rightarrow$ controllable\\
+$\mathcal{O}_x=[C;CA;CA^2;\cdots;CA^{n-1}]^T$; rank=$n\Rightarrow$ observable\\
+\textbf{Algorithm:} (1) Form matrix (2) Row reduce/det (3) Check rank=n
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{ROW REDUCTION FOR RANK}}
+\textbf{Goal:} Find rank of $\mathcal{C}_x$ or $\mathcal{O}_x$ matrix\\
+\textit{Rank = \# of pivot rows = \# of leading 1's in row echelon form}\\
+ Row reduce to find rank\\
+\textit{Initial:},
+$\begin{bsmallmatrix}1&0&-1&0&1&0\\0&2&-2&-6&8&18\\0&1&-1&-3&4&9\end{bsmallmatrix}$\\
+$R_2\rightarrow\frac{1}{2}R_2$:
+$\begin{bsmallmatrix}1&0&-1&0&1&0\\0&1&-1&-3&4&9\\0&1&-1&-3&4&9\end{bsmallmatrix}$,
+$R_3\rightarrow R_3-R_2$:
+$\begin{bsmallmatrix}1&0&-1&0&1&0\\0&1&-1&-3&4&9\\0&0&0&0&0&0\end{bsmallmatrix}$\\
+2 pivot rows $\Rightarrow$ Rank = 2 $<$ 3\\
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{STATE FEEDBACK DESIGN}}
+\textit{Goal:} Place poles at $\{\lambda_1,\ldots,\lambda_n\}$ via $u=-Kx+K_rr$\\
+\textbf{Ackermann K:} $K=[0~\cdots~0~1]\mathcal{C}_x^{-1}\Delta_c(A)$\\
+where $\Delta_c(s)=(s-\lambda_1)\cdots(s-\lambda_n)=s^n+\alpha_{n-1}s^{n-1}+\cdots+\alpha_0$\\
+$\Delta_c(A)=A^n+\alpha_{n-1}A^{n-1}+\cdots+\alpha_0I$\\
+\textbf{Steps:} 
+\begin{enumerate}
+\item Check rank$(\mathcal{C}_x)=n$ (controllability required)
+\item Specify desired closed-loop poles $\{\lambda_i\}$
+\item Expand $\Delta_c(s)=(s-\lambda_1)\cdots(s-\lambda_n)$ to get $\{\alpha_i\}$
+\item Form $\mathcal{C}_x=[B~AB~\cdots~A^{n-1}B]$ and compute $\mathcal{C}_x^{-1}$
+\item Compute $\Delta_c(A)$ using Cayley-Hamilton (see below)
+\item $K=[0~\cdots~1]\mathcal{C}_x^{-1}\Delta_c(A)$ (row vector result)
+\item \textit{if Desired coefficients:} $[\alpha_0, \alpha_1, \alpha_2]$ then For systems in CCF, the feedback gain is: $K = [\alpha_0 - a_0 \alpha_1 - a_1  \alpha_2 - a_2] $
+\item Verify: eig$(A-BK)=\{\lambda_i\}$ desired
+\end{enumerate}
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{FULL-ORDER OBSERVER}}
+\textit{Goal:} Estimate $\hat{x}$ with poles 2-4$\times$ faster than controller\\
+\textbf{Observer dynamics (two forms):}\\
+$\dot{\hat{x}}=A\hat{x}+Bu+G(y-C\hat{x})$ (correction form)\\
+$\dot{\hat{x}}=(A-GC)\hat{x}+Bu+Gy$ (standard form)\\
+Error: $\dot{e}=(A-GC)e$ where $e=x-\hat{x}$\\
+\textbf{Ackermann G:} $G=\Delta_e(A)\mathcal{O}_x^{-1}[0;\cdots;0;1]^T$\\
+where $\Delta_e(s)=(s-\mu_1)\cdots(s-\mu_n)=s^n+\beta_{n-1}s^{n-1}+\cdots+\beta_0$\\
+\textbf{Steps:}
+\begin{enumerate}
+\item Check rank$(\mathcal{O}_x)=n$ (observability required)
+\item Choose observer poles $\{\mu_i\}$ 2-4$\times$ faster: $|\mu_i|\approx(2\text{-}4)|\lambda_i|$
+\item Expand $\Delta_e(s)=(s-\mu_1)\cdots(s-\mu_n)$ to get $\{\beta_i\}$
+\item Form $\mathcal{O}_x=[C;CA;\cdots;CA^{n-1}]^T$ and invert
+\item Compute $\Delta_e(A)$ using Cayley-Hamilton
+\item $G=\Delta_e(A)\mathcal{O}_x^{-1}[0;\cdots;1]^T$ (column vector)
+\item Combined: $\dot{\hat{x}}=(A-BK-GC)\hat{x}+Gy$, $u=-K\hat{x}+K_rr$
+\end{enumerate}
+\vspace{1pt}\hrule\vspace{1pt}
+\section*{\underline{REDUCED-ORDER OBSERVER}}
+\textit{When:} Some states measured, e.g., $y=x_1$\\
+Partition: $x=[x_1;x_2]^T$, $\begin{bmatrix}\dot{x}_1\\\dot{x}_2\end{bmatrix}=\begin{bmatrix}A_{11}&A_{12}\\A_{21}&A_{22}\end{bmatrix}\begin{bmatrix}x_1\\x_2\end{bmatrix}+\begin{bmatrix}B_1\\B_2\end{bmatrix}u$\\
+\textbf{Steps:}
+\begin{enumerate}
+\item Define $z=\hat{x}_2-G_ey$ (estimator for unmeasured part)
+\item $\dot{z}=(A_{22}-G_eA_{12})z+(A_{22}-G_eA_{12})G_ey+(B_2-G_eB_1)u$
+\item Choose $(n-q)$ observer poles for reduced system
+\item Use Ackermann to find $G_e$ (dimension $(n-q)\times q$)
+\item Recover: $\hat{x}_2=z+G_ey$, full state: $\hat{x}=[y;\hat{x}_2]$
+\end{enumerate}
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{TRACKING SYSTEM (Ch 15)}}
+\textit{Goal:} Zero steady-state error for reference $r(t)$\\
+Control: $u=-Kx+K_rr$ where $K_r=-\frac{1}{C(A-BK)^{-1}B}$\\
+\textbf{Steps:}
+\begin{enumerate}
+\item Design $K$ using Ackermann for desired poles
+\item Compute $(A-BK)^{-1}$ (use cofactor/adj method)
+\item $K_r=-1/[C(A-BK)^{-1}B]$ (scalar for SISO)
+\item Verify: $y_{ss}=r_{ss}=1$ for unit step via Final Value Thm
+\end{enumerate}
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{JORDAN CANONICAL FORM}}
+\textbf{Three cases for eigenvalue $\lambda$ with mult. $m$:}\\
+\textbf{CASE 1: Distinct eigenvalues} ($m=1$ for all $\lambda$)\\
+$J=\text{diag}(\lambda_1,\ldots,\lambda_n)$ (fully diagonal), $M=[v_1~\cdots~v_n]$\\
+Each $v_i$: solve $(\lambda_iI-A)v_i=0$\\
+$\rightarrow$ \textit{See EX 9 below: $3\times3$ diagonal matrix with $\lambda=1,2,3$}\\
+\textbf{CASE 2: Repeated $\lambda$ with full geometric mult.}\\
+If nullity$(\lambda I-A)=m$ (alg. mult.), get $m$ indep. eigenvectors\\
+$J$ has $m$ diagonal entries of $\lambda$, no Jordan chains needed\\
+$\rightarrow$ \textit{See EX 1 (page 2): $\lambda=2$ (triple) with 3 indep. eigenvectors}\\
+\textbf{CASE 3: Repeated $\lambda$ with deficiency}\\
+If nullity$(\lambda I-A)=k<m$, need $(m-k)$ generalized eigenvectors\\
+\textbf{How to find nullity:} Form $(\lambda I-A)$, row reduce to RREF, count free variables\\
+\textit{Formula:} nullity = $n$ - rank = \# of columns - \# of pivot rows\\
+\textbf{Algorithm for CASE 3:}
+\begin{enumerate}
+\item Compute $r=\text{rank}(\lambda I-A)$ via row reduction, nullity$=n-r$ (\# of eigenvecs)
+\item Find chain lengths: solve $(\lambda I-A)^2v=0$, $(\lambda I-A)^3v=0$, etc.
+\item For chain of length $p$: find $v_p$ where $(\lambda I-A)^pv_p=0$ but $(\lambda I-A)^{p-1}v_p\neq0$
+\item Generate chain: $v_{p-1}=(\lambda I-A)v_p$, $v_{p-2}=(\lambda I-A)v_{p-1}$, ..., $v_1=(\lambda I-A)v_2$
+\item Verify: $(\lambda I-A)v_1=0$ (base eigenvector)
+\item Form $M=[v_1~v_2~\cdots~v_p~|~\text{other chains}]$
+\item From Jordan block: $J_p$
+\end{enumerate}
+\textbf{Complex eigenvalues:} If $\lambda=a\pm jb$, eigenvectors are complex conjugates\\
+
+\textit{C/O test in JCF:} Controllable $\Leftrightarrow$ bottom row of $M^{-1}B$ has no zeros in positions corresponding to end of Jordan chains; Observable $\Leftrightarrow$ top row of $CM$ has no zeros at start of chains
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{CAYLEY-HAMILTON TECHNIQUE}}
+\textbf{Theorem:} $A$ satisfies its char. poly.: $A^n+a_{n-1}A^{n-1}+\cdots+a_0I=0$\\
+\textit{Use:} Compute $f(A)$ (e.g., $A^{100}$, $e^{At}$, $(sI-A)^{-1}$)\\
+\textbf{Steps:}
+\begin{enumerate}
+\item Find eigenvalues $\{\lambda_i\}$ of $A$
+\item Express $f(A)=\alpha_{n-1}A^{n-1}+\cdots+\alpha_1A+\alpha_0I$
+\item Match at each eigenvalue: $f(\lambda_i)=\alpha_{n-1}\lambda_i^{n-1}+\cdots+\alpha_0$
+\item If $\lambda$ repeated (mult. $m$): add derivatives\\
+$\frac{d^kf}{ds^k}\big|_{s=\lambda}=\frac{d^k}{ds^k}[\sum\alpha_j s^j]\big|_{s=\lambda}$ for $k=0,\ldots,m-1$
+\item Solve linear system (n equations, n unknowns) for $\{\alpha_i\}$
+\item Compute $f(A)=\sum_{i=0}^{n-1}\alpha_iA^i$
+\end{enumerate}
+\textit{Example:} $e^{At}$: $f(\lambda_i)=e^{\lambda_it}$, repeated$\rightarrow$$\frac{d}{d\lambda}e^{\lambda t}=te^{\lambda t}$
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{STATE TRANSITION MATRIX}}
+$\Phi(t,t_0)=e^{A(t-t_0)}$; Solution: $x(t)=\Phi(t,t_0)x_0+\int_{t_0}^t\Phi(t,\tau)Bu(\tau)d\tau$\\
+\textbf{Method 1 (Laplace):} $e^{At}=\mathcal{L}^{-1}\{(sI-A)^{-1}\}$\\
+\textbf{Method 2 (Cayley-Hamilton):} Use algorithm above with $f(s)=e^{st}$\\
+\textbf{Properties:} $\Phi(t_0,t_0)=I$; $\frac{\partial\Phi}{\partial t}=A\Phi$; $\Phi^{-1}(t,t_0)=\Phi(t_0,t)$; $\Phi(t,t_0)=\Phi(t,t_1)\Phi(t_1,t_0)$\\
+\textbf{Fundamental Matrix $M(t)$:} Matrix of $n$ indep. solutions to $\dot{x}=Ax$\\
+$M(t)=[\phi_1(t)~\phi_2(t)~\cdots~\phi_n(t)]$ where $\dot{\phi}_i=A\phi_i$\\
+Relation: $\Phi(t,0)=M(t)M^{-1}(0)$ (if $M(0)$ invertible)\\
+\textbf{Finding A from $\Phi$:} $A=\frac{d\Phi(t,0)}{dt}\Big|_{t=0}$ (differentiate, evaluate at $t=0$)\\
+\textit{Example (M2 Q2):} Given $\Phi(t,0)=e^{-t}\begin{bmatrix}\cos t&\sin t\\-\sin t&\cos t\end{bmatrix}$\\
+$\frac{d}{dt}[e^{-t}\cos t]=-e^{-t}\cos t-e^{-t}\sin t$, at $t=0$: $-1$\\
+$\frac{d}{dt}[e^{-t}\sin t]=-e^{-t}\sin t+e^{-t}\cos t$, at $t=0$: $1$\\
+$\Rightarrow A=\begin{bsmallmatrix}-1&1\\-1&-1\end{bsmallmatrix}$
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{CANONICAL FORMS}}
+\textbf{CCF:}
+
+$A_c=\begin{bsmallmatrix}
+0&1&\cdots&0\\
+0&0&\ddots&\vdots\\
+0&0&\cdots&1\\
+-a_0&-a_1&\cdots&-a_{n-1}
+\end{bsmallmatrix}$,
+$B_c=\begin{bsmallmatrix}
+0\\
+\vdots\\
+0\\
+1
+\end{bsmallmatrix}$, 
+$C_c=[b_0\cdots b_{n-1}]$\\
+
+\textbf{OCF:}
+
+$A_o=\begin{bsmallmatrix}
+0&\cdots&0&-a_0\\
+1&\cdots&0&-a_1\\
+\vdots&\ddots&\vdots&\vdots\\
+0&\cdots&1&-a_{n-1}
+\end{bsmallmatrix}$,
+$C_o=[0\cdots 0\ 1]$\\
+
+\textbf{Transformation matrix T:} Changes coordinates: $\bar{x}=T^{-1}x$ (new states)\\
+$T_c=\mathcal{C}_x\mathcal{C}_{x_c}^{-1}$ transforms original system to CCF\\
+$T_o=\mathcal{O}_x^{-1}\mathcal{O}_{x_o}$ transforms original system to OCF\\
+\textit{What T does:} $\bar{A}=T^{-1}AT$, $\bar{B}=T^{-1}B$, $\bar{C}=CT$\\
+\textbf{Steps:}
+\begin{enumerate}
+\item Find char. poly: $\det(sI-A)=s^n+a_{n-1}s^{n-1}+\cdots+a_0$ (get $a_i$ coeffs)
+\item Build $A_c$ (CCF) or $A_o$ (OCF) using these $a_i$ coefficients
+\item Compute for og system $\mathcal{C}_x=[B~AB~\cdots~A^{n-1}B]$ 
+\item Compute for CCF: $\mathcal{C}_{x_c}=[B_c~A_cB_c~\cdots~A_c^{n-1}B_c]$
+\item Find transformation: $T_c=\mathcal{C}_x\mathcal{C}_{x_c}^{-1}$ (matrix multiplication)
+\item Verify: $A_c=T_c^{-1}AT_c$, $B_c=T_c^{-1}B$
+\end{enumerate}
+\textit{Why useful:} CCF makes controllability obvious; OCF makes observability obvious
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{EX 6: REDUCED-ORDER OBSERVER}}
+\textbf{Given:} $A=\begin{bsmallmatrix}-1&1\\0&-2\end{bsmallmatrix}$, $B=\begin{bsmallmatrix}0\\1\end{bsmallmatrix}$, $y=x_1$ (measured)\\
+\textbf{Find:} Observer to estimate $x_2$ with pole at $-5$\\
+\textit{Solution:}\\
+\textbf{Step 1:} Partition system (measure $x_1$, estimate $x_2$)\\
+$\dot{x}_1=A_{11}x_1+A_{12}x_2+B_1u$, $\dot{x}_2=A_{21}x_1+A_{22}x_2+B_2u$\\
+$A_{11}=-1$, $A_{12}=1$, $A_{21}=0$, $A_{22}=-2$, $B_1=0$, $B_2=1$\\
+\textbf{Step 2:} Design reduced observer gain $G_e$\\
+Error dynamics: $\dot{e}=(A_{22}-G_eA_{12})e$ where $e=x_2-\hat{x}_2$\\
+Want pole at $-5$: $A_{22}-G_eA_{12}=-5$\\
+$-2-G_e(1)=-5 \Rightarrow G_e=3$\\
+\textbf{Step 3:} Define observer state\\
+$z=\hat{x}_2-G_ey=\hat{x}_2-3x_1$ (remove direct measurement)\\
+\textbf{Step 4:} Observer dynamics\\
+$\dot{z}=(A_{22}-G_eA_{12})z+[(A_{22}-G_eA_{12})G_e+A_{21}-G_eA_{11}]y+(B_2-G_eB_1)u$\\
+Compute coefficients:\\
+$(A_{22}-G_eA_{12})G_e=(-2-3)(3)=-15$\\
+$A_{21}-G_eA_{11}=0-3(-1)=3$\\
+Coefficient of $y$: $-15+3=-12$\\
+$B_2-G_eB_1=1-3(0)=1$\\
+$\boxed{\dot{z}=-5z-12y+u}$, $\boxed{\hat{x}_2=z+3y}$
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{EX 7: FULL-ORDER OBSERVER (DUALITY)}}
+\textbf{Given:} $A=\begin{bsmallmatrix}1&2\\3&4\end{bsmallmatrix}$, $B=\begin{bsmallmatrix}0\\1\end{bsmallmatrix}$, $C=[1~0]$\\
+\textbf{Find:} Observer gain $L$ for poles at $\{-5,-6\}$\\
+\textit{Solution:}\\
+\textbf{Key Insight:} Observer for $(A,C)$ is dual to controller for $(A^T,C^T)$!\\
+\textbf{Step 1:} Check observability\\
+$\mathcal{O}=\begin{bsmallmatrix}C\\CA\end{bsmallmatrix}=\begin{bsmallmatrix}1&0\\1&2\end{bsmallmatrix}$\\
+$\det(\mathcal{O})=1(2)-0(1)=2\neq0$ $\checkmark$ Observable\\
+\textbf{Step 2:} Desired char. poly.\\
+$\Delta_e(s)=(s+5)(s+6)=s^2+11s+30$\\
+$\beta_1=11$, $\beta_0=30$\\
+\textbf{Step 3:} Compute $\mathcal{O}^{-1}$\\
+$\mathcal{O}^{-1}=\frac{1}{2}\begin{bsmallmatrix}2&0\\-1&1\end{bsmallmatrix}=\begin{bsmallmatrix}1&0\\-0.5&0.5\end{bsmallmatrix}$\\
+\textbf{Step 4:} Compute $\Delta_e(A)$\\
+$A^2=\begin{bsmallmatrix}1&2\\3&4\end{bsmallmatrix}\begin{bsmallmatrix}1&2\\3&4\end{bsmallmatrix}=\begin{bsmallmatrix}7&10\\15&22\end{bsmallmatrix}$\\
+$11A=\begin{bsmallmatrix}11&22\\33&44\end{bsmallmatrix}$, $30I=\begin{bsmallmatrix}30&0\\0&30\end{bsmallmatrix}$\\
+$\Delta_e(A)=A^2+11A+30I=\begin{bsmallmatrix}7+11+30&10+22\\15+33&22+44+30\end{bsmallmatrix}=\begin{bsmallmatrix}48&32\\48&96\end{bsmallmatrix}$\\
+\textbf{Step 5:} Ackermann formula\\
+\textit{Trick:} Only compute last column! $L=\Delta_e(A)\mathcal{O}^{-1}\begin{bsmallmatrix}0\\1\end{bsmallmatrix}$\\
+$\mathcal{O}^{-1}\begin{bsmallmatrix}0\\1\end{bsmallmatrix}=\begin{bsmallmatrix}1&0\\-0.5&0.5\end{bsmallmatrix}\begin{bsmallmatrix}0\\1\end{bsmallmatrix}=\begin{bsmallmatrix}0\\0.5\end{bsmallmatrix}$\\
+$L=\begin{bsmallmatrix}48&32\\48&96\end{bsmallmatrix}\begin{bsmallmatrix}0\\0.5\end{bsmallmatrix}=\boxed{\begin{bsmallmatrix}16\\48\end{bsmallmatrix}}$\\
+\textbf{Observer:} $\dot{\hat{x}}=(A-LC)\hat{x}+Bu+Ly$
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{EX 8: $e^{Jt}$ FOR JORDAN BLOCK}}
+\textbf{Given:} $J=\begin{bsmallmatrix}3&1\\0&3\end{bsmallmatrix}$ (Jordan block, repeated $\lambda=3$)\\
+\textbf{Find:} Matrix exponential $e^{Jt}$\\
+\textit{Solution:}\\
+\textbf{Step 1:} Set up Cayley-Hamilton form\\
+For $2\times2$ matrix: $f(J)=\alpha_1J+\alpha_0I$ where $f(\lambda)=e^{\lambda t}$\\
+\textbf{Step 2:} Eigenvalue has multiplicity 2, use derivative!\\
+Condition 1 (value): $f(3)=3\alpha_1+\alpha_0$\\
+$e^{3t}=3\alpha_1+\alpha_0$ ... (Eq 1)\\
+Condition 2 (derivative for repeated root!): $f'(3)=\alpha_1$\\
+$\frac{d}{d\lambda}[e^{\lambda t}]\big|_{\lambda=3}=te^{3t}=\alpha_1$ ... (Eq 2)\\
+\textbf{Step 3:} Solve for coefficients\\
+From Eq 2: $\alpha_1=te^{3t}$\\
+Substitute into Eq 1: $e^{3t}=3(te^{3t})+\alpha_0$\\
+$\alpha_0=e^{3t}-3te^{3t}=e^{3t}(1-3t)$\\
+\textbf{Step 4:} Compute $e^{Jt}$\\
+$e^{Jt}=\alpha_1J+\alpha_0I$\\
+$=te^{3t}\begin{bsmallmatrix}3&1\\0&3\end{bsmallmatrix}+e^{3t}(1-3t)\begin{bsmallmatrix}1&0\\0&1\end{bsmallmatrix}$\\
+$=\begin{bsmallmatrix}3te^{3t}&te^{3t}\\0&3te^{3t}\end{bsmallmatrix}+\begin{bsmallmatrix}e^{3t}(1-3t)&0\\0&e^{3t}(1-3t)\end{bsmallmatrix}$\\
+$=\begin{bsmallmatrix}e^{3t}(3t+1-3t)&te^{3t}\\0&e^{3t}(3t+1-3t)\end{bsmallmatrix}$\\
+$=\boxed{e^{3t}\begin{bsmallmatrix}1&t\\0&1\end{bsmallmatrix}}$
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{EX 9: INTEGRAL CONTROL}}
+\textbf{Given:} $A=\begin{bsmallmatrix}0&1\\2&1\end{bsmallmatrix}$, $B=\begin{bsmallmatrix}0\\1\end{bsmallmatrix}$, $C=[1~0]$\\
+\textbf{Find:} Control law to track step reference $r$ with zero SS error, poles at $\{-2,-2,-2\}$\\
+\textit{Solution:}\\
+\textbf{Step 1:} Augment system with integrator\\
+Add state $x_I$ with $\dot{x}_I=r-y=r-Cx$ (tracks error)\\
+Augmented state: $z=\begin{bsmallmatrix}x_1\\x_2\\x_I\end{bsmallmatrix}$\\
+\textbf{Step 2:} Form augmented matrices\\
+$\mathcal{A}=\begin{bsmallmatrix}A&0\\-C&0\end{bsmallmatrix}=\begin{bsmallmatrix}0&1&0\\2&1&0\\-1&0&0\end{bsmallmatrix}$, $\mathcal{B}=\begin{bsmallmatrix}B\\0\end{bsmallmatrix}=\begin{bsmallmatrix}0\\1\\0\end{bsmallmatrix}$\\
+\textbf{Step 3:} Check controllability of augmented system\\
+$\mathcal{C}_z=[\mathcal{B}~\mathcal{A}\mathcal{B}~\mathcal{A}^2\mathcal{B}]$\\
+$\mathcal{A}\mathcal{B}=\begin{bsmallmatrix}0&1&0\\2&1&0\\-1&0&0\end{bsmallmatrix}\begin{bsmallmatrix}0\\1\\0\end{bsmallmatrix}=\begin{bsmallmatrix}1\\1\\0\end{bsmallmatrix}$\\
+$\mathcal{A}^2\mathcal{B}=\begin{bsmallmatrix}2&1&0\\2&3&0\\0&-1&0\end{bsmallmatrix}\begin{bsmallmatrix}0\\1\\0\end{bsmallmatrix}=\begin{bsmallmatrix}1\\3\\-1\end{bsmallmatrix}$\\
+$\mathcal{C}_z=\begin{bsmallmatrix}0&1&1\\1&1&3\\0&0&-1\end{bsmallmatrix}$, $\det=-1\neq0$ ✓ Controllable\\
+\textbf{Step 4:} Desired char. poly.\\
+Poles $\{-2,-2,-2\}$: $\Delta(s)=(s+2)^3=s^3+6s^2+12s+8$\\
+\textbf{Step 5:} Find gain $K_{aug}=[k_1~k_2~k_I]$ via coefficient matching\\
+$A_{cl}=\mathcal{A}-\mathcal{B}K_{aug}=\begin{bsmallmatrix}0&1&0\\2&1&0\\-1&0&0\end{bsmallmatrix}-\begin{bsmallmatrix}0\\1\\0\end{bsmallmatrix}[k_1~k_2~k_I]$\\
+$=\begin{bsmallmatrix}0&1&0\\2-k_1&1-k_2&-k_I\\-1&0&0\end{bsmallmatrix}$\\
+Char. poly: $\det(sI-A_{cl})=s^3+(k_2-1)s^2+(k_1-2)s-k_I$\\
+Match $s^3+6s^2+12s+8$:\\
+$k_2-1=6 \Rightarrow k_2=7$\\
+$k_1-2=12 \Rightarrow k_1=14$\\
+$-k_I=8 \Rightarrow k_I=-8$\\
+\textbf{Step 6:} Control law\\
+$u=-K_{aug}z=-k_1x_1-k_2x_2-k_Ix_I$\\
+$\boxed{u=-14x_1-7x_2+8\int(r-y)dt}$ (note: $-k_I=-(-8)=+8$)
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{EX 10: STATE TRANSITION \& FINDING A}}
+\textbf{Given:} $\Phi(t,0)=e^{-t}\begin{bsmallmatrix}\cos t&\sin t\\-\sin t&\cos t\end{bsmallmatrix}$, $x(0)=\begin{bsmallmatrix}1\\1\end{bsmallmatrix}$\\
+\textbf{Find:} (a) $\Phi(t,t_0)$, (b) Matrix $A$, (c) $x(2)$\\
+\textit{Solution:}\\
+\textbf{Part (a):} Compute $\Phi(t,t_0)$\\
+Property: $\Phi(t,t_0)=\Phi(t,0)\Phi(0,t_0)=\Phi(t,0)\Phi^{-1}(t_0,0)$\\
+$\Phi(t,t_0)=e^{-t}\begin{bsmallmatrix}\cos t&\sin t\\-\sin t&\cos t\end{bsmallmatrix}\cdot e^{t_0}\begin{bsmallmatrix}\cos t_0&-\sin t_0\\\sin t_0&\cos t_0\end{bsmallmatrix}$\\
+$=e^{-(t-t_0)}\begin{bsmallmatrix}\cos t&\sin t\\-\sin t&\cos t\end{bsmallmatrix}\begin{bsmallmatrix}\cos t_0&-\sin t_0\\\sin t_0&\cos t_0\end{bsmallmatrix}$\\
+Multiply: $\begin{bsmallmatrix}\cos t\cos t_0+\sin t\sin t_0&-\cos t\sin t_0+\sin t\cos t_0\\-\sin t\cos t_0+\cos t\sin t_0&\sin t\sin t_0+\cos t\cos t_0\end{bsmallmatrix}$\\
+Use trig identities: $\cos(t-t_0)=\cos t\cos t_0+\sin t\sin t_0$, $\sin(t-t_0)=\sin t\cos t_0-\cos t\sin t_0$\\
+$\boxed{\Phi(t,t_0)=e^{-(t-t_0)}\begin{bsmallmatrix}\cos(t-t_0)&\sin(t-t_0)\\-\sin(t-t_0)&\cos(t-t_0)\end{bsmallmatrix}}$\\
+\textbf{Part (b):} Find matrix $A$\\
+Property: $A=\frac{d\Phi(t,0)}{dt}\Big|_{t=0}$\\
+$\frac{d}{dt}[e^{-t}\cos t]=e^{-t}(-\cos t-\sin t)$, at $t=0$: $-1$\\
+$\frac{d}{dt}[e^{-t}\sin t]=e^{-t}(-\sin t+\cos t)$, at $t=0$: $1$\\
+$\frac{d}{dt}[-e^{-t}\sin t]=e^{-t}(\sin t-\cos t)$, at $t=0$: $-1$\\
+$\boxed{A=\begin{bsmallmatrix}-1&1\\-1&-1\end{bsmallmatrix}}$\\
+\textbf{Part (c):} Find $x(2)$\\
+$x(t)=\Phi(t,0)x(0)$\\
+$x(2)=e^{-2}\begin{bsmallmatrix}\cos 2&\sin 2\\-\sin 2&\cos 2\end{bsmallmatrix}\begin{bsmallmatrix}1\\1\end{bsmallmatrix}$\\
+$=e^{-2}\begin{bsmallmatrix}\cos 2+\sin 2\\-\sin 2+\cos 2\end{bsmallmatrix}$\\
+$\boxed{x(2)=e^{-2}\begin{bsmallmatrix}\cos 2+\sin 2\\\cos 2-\sin 2\end{bsmallmatrix}}$
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{EX: LEVERRIER'S (3$\times$3)}}
+\textbf{Given:} $A=\begin{bsmallmatrix}1&2&0\\0&-1&1\\1&0&2\end{bsmallmatrix}$. Find adj$(sI-A)$ and char. poly.\\
+\textit{Solution:}\\
+\textbf{Step 1:} $P_3=I$, $k=3$\\
+\textbf{Step 2:} $a_2=\text{tr}(AP_3)=\text{tr}(A)=1+(-1)+2=2$\\
+\textbf{Step 3:} $P_2=AP_3-a_2I=A-2I$\\
+$P_2=\begin{bsmallmatrix}1&2&0\\0&-1&1\\1&0&2\end{bsmallmatrix}-\begin{bsmallmatrix}2&0&0\\0&2&0\\0&0&2\end{bsmallmatrix}=\begin{bsmallmatrix}-1&2&0\\0&-3&1\\1&0&0\end{bsmallmatrix}$\\
+\textbf{Step 4:} $a_1=\frac{1}{2}\text{tr}(AP_2)$\\
+$AP_2=\begin{bsmallmatrix}1&2&0\\0&-1&1\\1&0&2\end{bsmallmatrix}\begin{bsmallmatrix}-1&2&0\\0&-3&1\\1&0&0\end{bsmallmatrix}=\begin{bsmallmatrix}-1&-4&2\\1&3&-1\\1&2&0\end{bsmallmatrix}$\\
+$a_1=\frac{1}{2}(-1+3+0)=1$\\
+\textbf{Step 5:} $P_1=AP_2-a_1I$\\
+$P_1=\begin{bsmallmatrix}-1&-4&2\\1&3&-1\\1&2&0\end{bsmallmatrix}-\begin{bsmallmatrix}1&0&0\\0&1&0\\0&0&1\end{bsmallmatrix}=\begin{bsmallmatrix}-2&-4&2\\1&2&-1\\1&2&-1\end{bsmallmatrix}$\\
+\textbf{Step 6:} $a_0=-\frac{1}{3}\text{tr}(AP_1)$\\
+$AP_1=\begin{bsmallmatrix}-2&0&4\\2&-2&-2\\0&2&1\end{bsmallmatrix}$, $a_0=-\frac{1}{3}(-2-2+1)=-\frac{1}{3}(-3)=1$\\
+\textbf{Results:}\\
+$\boxed{\det(sI-A)=s^3-2s^2-s-1}$\\
+adj$(sI-A)=P_3s^2+P_2s+P_1=Is^2+\begin{bsmallmatrix}-1&2&0\\0&-3&1\\1&0&0\end{bsmallmatrix}s+\begin{bsmallmatrix}-2&-4&2\\1&2&-1\\1&2&-1\end{bsmallmatrix}$
+\vspace{1pt}\hrule\vspace{1pt}
+
+
+
+% ============ PAGE 2: WORKED EXAMPLES ============
+
+\section*{\underline{EX 1: JORDAN (CASE 1: DISTINCT)}}
+\textbf{Given:} $A=\begin{bsmallmatrix}1&0&0\\0&2&0\\0&0&3\end{bsmallmatrix}$
+\textbf{Find:} Jordan form (See also EX 9)\\
+\textit{Solution:}\\
+$\det(sI-A)=(s-1)(s-2)(s-3)$ $\Rightarrow$ $\lambda_1=1$, $\lambda_2=2$, $\lambda_3=3$ (all distinct)\\
+$J=\text{diag}(1,2,3)=A$ (already diagonal), $M=I$
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{EX 2: JORDAN (CASE 3: DEFICIENCY)}}
+\textbf{Given:} $A=\begin{bsmallmatrix}2&1&0\\0&2&0\\0&0&3\end{bsmallmatrix}$, 
+\textbf{Find:} Jordan form with generalized eigenvectors\\
+\textit{Solution:}\\
+\textbf{Step 1:} $\det(sI-A)=(s-2)^2(s-3)$ $\Rightarrow$ $\lambda_1=2$ (mult. 2), $\lambda_2=3$\\
+\textbf{Step 2:} Check nullity for $\lambda=2$\\
+$(2I-A)=\begin{bsmallmatrix}0&-1&0\\0&0&0\\0&0&1\end{bsmallmatrix}$ Row reduce: rank=2 $\Rightarrow$ nullity=1\\
+Nullity$<$multiplicity $\Rightarrow$ need 1 generalized eigenvector!\\
+\textbf{Step 3:} Find eigenvector for $\lambda=2$\\
+$(2I-A)v_1=0$: $-v_{21}=0$, $v_{31}=0$ $\Rightarrow v_1=\begin{bsmallmatrix}1\\0\\0\end{bsmallmatrix}$\\
+\textbf{Step 4:} Find generalized eigenvector\\
+$(2I-A)v_2=v_1$: $\begin{bsmallmatrix}0&-1&0\\0&0&0\\0&0&1\end{bsmallmatrix}\begin{bsmallmatrix}v_{12}\\v_{22}\\v_{32}\end{bsmallmatrix}=\begin{bsmallmatrix}1\\0\\0\end{bsmallmatrix}$\\
+$\Rightarrow -v_{22}=1$, $v_{32}=0$ $\Rightarrow v_2=\begin{bsmallmatrix}0\\-1\\0\end{bsmallmatrix}$ (choose $v_{12}=0$)\\
+\textbf{Step 5:} Find eigenvector for $\lambda=3$\\
+$(3I-A)v_3=0$: $\begin{bsmallmatrix}1&-1&0\\0&1&0\\0&0&0\end{bsmallmatrix}v_3=0$ $\Rightarrow v_3=\begin{bsmallmatrix}0\\0\\1\end{bsmallmatrix}$\\
+\textbf{Step 6:} Form $M$ and $J$\\
+$M=[v_1~v_2~v_3]=\begin{bsmallmatrix}1&0&0\\0&-1&0\\0&0&1\end{bsmallmatrix}$\\
+$\boxed{J=\begin{bsmallmatrix}2&1&0\\0&2&0\\0&0&3\end{bsmallmatrix}}$ (Jordan block for $\lambda=2$)\\
+\textbf{Verify:} $AM=MJ$ $\Rightarrow$ $\begin{bsmallmatrix}2&1&0\\0&2&0\\0&0&3\end{bsmallmatrix}\begin{bsmallmatrix}1&0&0\\0&-1&0\\0&0&1\end{bsmallmatrix}=\begin{bsmallmatrix}2&-1&0\\0&-2&0\\0&0&3\end{bsmallmatrix}$\\
+Check: $MJ=\begin{bsmallmatrix}1&0&0\\0&-1&0\\0&0&1\end{bsmallmatrix}\begin{bsmallmatrix}2&1&0\\0&2&0\\0&0&3\end{bsmallmatrix}=\begin{bsmallmatrix}2&1&0\\0&-2&0\\0&0&3\end{bsmallmatrix}$ $\checkmark$
+\vspace{1pt}\hrule\vspace{1pt}
+
+
+\section*{\underline{EX 3: COMPLEX JORDAN FORM}}
+\textbf{Given:} $A=\begin{bsmallmatrix}0&-4\\1&0\end{bsmallmatrix}$, 
+\textbf{Find:} Jordan form\\
+\textit{Solution:}\\
+$\det(sI-A)=s^2+4 \Rightarrow \lambda=\pm j2$ (complex conjugate)\\
+For $\lambda_1=j2$: $(j2I-A)v_1=0$, 
+$\begin{bsmallmatrix}j2&4\\-1&j2\end{bsmallmatrix}v_1=0$\\
+From row 1: $j2v_{11}+4v_{21}=0 \Rightarrow v_{11}=-\frac{4}{j2}v_{21}=2jv_{21}$\\
+Choose $v_{21}=1$: $v_1=\begin{bsmallmatrix}2j\\1\end{bsmallmatrix}$\\
+Similarly for $\lambda_2=-j2$: $v_2=\begin{bsmallmatrix}-2j\\1\end{bsmallmatrix}$\\
+$M=[v_1~v_2]=\begin{bsmallmatrix}2j&-2j\\1&1\end{bsmallmatrix}$,
+$\boxed{J=\begin{bsmallmatrix}j2&0\\0&-j2\end{bsmallmatrix}}$ (complex diagonal)
+
+\vspace{1pt}\hrule\vspace{1pt}
+
+
+\section*{\underline{EX 4: STATE FEEDBACK (ACKERMANN)}}
+\textbf{Given:} $A=\begin{bmatrix}0&1\\-2&-3\end{bmatrix}$, $B=\begin{bmatrix}0\\1\end{bmatrix}$\\
+\textbf{Find:} $K$ to place poles at $-2\pm j2$\\
+\textit{Solution:}\\
+\textbf{Step 1:} Check controllability\\
+$\mathcal{C}_x=[B~AB]=\begin{bmatrix}0&1\\1&-3\end{bmatrix}$\\
+$\det(\mathcal{C}_x)=0\cdot(-3)-1\cdot1=-1\neq0$ $\checkmark$ Controllable\\
+\textbf{Step 2:} Desired char. poly.\\
+$\Delta_c(s)=(s+2-j2)(s+2+j2)=(s+2)^2-(j2)^2$\\
+$=(s+2)^2+4=s^2+4s+4+4=s^2+4s+8$\\
+$\alpha_1=4$, $\alpha_0=8$\\
+\textbf{Step 3:} Compute $\mathcal{C}_x^{-1}$\\
+$\mathcal{C}_x^{-1}=\frac{1}{-1}\begin{bmatrix}-3&-1\\-1&0\end{bmatrix}=\begin{bmatrix}3&1\\1&0\end{bmatrix}$\\
+\textbf{Step 4:} Compute $\Delta_c(A)$\\
+$A^2=\begin{bmatrix}0&1\\-2&-3\end{bmatrix}\begin{bmatrix}0&1\\-2&-3\end{bmatrix}=\begin{bmatrix}-2&-3\\6&7\end{bmatrix}$\\
+$4A=\begin{bmatrix}0&4\\-8&-12\end{bmatrix}$, $8I=\begin{bmatrix}8&0\\0&8\end{bmatrix}$\\
+$\Delta_c(A)=A^2+4A+8I=\begin{bsmallmatrix}-2&-3\\6&7\end{bsmallmatrix}+\begin{bsmallmatrix}0&4\\-8&-12\end{bsmallmatrix}+\begin{bsmallmatrix}8&0\\0&8\end{bsmallmatrix}=\begin{bsmallmatrix}6&1\\-2&3\end{bsmallmatrix}$\\
+\textbf{Step 5:} Ackermann formula\\
+$K=[0~1]\mathcal{C}_x^{-1}\Delta_c(A)=[0~1]\begin{bmatrix}3&1\\1&0\end{bmatrix}\begin{bmatrix}6&1\\-2&3\end{bmatrix}$\\
+First: $\mathcal{C}_x^{-1}\Delta_c(A)=\begin{bsmallmatrix}3&1\\1&0\end{bsmallmatrix}\begin{bsmallmatrix}6&1\\-2&3\end{bsmallmatrix}=\begin{bsmallmatrix}16&6\\6&1\end{bsmallmatrix}$\\
+Then: $K=[0~1]\begin{bmatrix}16&6\\6&1\end{bmatrix}=[6~1]$ (not $[16~6]$!),
+$\boxed{K=[6~1]}$\\
+\textbf{Verify:} $A-BK=\begin{bsmallmatrix}0&1\\-2&-3\end{bsmallmatrix}-\begin{bsmallmatrix}0\\1\end{bsmallmatrix}[6~1]=\begin{bsmallmatrix}0&1\\-8&-4\end{bsmallmatrix}$\\
+$\det(sI-(A-BK))=\det\begin{bsmallmatrix}s&-1\\8&s+4\end{bsmallmatrix}=s(s+4)+8=s^2+4s+8$ $\checkmark$ Correct!
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{EX 5: FULL OBSERVER DESIGN}}
+\textbf{Given:} $A=\begin{bmatrix}0&1\\-2&-3\end{bmatrix}$, $B=\begin{bmatrix}0\\1\end{bmatrix}$, $C=[1~0]$\\
+\textbf{Find:} $G$ for observer poles at $-8,-10$\\
+\textit{Solution:}\\
+\textbf{Step 1:} Check observability\\
+$\mathcal{O}_x=\begin{bmatrix}C\\CA\end{bmatrix}=\begin{bmatrix}1&0\\0&1\end{bmatrix}$\\
+det$=1\neq0$ $\checkmark$ Observable\\
+\textbf{Step 2:} Desired observer char. poly.\\
+$\Delta_e(s)=(s+8)(s+10)=s^2+18s+80$\\
+$\beta_1=18$, $\beta_0=80$\\
+\textbf{Step 3:} $\mathcal{O}_x^{-1}=I$\\
+\textbf{Step 4:} Compute $\Delta_e(A)$\\
+$A^2=\begin{bmatrix}-2&-3\\6&7\end{bmatrix}$ (from Ex 2)\\
+$18A=\begin{bmatrix}0&18\\-36&-54\end{bmatrix}$, $80I=\begin{bmatrix}80&0\\0&80\end{bmatrix}$\\
+$\Delta_e(A)=\begin{bmatrix}-2&-3\\6&7\end{bmatrix}+\begin{bmatrix}0&18\\-36&-54\end{bmatrix}+\begin{bmatrix}80&0\\0&80\end{bmatrix}=\begin{bmatrix}78&15\\-30&33\end{bmatrix}$\\
+\textbf{Step 5:} Ackermann for $G$\\
+$G=\Delta_e(A)\mathcal{O}_x^{-1}\begin{bmatrix}0\\1\end{bmatrix}=\begin{bmatrix}78&15\\-30&33\end{bmatrix}\begin{bmatrix}0\\1\end{bmatrix}$\\
+$=\begin{bmatrix}78\cdot0+15\cdot1\\-30\cdot0+33\cdot1\end{bmatrix}=\boxed{\begin{bmatrix}15\\33\end{bmatrix}}$\\
+\textbf{Observer:} $\dot{\hat{x}}=(A-GC)\hat{x}+Bu+Gy$
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{EX 6: REDUCED-ORDER OBSERVER}}
+\textbf{Given:} $A=\begin{bmatrix}-1&2&1\\0&-3&4\\1&0&-2\end{bmatrix}$, $B=\begin{bmatrix}1\\0\\1\end{bmatrix}$, $C=[1~0~0]$, $u=0$\\
+\textbf{Find:} Reduced observer for $x_2,x_3$ (since $y=x_1$ measured)\\
+\textbf{Partition system:} $x=[x_1;x_2;x_3]^T=[y;x_u]^T$\\
+$\begin{bmatrix}\dot{x}_1\\\dot{x}_2\\\dot{x}_3\end{bmatrix}=\begin{bmatrix}-1&2&1\\0&-3&4\\1&0&-2\end{bmatrix}\begin{bmatrix}x_1\\x_2\\x_3\end{bmatrix}$\\
+$\dot{x}_1=-x_1+2x_2+x_3$ (measured)\\
+$\begin{bmatrix}\dot{x}_2\\\dot{x}_3\end{bmatrix}=\begin{bmatrix}-3&4\\0&-2\end{bmatrix}\begin{bmatrix}x_2\\x_3\end{bmatrix}+\begin{bmatrix}0\\1\end{bmatrix}x_1$\\
+Identify: $A_{22}=\begin{bmatrix}-3&4\\0&-2\end{bmatrix}$, $A_{21}=\begin{bmatrix}0\\1\end{bmatrix}$, $A_{12}=[2~1]$\\
+\textbf{Step 1:} Choose observer poles (2$\times$ faster than slowest): $-6,-8$\\
+$\Delta_e(s)=(s+6)(s+8)=s^2+14s+48$\\
+\textbf{Step 2:} Reduced system for estimator\\
+Define $z=\hat{x}_u-G_ey$ where $\hat{x}_u=\begin{bmatrix}\hat{x}_2\\\hat{x}_3\end{bmatrix}$\\
+Dynamics: $\dot{z}=(A_{22}-G_eA_{12})z+(A_{22}-G_eA_{12})G_ey+A_{21}y$\\
+\textbf{Step 3:} Design $G_e$ via Ackermann\\
+Reduced system: $\tilde{A}=A_{22}^T=\begin{bmatrix}-3&0\\4&-2\end{bmatrix}$, $\tilde{C}=A_{12}^T=\begin{bmatrix}2\\1\end{bmatrix}^T$\\
+$\mathcal{O}=\begin{bmatrix}\tilde{C}\\\tilde{C}\tilde{A}\end{bmatrix}=\begin{bmatrix}2&1\\-6&-2\end{bmatrix}$, det$=-4-(-6)=2\neq0$ $\checkmark$\\
+$\mathcal{O}^{-1}=\frac{1}{2}\begin{bmatrix}-2&-1\\6&2\end{bmatrix}=\begin{bmatrix}-1&-0.5\\3&1\end{bmatrix}$, 
+$\tilde{A}^2=\begin{bmatrix}9&0\\-20&4\end{bmatrix}$\\
+$\Delta_e(\tilde{A})=\tilde{A}^2+14\tilde{A}+48I=\begin{bsmallmatrix}9&0\\-20&4\end{bsmallmatrix}+\begin{bsmallmatrix}-42&0\\56&-28\end{bsmallmatrix}+\begin{bsmallmatrix}48&0\\0&48\end{bsmallmatrix}$\\
+$=\begin{bsmallmatrix}15&0\\36&24\end{bsmallmatrix}$\\
+$G_e^T=\begin{bmatrix}0&1\end{bmatrix}\mathcal{O}^{-1}\Delta_e(\tilde{A})=\begin{bmatrix}3&1\end{bmatrix}\begin{bmatrix}15&0\\36&24\end{bmatrix}\boxed{=\begin{bmatrix}81&24\end{bmatrix}^T}$\\
+\textbf{Estimator:} $\dot{z}=(A_{22}-G_eA_{12})z+(A_{22}-G_eA_{12})G_ey+A_{21}y$\\
+$\hat{x}_u=z+G_ey$, full state: $\hat{x}=[y;~z+G_ey]$
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{EX 7: TRACKING GAIN $K_r$}}
+\textbf{Given:} $A=\begin{bsmallmatrix}0&1\\-2&-3\end{bsmallmatrix}$, $K=[16~6]$, $B=\begin{bsmallmatrix}0\\1\end{bsmallmatrix}$, $C=[1~0]$\\
+\textbf{Find:} $K_r$ for zero steady-state error\\
+\textit{Solution:}\\
+\textbf{Step 1:} Compute $(A-BK)$\\
+$A-BK=\begin{bsmallmatrix}0&1\\-2&-3\end{bsmallmatrix}-\begin{bsmallmatrix}0\\1\end{bsmallmatrix}[16~6]=\begin{bsmallmatrix}0&1\\-18&-9\end{bsmallmatrix}$\\
+\textbf{Step 2:} $(A-BK)^{-1}$\\
+$\det(A-BK)=0\cdot(-9)-1\cdot(-18)=18$\\
+$(A-BK)^{-1}=\frac{1}{18}\begin{bsmallmatrix}-9&-1\\18&0\end{bsmallmatrix}=\begin{bsmallmatrix}-1/2&-1/18\\1&0\end{bsmallmatrix}$\\
+\textbf{Step 3:} $C(A-BK)^{-1}B$\\
+$C(A-BK)^{-1}=[1~0]\begin{bsmallmatrix}-1/2&-1/18\\1&0\end{bsmallmatrix}=[-1/2~-1/18]$\\
+$C(A-BK)^{-1}B=[-1/2~-1/18]\begin{bsmallmatrix}0\\1\end{bsmallmatrix}=-1/18$\\
+\textbf{Step 4:} $K_r$\\
+$K_r=-\frac{1}{C(A-BK)^{-1}B}=-\frac{1}{-1/18}=\boxed{18}$
+\vspace{1pt}\hrule\vspace{1pt}
+\section*{\underline{EX: M2 Fundamental Matrix \& STM}}
+
+\textbf{Given:} Linear system\\
+$\dot{x}_1(t)=-3x_1(t)+e^{-2t}x_2(t)$\\
+$\dot{x}_2(t)=-2x_2(t)$\\
+\textbf{Find:} (a) Fundamental matrix $M(t)$, (b) State transition matrix $\Phi(t,0)$
+
+\textit{Solution:}\\
+\textit{Intuition:} System is triangular - solve from bottom up\\
+\textbf{Step 1:} Write in matrix form\\
+$\dot{x}=\begin{bsmallmatrix}\dot{x}_1\\\dot{x}_2\end{bsmallmatrix}=\begin{bsmallmatrix}-3&e^{-2t}\\0&-2\end{bsmallmatrix}\begin{bsmallmatrix}x_1\\x_2\end{bsmallmatrix}=A(t)x$\\
+\textit{Note:} Time-varying system! $A(t)$ depends on $t$\\
+\textbf{Step 2:} Solve for $x_2(t)$ (decoupled)\\
+$\dot{x}_2=-2x_2 \Rightarrow x_2(t)=c_2e^{-2t}$\\
+\textbf{Step 3:} Solve for $x_1(t)$\\
+$\dot{x}_1=-3x_1+e^{-2t}x_2=-3x_1+e^{-2t}(c_2e^{-2t})=-3x_1+c_2e^{-4t}$\\
+Homogeneous solution: $x_{1h}=c_1e^{-3t}$\\
+Particular solution: Try $x_{1p}=Ae^{-4t}$\\
+$\dot{x}_{1p}=-4Ae^{-4t}=-3Ae^{-4t}+c_2e^{-4t}$\\
+$-4A=-3A+c_2 \Rightarrow -A=c_2 \Rightarrow A=-c_2$\\
+$x_{1p}=-c_2e^{-4t}$\\
+General solution: $x_1(t)=c_1e^{-3t}-c_2e^{-4t}$\\
+\textbf{Step 4:} Fundamental matrix (two independent solutions)\\
+\textit{Solution 1:} Set $c_1=1, c_2=0$:\\
+$x_2(t)=0\cdot e^{-2t}=0$,  
+$ x_1(t)=1\cdot e^{-3t}-0\cdot e^{-4t}=e^{-3t}$\\
+$\phi_1(t)=\begin{bsmallmatrix}e^{-3t}\\0\end{bsmallmatrix}$\\
+\textit{Solution 2:} Set $c_1=0, c_2=1$:\\
+$x_2(t)=1\cdot e^{-2t}=e^{-2t}$,
+$x_1(t)=0\cdot e^{-3t}-1\cdot e^{-4t}=-e^{-4t}$\\
+$\phi_2(t)=\begin{bsmallmatrix}-e^{-4t}\\e^{-2t}\end{bsmallmatrix}$,
+$\boxed{M(t)=[\phi_1(t)~\phi_2(t)]=\begin{bsmallmatrix}e^{-3t}&-e^{-4t}\\0&e^{-2t}\end{bsmallmatrix}}$\\
+\textbf{Step 5:} State transition matrix\\
+$\Phi(t,0)=M(t)M^{-1}(0)$\\
+$M(0)=\begin{bsmallmatrix}1&-1\\0&1\end{bsmallmatrix}$, $M^{-1}(0)=\begin{bsmallmatrix}1&1\\0&1\end{bsmallmatrix}$\\
+$\Phi(t,0)=\begin{bsmallmatrix}e^{-3t}&-e^{-4t}\\0&e^{-2t}\end{bsmallmatrix}\begin{bsmallmatrix}1&1\\0&1\end{bsmallmatrix}$
+$\boxed{\Phi(t,0)=\begin{bsmallmatrix}e^{-3t}&e^{-3t}-e^{-4t}\\0&e^{-2t}\end{bsmallmatrix}}$\\
+\textit{Verify:} $\Phi(0,0)=\begin{bsmallmatrix}1&0\\0&1\end{bsmallmatrix}=I$ $\checkmark$
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{EX: SYSTEM CLASSIFICATION}}
+\textbf{Given:} $\dot{x}=\begin{bsmallmatrix}t&1\\0&-2\end{bsmallmatrix}x+\begin{bsmallmatrix}1\\u(t)^2\end{bsmallmatrix}u$, $y=[1~0]x$\\
+\textit{Classify the system's properties:}\\
+\textbf{(a) Linearity Test:} Check superposition: $\alpha u_1+\beta u_2\rightarrow\alpha y_1+\beta y_2$?\\
+Input $u^2$ term fails: $(2u)^2=4u^2\neq 2u^2$
+$\Rightarrow$ \boxed{\text{NONLINEAR}}\\
+\textbf{(b) Time-Variance:} $A(t)=\begin{bsmallmatrix}t&1\\0&-2\end{bsmallmatrix}$ has $t$ dependence\\
+$A(t_1)\neq A(t_2)$ for $t_1\neq t_2$
+$\Rightarrow$ \boxed{\text{TIME-VARYING}}\\
+\textbf{(c) Causality:} Check output at $t$:\\
+$y(t)=[1~0]x(t)$ depends only on $x(t)$, which evolves from $u(\tau)$ for $\tau\leq t$\\
+No future input $u(\tau>t)$ affects $y(t)$
+$\Rightarrow$ \boxed{\text{CAUSAL}}\\
+\textbf{(e) Lumped/Distributed:} State space $\mathbb{R}^2$ (finite-dimensional)\\
+No spatial derivatives $\partial/\partial z$, not PDE
+$\Rightarrow$ \boxed{\text{LUMPED }}\\
+\textit{Contrast:} $x(k+1)=Ax(k)$ would be \textit{discrete}. $\frac{\partial^2u}{\partial t^2}=c^2\frac{\partial^2u}{\partial z^2}$ would be \textit{distributed}.
+\vspace{1pt}\hrule\vspace{1pt}
+
+
+\section*{\underline{MULTIPART: SIMPLE PENDULUM}}
+\textbf{Problem:} Pendulum with angle $\theta$, angular velocity $\omega$, damping $b=0.5$, length $L=1$ m. Physics: $\ddot{\theta}=-\frac{g}{L}\sin\theta-b\dot{\theta}+\tau$ where $\tau$=input torque. Linearize around $\theta=0$: $\ddot{\theta}\approx-10\theta-0.5\dot{\theta}+\tau$. Measure $y=\theta$.\\
+\textbf{Tasks:} (a) Derive state-space (b) Check controllability/observability (c) Design state feedback $K$ for poles at $-2,-3,-4$ (d) Design observer $G$ (e) Tracking gain $K_r$
+
+\textbf{SOLUTION (a): State-Space}\\
+States: $x_1=\theta$, $x_2=\dot{\theta}$, $x_3=\tau$ (integrator state for torque input)\\
+$\dot{x}_1=x_2$\\
+$\dot{x}_2=\ddot{\theta}=-10x_1-0.5x_2+x_3$\\
+$\dot{x}_3=u$ (torque rate is input)\\
+$\boxed{A=\begin{bsmallmatrix}0&1&0\\-10&-0.5&1\\0&0&0\end{bsmallmatrix}}$, $\boxed{B=\begin{bsmallmatrix}0\\0\\1\end{bsmallmatrix}}$, $\boxed{C=[1~0~0]}$
+
+\textbf{SOLUTION (b): Controllability/Observability}\\
+$\mathcal{C}_x=[B~AB~A^2B]=\begin{bsmallmatrix}0&0&1\\0&1&-0.5\\1&0&0\end{bsmallmatrix}$, 
+$\Rightarrow$ \boxed{\text{Controllable}}\\
+$\mathcal{O}_x=\begin{bsmallmatrix}C\\CA\\CA^2\end{bsmallmatrix}=\begin{bsmallmatrix}1&0&0\\0&1&0\\-10&-0.5&1\end{bsmallmatrix}$, $\det(\mathcal{O}_x)=1\neq0$
+$\Rightarrow$ \boxed{\text{Observable}}
+
+\textbf{SOLUTION (c): State Feedback via Ackermann}\\
+\textit{Goal:} Poles at $-2,-3,-4$\\
+$\Delta_c(s)=(s+2)(s+3)(s+4)=(s^2+5s+6)(s+4)$\\
+$=s^3+4s^2+5s^2+20s+6s+24=s^3+9s^2+26s+24$\\
+$\alpha_2=9$, $\alpha_1=26$, $\alpha_0=24$\\
+\textbf{Compute} $\mathcal{C}_x^{-1}$ (cofactor method):\\
+$\text{adj}(\mathcal{C}_x)=\begin{bsmallmatrix}C_{11}&C_{21}&C_{31}\\C_{12}&C_{22}&C_{32}\\C_{13}&C_{23}&C_{33}\end{bsmallmatrix}^T$ where $C_{ij}=(-1)^{i+j}M_{ij}$\\
+$C_{11}=+\begin{vmatrix}1&-0.5\\0&0\end{vmatrix}=0$, $C_{12}=-\begin{vmatrix}0&-0.5\\1&0\end{vmatrix}=-0.5$, $C_{13}=+\begin{vmatrix}0&1\\1&0\end{vmatrix}=-1$\\
+$C_{21}=-\begin{vmatrix}0&1\\0&0\end{vmatrix}=0$, $C_{22}=+\begin{vmatrix}0&1\\1&0\end{vmatrix}=-1$, $C_{23}=-\begin{vmatrix}0&0\\1&0\end{vmatrix}=0$\\
+$C_{31}=+\begin{vmatrix}0&1\\1&-0.5\end{vmatrix}=-0.5$, $C_{32}=-\begin{vmatrix}0&0\\1&1\end{vmatrix}=0$, $C_{33}=+\begin{vmatrix}0&0\\0&1\end{vmatrix}=0$\\
+$\text{adj}(\mathcal{C}_x)=\begin{bsmallmatrix}0&0&-0.5\\-0.5&-1&0\\-1&0&0\end{bsmallmatrix}^T=\begin{bsmallmatrix}0&-0.5&-1\\0&-1&0\\-0.5&0&0\end{bsmallmatrix}$\\
+$\mathcal{C}_x^{-1}=\frac{1}{-1}\begin{bsmallmatrix}0&-0.5&-1\\0&-1&0\\-0.5&0&0\end{bsmallmatrix}=\begin{bsmallmatrix}0&0.5&1\\0&1&0\\0.5&0&0\end{bsmallmatrix}$\\
+\textbf{Compute} $\Delta_c(A)=A^3+9A^2+26A+24I$:\\
+
+
+$A^3+9A^2+26A+24I=\begin{bsmallmatrix}-66.5&11.75&8.5\\-169.75&-72&11.75\\0&0&24\end{bsmallmatrix}$\\
+\textbf{Ackermann:} $K=[0~0~1]\mathcal{C}_x^{-1}\Delta_c(A)$\\
+$=[0~0~1]\begin{bsmallmatrix}0&0.5&1\\0&1&0\\0.5&0&0\end{bsmallmatrix}\begin{bsmallmatrix}-66.5&11.75&8.5\\-169.75&-72&11.75\\0&0&24\end{bsmallmatrix}$\\
+$=[0.5~0~0]\begin{bsmallmatrix}-66.5&11.75&8.5\\-169.75&-72&11.75\\0&0&24\end{bsmallmatrix}=\boxed{[-33.25~~5.875~~4.25]}$
+
+\textbf{SOLUTION (d): Observer via Ackermann}\\
+\textit{Goal:} Observer poles 3$\times$ faster: $-6,-9,-12$\\
+$\Delta_e(s)=(s+6)(s+9)(s+12)=(s^2+15s+54)(s+12)=s^3+27s^2+234s+648$\\
+$G=\Delta_e(A)\mathcal{O}_x^{-1}\begin{bsmallmatrix}0\\0\\1\end{bsmallmatrix}$\\
+$\mathcal{O}_x^{-1}=\begin{bsmallmatrix}1&0&0\\0&1&0\\-10&-0.5&1\end{bsmallmatrix}^{-1}=\begin{bsmallmatrix}1&0&0\\0&1&0\\10&0.5&1\end{bsmallmatrix}$ (upper triangular inverse)\\
+$\Delta_e(A)=A^3+27A^2+234A+648I$ (use $A^3$, $A^2$ from part c):\\
+
+$=\begin{bsmallmatrix}377.5&210.75&26.5\\-2258.75&272.5&210.75\\0&0&648\end{bsmallmatrix}$\\
+$G=\begin{bsmallmatrix}377.5&210.75&26.5\\-2258.75&272.5&210.75\\0&0&648\end{bsmallmatrix}\begin{bsmallmatrix}1&0&0\\0&1&0\\10&0.5&1\end{bsmallmatrix}\begin{bsmallmatrix}0\\0\\1\end{bsmallmatrix}=\boxed{\begin{bsmallmatrix}53\\421.5\\1296\end{bsmallmatrix}}$
+
+\textbf{SOLUTION (e): Tracking Gain}\\
+$K_r=-\frac{1}{C(A-BK)^{-1}B}$\\
+$A-BK=\begin{bsmallmatrix}0&1&0\\-10&-0.5&1\\0&0&0\end{bsmallmatrix}-\begin{bsmallmatrix}0\\0\\1\end{bsmallmatrix}[-33.25~~5.875~~4.25]$\\
+$=\begin{bsmallmatrix}0&1&0\\-10&-0.5&1\\-33.25&-5.875&-4.25\end{bsmallmatrix}$\\
+$(A-BK)^{-1}$ via cofactor: $\det(A-BK)=-0-10((-1)(-4.25)-(1)(-5.875))-33.25((-1)(1)-(-0.5)(0))$\\
+$=-10(4.25+5.875)+33.25(1)=-10(10.125)+33.25=-101.25+33.25=-68$\\
+$C(A-BK)^{-1}B=[1~0~0](A-BK)^{-1}B=$ (first row of $(A-BK)^{-1}$) $\times B$\\
+First row of $(A-BK)^{-1}$: $\frac{1}{-68}[\text{cofactors}]=\frac{1}{-68}[(-0.5)(-4.25)-(1)(-5.875), \ldots]$\\
+$=\frac{1}{-68}[2.125+5.875, \ldots]=\frac{1}{-68}[8, \ldots]$\\
+First element: $\frac{8}{-68}\times1=-0.118$\\
+$\boxed{K_r=-\frac{1}{-0.118}=8.5}$
+4 from controller (at $-2,-3,-4\pm j$) - stable\\
+4 from observer (at $-6,-9,-12\pm j3$) - stable\\
+All poles in LHP $\Rightarrow$ \boxed{\text{System is asymptotically stable}}
+
+\textbf{SOLUTION (g): Reduced-Order Observer Alternative}\\
+\textit{Scenario:} If position $x$ is measured ($y=x$) but not velocity $\dot{x}$ or angles\\
+Then only estimate $[\dot{x};\theta;\dot{\theta}]$ (3 states instead of 4)\\
+Partition: $x_m=x_1$ (measured), $x_u=[x_2;x_3;x_4]^T$ (unmeasured)\\
+From part (a): $\dot{x}_1=x_2$, so $A_{12}=[1~0~0]$, $A_{21}=[0;0;0]$\\
+$A_{22}=\begin{bsmallmatrix}0&3.267&0\\0&0&1\\0&16.333&0\end{bsmallmatrix}$ (3$\times$3 subsmallmatrix)\\
+\textbf{Step 1:} Choose 3 observer poles (e.g., $-10,-12,-14$)\\
+$\Delta_e(s)=(s+10)(s+12)(s+14)=s^3+36s^2+428s+1680$\\
+\textbf{Step 2:} Design $G_e$ (3$\times$1 vector) using dual system\\
+$\tilde{A}=A_{22}^T$, $\tilde{C}=A_{12}^T=[1;0;0]^T$\\
+Form $\mathcal{O}=[\tilde{C};~\tilde{C}\tilde{A};~\tilde{C}\tilde{A}^2]$ (3$\times$3)\\
+Use Ackermann: $G_e^T=[0~0~1]\mathcal{O}^{-1}\Delta_e(\tilde{A})$\\
+\textbf{Estimator:} $\dot{z}=(A_{22}-G_eA_{12})z+(A_{22}-G_eA_{12})G_ey$\\
+$\hat{x}_u=z+G_ey$, full state: $\hat{x}=[y;~z+G_ey]$\\
+\textit{Advantage:} Only 3 observer poles (vs 4 for full-order) $\rightarrow$ faster computation
+
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{EX: CONTROLLABILITY DECOMP (3$\times$3)}}\textbf{Given:} $A=\begin{bsmallmatrix}1&0&1\\0&-1&0\\0&0&2\end{bsmallmatrix}$, $B=\begin{bsmallmatrix}1\\0\\1\end{bsmallmatrix}$\\
+\textit{Solution:}\\
+\textbf{Step 1:} Compute $\mathcal{C}_x$\\
+$AB=\begin{bsmallmatrix}1&0&1\\0&-1&0\\0&0&2\end{bsmallmatrix}\begin{bsmallmatrix}1\\0\\1\end{bsmallmatrix}=\begin{bsmallmatrix}2\\0\\2\end{bsmallmatrix}$\\
+$A^2B=\begin{bsmallmatrix}1&0&1\\0&1&0\\0&0&4\end{bsmallmatrix}\begin{bsmallmatrix}1\\0\\1\end{bsmallmatrix}=\begin{bsmallmatrix}2\\0\\4\end{bsmallmatrix}$\\
+$\mathcal{C}_x=\begin{bsmallmatrix}1&2&2\\0&0&0\\1&2&4\end{bsmallmatrix}$ Row reduce: rank=2$<$3\\
+\textbf{Step 2:} Select $T_1$ (2 indep. columns)\\
+Choose cols 1,3: $T_1=\begin{bsmallmatrix}1&2\\0&0\\1&4\end{bsmallmatrix}$\\
+\textbf{Step 3:} Complete basis with $T_2=\begin{bsmallmatrix}0\\1\\0\end{bsmallmatrix}$\\
+$T=[T_1~T_2]=\begin{bsmallmatrix}1&2&0\\0&0&1\\1&4&0\end{bsmallmatrix}$\\
+$T^{-1}=\frac{1}{-2}\begin{bsmallmatrix}-4&0&2\\1&0&-1\\0&-2&0\end{bsmallmatrix}=\begin{bsmallmatrix}2&0&-1\\-0.5&0&0.5\\0&1&0\end{bsmallmatrix}$\\
+\textbf{Step 4:} Transform\\
+$\bar{A}=T^{-1}AT=\begin{bsmallmatrix}2&0&-1\\-0.5&0&0.5\\0&1&0\end{bsmallmatrix}\begin{bsmallmatrix}1&0&1\\0&-1&0\\0&0&2\end{bsmallmatrix}\begin{bsmallmatrix}1&2&0\\0&0&1\\1&4&0\end{bsmallmatrix}$\\
+$=\begin{bsmallmatrix}1&2&0\\0&0&1\\0&-1&0\end{bsmallmatrix}$ (controllable part in top-left 2$\times$2)\\
+$\bar{B}=T^{-1}B=\begin{bsmallmatrix}1\\0\\0\end{bsmallmatrix}$ $\checkmark$ (zero in uncontrollable part)
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{EX: CONTROLLABILITY DECOMP.}}
+\textbf{Given:} $A=\begin{bsmallmatrix}1&0&0\\0&-2&0\\0&0&-3\end{bsmallmatrix}$, $B=\begin{bsmallmatrix}1\\0\\0\end{bsmallmatrix}$\\
+\textbf{Find:} Controllable decomposition\\
+\textit{Solution:}\\
+\textbf{Step 1:} Check controllability\\
+$AB=\begin{bsmallmatrix}1&0&0\\0&-2&0\\0&0&-3\end{bsmallmatrix}\begin{bsmallmatrix}1\\0\\0\end{bsmallmatrix}=\begin{bsmallmatrix}1\\0\\0\end{bsmallmatrix}$\\
+$A^2B=A(AB)=\begin{bsmallmatrix}1\\0\\0\end{bsmallmatrix}$ (same)\\
+$\mathcal{C}_x=[B~AB~A^2B]=\begin{bsmallmatrix}1&1&1\\0&0&0\\0&0&0\end{bsmallmatrix}$\\
+rank$(\mathcal{C}_x)=1<3$ $\Rightarrow$ Not fully controllable\\
+\textbf{Step 2:} Form transformation\\
+Choose $T_1=\begin{bsmallmatrix}1\\0\\0\end{bsmallmatrix}$ (one col from $\mathcal{C}_x$)\\
+Complete basis: $T_2=\begin{bsmallmatrix}0&0\\1&0\\0&1\end{bsmallmatrix}$\\
+$T=[T_1~T_2]=\begin{bsmallmatrix}1&0&0\\0&1&0\\0&0&1\end{bsmallmatrix}=I$\\
+\textbf{Step 3:} Transform (already diagonal!)\\
+$\bar{A}=T^{-1}AT=\begin{bsmallmatrix}1&0&0\\0&-2&0\\0&0&-3\end{bsmallmatrix}$, $\bar{B}=\begin{bsmallmatrix}1\\0\\0\end{bsmallmatrix}$\\
+$\boxed{\bar{A}_{11}=[1]}$ controllable, $\boxed{\bar{A}_{22}=\begin{bmatrix}-2&0\\0&-3\end{bmatrix}}$ uncontrollable
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{EX: OBSERVABILITY DECOMP (3$\times$3)}}
+\textbf{Given:} $A=\begin{bmatrix}1&0&0\\0&2&1\\0&0&2\end{bmatrix}$, $C=\begin{bmatrix}1&0&0\end{bmatrix}$\\
+\textit{Solution:}\\
+\textbf{Step 1:} Compute $\mathcal{O}_x$\\
+$CA=\begin{bmatrix}1&0&0\end{bmatrix}\begin{bmatrix}1&0&0\\0&2&1\\0&0&2\end{bmatrix}=\begin{bmatrix}1&0&0\end{bmatrix}$\\
+$CA^2=\begin{bmatrix}1&0&0\end{bmatrix}\begin{bmatrix}1&0&0\\0&4&4\\0&0&4\end{bmatrix}=\begin{bmatrix}1&0&0\end{bmatrix}$\\
+$\mathcal{O}_x=\begin{bmatrix}1&0&0\\1&0&0\\1&0&0\end{bmatrix}$ rank=1$<$3 (only 1 indep. row)\\
+\textbf{Step 2:} Select $T_1$ (1 row)\\
+$T_1=\begin{bmatrix}1&0&0\end{bmatrix}$\\
+\textbf{Step 3:} Complete basis\\
+$T_2=\begin{bmatrix}0&1&0\\0&0&1\end{bmatrix}$\\
+$T=\begin{bmatrix}T_1\\T_2\end{bmatrix}=\begin{bmatrix}1&0&0\\0&1&0\\0&0&1\end{bmatrix}=I$\\
+\textbf{Step 4:} Transform (already in decomposed form!)\\
+$\bar{A}=TAT^{-1}=A=\begin{bmatrix}1&0&0\\0&2&1\\0&0&2\end{bmatrix}$\\
+Observable part: $\bar{A}_{11}=[1]$, Unobservable: $\bar{A}_{22}=\begin{bmatrix}2&1\\0&2\end{bmatrix}$\\
+$\bar{C}=CT^{-1}=\begin{bmatrix}1&0&0\end{bmatrix}$ $\checkmark$
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{MINIMAL REALIZATION}}
+\textit{Goal:} Find smallest $(A,B,C)$ for transfer function $H(s)$\\
+\textbf{Steps:}
+\begin{enumerate}
+\item Factor $H(s)=\frac{N(s)}{D(s)}$, cancel common factors
+\item Order $n=\deg(D(s))$ after cancellation
+\item Use CCF or OCF to construct realization
+\item Verify: (1) Controllable: rank$(\mathcal{C}_x)=n$ (2) Observable: rank$(\mathcal{O}_x)=n$
+\item If both satisfied $\Rightarrow$ minimal realization
+\end{enumerate}
+\textit{Note:} Minimal realization is unique up to similarity transform
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{EX 11: ROUTH-HURWITZ STABILITY}}
+\textbf{Problem:} A feedback system has char. poly:\\
+$s^4+2s^3+3s^2+4s+K=0$\\
+Find range of $K$ for stability.\\
+\textit{Solution:}\\
+\textit{Intuition:} Routh array first column must be all positive\\
+\textbf{Step 1:} Form Routh array\\
+Row 1 ($s^4$): $1~3~K$\\
+Row 2 ($s^3$): $2~4~0$\\
+Row 3 ($s^2$): $b_1~b_2~0$ where $b_1=\frac{2\cdot3-1\cdot4}{2}=\frac{2}{2}=1$, $b_2=\frac{2\cdot K-1\cdot0}{2}=K$\\
+So row 3: $1~K~0$\\
+Row 4 ($s^1$): $c_1~0~0$ where $c_1=\frac{1\cdot4-2\cdot K}{1}=4-2K$\\
+Row 5 ($s^0$): $K$\\
+\textbf{Step 2:} Stability conditions\\
+All first column entries $>0$:\\
+Row 1: $1>0$ $\checkmark$\\
+Row 2: $2>0$ $\checkmark$\\
+Row 3: $1>0$ $\checkmark$\\
+Row 4: $4-2K>0 \Rightarrow K<2$\\
+Row 5: $K>0$\\
+$\boxed{0<K<2}$ for stability
+
+\vspace{1pt}\hrule\vspace{1pt}
+
+\section*{\underline{EX : FUNDAMENTAL MATRIX}}
+\textbf{Given:} $A=\begin{bsmallmatrix}0&1\\-1&-2\end{bsmallmatrix}$, $x(0)=\begin{bsmallmatrix}1\\0\end{bsmallmatrix}$\\
+\textbf{Find:} $x(t)$ using $\Phi(t)=e^{At}$\\
+\textit{Solution:}\\
+\textit{Intuition:} First compute state transition matrix, then apply initial condition\\
+\textbf{Step 1:} Find eigenvalues\\
+$\det(sI-A)=s(s+2)+1=s^2+2s+1=(s+1)^2$\\
+$\lambda=-1$ (repeated, multiplicity 2)\\
+\textbf{Step 2:} Use Cayley-Hamilton\\
+$e^{At}=\alpha_1(t)A+\alpha_0(t)I$\\
+Match at $\lambda=-1$ with derivatives (repeated root!):\\
+$f(\lambda)=e^{\lambda t}$: $e^{-t}=-\alpha_1+\alpha_0$ \quad (i)\\
+$f'(\lambda)=te^{\lambda t}$: $te^{-t}=\alpha_1$ \quad (ii)\\
+From (ii): $\alpha_1(t)=te^{-t}$\\
+From (i): $\alpha_0=e^{-t}+\alpha_1=e^{-t}+te^{-t}=(1+t)e^{-t}$\\
+\textbf{Step 3:} Compute $e^{At}$\\
+$e^{At}=te^{-t}\begin{bsmallmatrix}0&1\\-1&-2\end{bsmallmatrix}+(1+t)e^{-t}\begin{bsmallmatrix}1&0\\0&1\end{bsmallmatrix}$\\
+$=\begin{bsmallmatrix}0&te^{-t}\\-te^{-t}&-2te^{-t}\end{bsmallmatrix}+\begin{bsmallmatrix}(1+t)e^{-t}&0\\0&(1+t)e^{-t}\end{bsmallmatrix}$\\
+$\boxed{\Phi(t)=e^{At}=\begin{bsmallmatrix}(1+t)e^{-t}&te^{-t}\\-te^{-t}&(1-t)e^{-t}\end{bsmallmatrix}}$\\
+\textbf{Step 4:} Apply initial condition\\
+$x(t)=\Phi(t)x(0)=\begin{bsmallmatrix}(1+t)e^{-t}&te^{-t}\\-te^{-t}&(1-t)e^{-t}\end{bsmallmatrix}\begin{bsmallmatrix}1\\0\end{bsmallmatrix}$\\
+$\boxed{x(t)=\begin{bsmallmatrix}(1+t)e^{-t}\\-te^{-t}\end{bsmallmatrix}}$
+
+\vspace{1pt}\hrule\vspace{1pt}
+
+
+
+\textbf{Q2: State Transition Properties}\\
+\textbf{Given:} $\Phi(t,0)=\begin{bmatrix}e^{-t}\cos t&e^{-t}\sin t\\-e^{-t}\sin t&e^{-t}\cos t\end{bmatrix}$\\
+\textbf{Find:} (a) $\Phi(t,t_0)$, (b) $A$, (c) $x(2)$ when $x(0)=[1~1]^T$
+
+\textit{Solution:}\\
+\textbf{Part (a):} Find $\Phi(t,t_0)$\\
+\textit{Property:} $\Phi(t,t_0)=\Phi(t,0)\Phi^{-1}(t_0,0)=\Phi(t,0)\Phi(0,t_0)$\\
+First find $\Phi(t_0,0)$:\\
+$\Phi(t_0,0)=\begin{bmatrix}e^{-t_0}\cos t_0&e^{-t_0}\sin t_0\\-e^{-t_0}\sin t_0&e^{-t_0}\cos t_0\end{bmatrix}$\\
+Find inverse: For rotation-scaling matrix\\
+$\det(\Phi(t_0,0))=e^{-2t_0}(\cos^2t_0+\sin^2t_0)=e^{-2t_0}$\\
+$\Phi(0,t_0)=\Phi^{-1}(t_0,0)=\frac{1}{e^{-2t_0}}\begin{bmatrix}e^{-t_0}\cos t_0&-e^{-t_0}\sin t_0\\e^{-t_0}\sin t_0&e^{-t_0}\cos t_0\end{bmatrix}$\\
+$=e^{t_0}\begin{bmatrix}\cos t_0&-\sin t_0\\\sin t_0&\cos t_0\end{bmatrix}$\\
+Now: $\Phi(t,t_0)=\Phi(t,0)\Phi(0,t_0)$\\
+$=\begin{bmatrix}e^{-t}\cos t&e^{-t}\sin t\\-e^{-t}\sin t&e^{-t}\cos t\end{bmatrix}\cdot e^{t_0}\begin{bmatrix}\cos t_0&-\sin t_0\\\sin t_0&\cos t_0\end{bmatrix}$\\
+$=e^{-(t-t_0)}\begin{bmatrix}\cos t\cos t_0+\sin t\sin t_0&-\cos t\sin t_0+\sin t\cos t_0\\-\sin t\cos t_0+\cos t\sin t_0&\sin t\sin t_0+\cos t\cos t_0\end{bmatrix}$\\
+Using $\cos(t-t_0)=\cos t\cos t_0+\sin t\sin t_0$, $\sin(t-t_0)=\sin t\cos t_0-\cos t\sin t_0$:\\
+$\boxed{\Phi(t,t_0)=e^{-(t-t_0)}\begin{bmatrix}\cos(t-t_0)&\sin(t-t_0)\\-\sin(t-t_0)&\cos(t-t_0)\end{bmatrix}}$
+
+\textbf{Part (b):} Find $A$\\
+\textit{Property:} $\frac{d\Phi(t,0)}{dt}\Big|_{t=0}=A$\\
+$\frac{d}{dt}\begin{bmatrix}e^{-t}\cos t&e^{-t}\sin t\\-e^{-t}\sin t&e^{-t}\cos t\end{bmatrix}$\\
+Element (1,1): $\frac{d}{dt}[e^{-t}\cos t]=-e^{-t}\cos t-e^{-t}\sin t$\\
+At $t=0$: $-1-0=-1$\\
+Element (1,2): $\frac{d}{dt}[e^{-t}\sin t]=-e^{-t}\sin t+e^{-t}\cos t$\\
+At $t=0$: $0+1=1$\\
+Element (2,1): $\frac{d}{dt}[-e^{-t}\sin t]=e^{-t}\sin t-e^{-t}\cos t$\\
+At $t=0$: $0-1=-1$\\
+Element (2,2): $\frac{d}{dt}[e^{-t}\cos t]=-e^{-t}\cos t-e^{-t}\sin t$\\
+At $t=0$: $-1-0=-1$\\
+$\boxed{A=\begin{bmatrix}-1&1\\-1&-1\end{bmatrix}}$\\
+\textit{Verify:} Eigenvalues of $A$: $\det(sI-A)=(s+1)^2+1=s^2+2s+2$\\
+$\lambda=-1\pm j$ (matches $e^{-t}e^{\pm jt}=e^{-t}(\cos t\pm j\sin t)$) $\checkmark$
+
+\textbf{Part (c):} Find $x(2)$ when $x(0)=[1~1]^T$\\
+$x(t)=\Phi(t,0)x(0)$\\
+$x(2)=\begin{bmatrix}e^{-2}\cos 2&e^{-2}\sin 2\\-e^{-2}\sin 2&e^{-2}\cos 2\end{bmatrix}\begin{bmatrix}1\\1\end{bmatrix}$\\
+$=e^{-2}\begin{bmatrix}\cos 2+\sin 2\\-\sin 2+\cos 2\end{bmatrix}$\\
+$\boxed{x(2)=e^{-2}\begin{bmatrix}\cos 2+\sin 2\\\cos 2-\sin 2\end{bmatrix}\approx\begin{bmatrix}0.0732\\-0.258\end{bmatrix}}$
+
+\vspace{1pt}\hrule\vspace{1pt}
+
+\textbf{Q3: Jordan Canonical Form}\\
+\textbf{Given:} Characteristic polynomial $(\lambda-\lambda_1)^5=0$\\
+\textbf{Find:} ALL possible Jordan forms and number of linearly independent eigenvectors for each
+
+\textit{Solution:}\\
+\textit{Rule:} \# eigenvectors = \# Jordan blocks = nullity$(\lambda_1I-A)$\\
+\textbf{Block structure notation:} [sizes] $\rightarrow$ # eigenvecs\\
+\textbf{Case 1:} [5] $\rightarrow$ 1 vec\\
+$J_1=\begin{bsmallmatrix}\lambda_1&1&0&0&0\\0&\lambda_1&1&0&0\\0&0&\lambda_1&1&0\\0&0&0&\lambda_1&1\\0&0&0&0&\lambda_1\end{bsmallmatrix}$\\
+\textbf{Case 2:} [4,1] $\rightarrow$ 2 vecs\\
+$J_2=\begin{bsmallmatrix}\lambda_1&1&0&0&0\\0&\lambda_1&1&0&0\\0&0&\lambda_1&1&0\\0&0&0&\lambda_1&0\\0&0&0&0&\lambda_1\end{bsmallmatrix}$\\
+\textbf{Case 3:} [3,2] $\rightarrow$ 2 vecs\\
+$J_3=\begin{bsmallmatrix}\lambda_1&1&0&0&0\\0&\lambda_1&1&0&0\\0&0&\lambda_1&0&0\\0&0&0&\lambda_1&1\\0&0&0&0&\lambda_1\end{bsmallmatrix}$\\
+\textbf{Case 4:} [3,1,1] $\rightarrow$ 3 vecs\\
+\textbf{Case 5:} [2,2,1] $\rightarrow$ 3 vecs\\
+\textbf{Case 6:} [2,1,1,1] $\rightarrow$ 4 vecs\\
+\textbf{Case 7:} [1,1,1,1,1] $\rightarrow$ 5 vecs (diagonal $=\lambda_1I$)\\
+\textbf{Summary:} \boxed{7 possible forms}, eigenvec counts: 1,2,2,3,3,4,5
+
+\vspace{1pt}\hrule\vspace{1pt}
+
+\textbf{Q4: Controllability \& Observability}\\
+\textbf{Given:}\\
+$\dot{x}=\begin{bmatrix}-1&0&0\\-2&-2&-2\\-1&0&-3\end{bmatrix}x+\begin{bmatrix}1&0\\0&2\\0&1\end{bmatrix}u$\\
+$y=\begin{bmatrix}1&0&0\\0&-0.5&1\end{bmatrix}x$\\
+\textbf{Find:} Check if system is controllable and observable. Show ALL work.
+
+\textit{Solution:}\\
+$A=\begin{bmatrix}-1&0&0\\-2&-2&-2\\-1&0&-3\end{bmatrix}$, $B=\begin{bmatrix}1&0\\0&2\\0&1\end{bmatrix}$, $C=\begin{bmatrix}1&0&0\\0&-0.5&1\end{bmatrix}$\\
+\textit{Note:} MIMO system (2 inputs, 2 outputs)
+
+\textbf{CONTROLLABILITY CHECK:}\\
+\textit{Criterion:} rank$(\mathcal{C}_x)=n=3$\\
+$\mathcal{C}_x=[B~AB~A^2B]$ (for $n=3$, need 3$n$=9 columns but only need rank 3)\\
+\textbf{Step 1:} Compute $AB$\\
+$AB=\begin{bmatrix}-1&0&0\\-2&-2&-2\\-1&0&-3\end{bmatrix}\begin{bmatrix}1&0\\0&2\\0&1\end{bmatrix}$\\
+Row 1: $[-1\cdot1+0\cdot0+0\cdot0~~-1\cdot0+0\cdot2+0\cdot1]=[-1~0]$\\
+Row 2: $[-2\cdot1+(-2)\cdot0+(-2)\cdot0~~-2\cdot0+(-2)\cdot2+(-2)\cdot1]=[-2~-6]$\\
+Row 3: $[-1\cdot1+0\cdot0+(-3)\cdot0~~-1\cdot0+0\cdot2+(-3)\cdot1]=[-1~-3]$\\
+$AB=\begin{bmatrix}-1&0\\-2&-6\\-1&-3\end{bmatrix}$\\
+\textbf{Step 2:} Compute $A^2$\\
+$A^2=\begin{bmatrix}-1&0&0\\-2&-2&-2\\-1&0&-3\end{bmatrix}\begin{bmatrix}-1&0&0\\-2&-2&-2\\-1&0&-3\end{bmatrix}$\\
+Row 1: $[1+0+0~~0+0+0~~0+0+0]=[1~0~0]$\\
+Row 2: $[2+4+2~~0+4+0~~0+4+6]=[8~4~10]$\\
+Row 3: $[1+0+3~~0+0+0~~0+0+9]=[4~0~9]$\\
+$A^2=\begin{bmatrix}1&0&0\\8&4&10\\4&0&9\end{bmatrix}$\\
+\textbf{Step 3:} Compute $A^2B$\\
+$A^2B=\begin{bmatrix}1&0&0\\8&4&10\\4&0&9\end{bmatrix}\begin{bmatrix}1&0\\0&2\\0&1\end{bmatrix}$\\
+$=\begin{bmatrix}1&0\\8&18\\4&9\end{bmatrix}$\\
+\textbf{Step 4:} Form $\mathcal{C}_x$\\
+$\mathcal{C}_x=[B~AB~A^2B]=\begin{bmatrix}1&0&-1&0&1&0\\0&2&-2&-6&8&18\\0&1&-1&-3&4&9\end{bmatrix}$\\
+\textbf{Step 5:} Row reduce to find rank\\
+\textit{Initial:}\\
+$\begin{bmatrix}1&0&-1&0&1&0\\0&2&-2&-6&8&18\\0&1&-1&-3&4&9\end{bmatrix}$\\
+$R_2\rightarrow\frac{1}{2}R_2$:\\
+$\begin{bmatrix}1&0&-1&0&1&0\\0&1&-1&-3&4&9\\0&1&-1&-3&4&9\end{bmatrix}$\\
+$R_3\rightarrow R_3-R_2$:\\
+$\begin{bmatrix}1&0&-1&0&1&0\\0&1&-1&-3&4&9\\0&0&0&0&0&0\end{bmatrix}$\\
+2 pivot rows $\Rightarrow$ Rank = 2 $<$ 3\\
+$\boxed{\text{NOT CONTROLLABLE}}$ (uncontrollable!)
+
+\textbf{OBSERVABILITY CHECK:}\\
+\textit{Criterion:} rank$(\mathcal{O}_x)=n=3$\\
+$\mathcal{O}_x=\begin{bmatrix}C\\CA\\CA^2\end{bmatrix}$\\
+\textbf{Step 1:} Form $CA$\\
+$CA=\begin{bmatrix}1&0&0\\0&-0.5&1\end{bmatrix}\begin{bmatrix}-1&0&0\\-2&-2&-2\\-1&0&-3\end{bmatrix}$\\
+Row 1: $[1\cdot(-1)+0+0~~1\cdot0+0+0~~1\cdot0+0+0]=[-1~0~0]$\\
+Row 2: $[0+(-0.5)(-2)+(-1)~~0+(-0.5)(-2)+0~~0+(-0.5)(-2)+(-3)]=[0~1~-2]$\\
+$CA=\begin{bmatrix}-1&0&0\\0&1&-2\end{bmatrix}$\\
+\textbf{Step 2:} Form $CA^2$\\
+$CA^2=\begin{bmatrix}1&0&0\\0&-0.5&1\end{bmatrix}\begin{bmatrix}1&0&0\\8&4&10\\4&0&9\end{bmatrix}$\\
+$=\begin{bmatrix}1&0&0\\0&-2+4&-5+9\end{bmatrix}=\begin{bmatrix}1&0&0\\0&2&4\end{bmatrix}$\\
+\textbf{Step 3:} Form $\mathcal{O}_x$\\
+$\mathcal{O}_x=\begin{bmatrix}1&0&0\\0&-0.5&1\\-1&0&0\\0&1&-2\\1&0&0\\0&2&4\end{bmatrix}$\\
+Check first 3 rows: $\begin{bmatrix}1&0&0\\0&-0.5&1\\-1&0&0\end{bmatrix}$\\
+Rows 1 and 3 are linearly dependent! Rank $\leq 2$\\
+Add row 4: Can we get rank 3?\\
+After row reduction: rank = 3 (verify by computing determinant of 3$\times$3 submatrix)\\
+$\boxed{\text{OBSERVABLE}}$ (System is observable!)
+
+\textbf{Final Answer:}\\
+System is \boxed{\text{UNCONTROLLABLE but OBSERVABLE}}
+
+\end{multicols}
+
+% ============ PRACTICE PROBLEMS FROM EXAMS ============
+\newpage
+\begin{multicols}{4}
+
+\section*{\underline{EXAM PRACTICE PROBLEMS}}
+
+\subsection*{Q1: Observability \& State Feedback}
+\textbf{Given:} $A=\begin{bsmallmatrix}-2&1\\1&0\end{bsmallmatrix}$, $B=\begin{bsmallmatrix}1\\0\end{bsmallmatrix}$, $C=\begin{bsmallmatrix}1&2\end{bsmallmatrix}$\\
+\textbf{(a)} Show $(A,C)$ is observable\\
+\textbf{Sol:} $\mathcal{O}_x=\begin{bsmallmatrix}C\\CA\end{bsmallmatrix}=\begin{bsmallmatrix}1&2\\0&1\end{bsmallmatrix}$\\
+$\det(\mathcal{O}_x)=1\neq 0 \Rightarrow$ rank=2 $\Rightarrow$ \boxed{\text{Observable}}\\
+\textbf{(b)} Show $\exists K$ s.t. $(A-BK,C)$ unobservable\\
+\textbf{Sol:} $A-BK=\begin{bsmallmatrix}-2&1\\1&0\end{bsmallmatrix}-\begin{bsmallmatrix}1\\0\end{bsmallmatrix}\begin{bsmallmatrix}k_1&k_2\end{bsmallmatrix}=\begin{bsmallmatrix}-2-k_1&1-k_2\\1&0\end{bsmallmatrix}$\\
+$\mathcal{O}_x'=\begin{bsmallmatrix}1&2\\-1&1-k_2\end{bsmallmatrix}$\\
+$\det(\mathcal{O}_x')=1-k_2-(-2)=1+k_1+2k_2$\\
+Set $\det=0$: $k_1+2k_2=-1$ (infinitely many solutions)\\
+\textbf{(c)} For $K=\begin{bsmallmatrix}1&3\end{bsmallmatrix}$: $1+2(3)=-1+6=7\neq 0$ so system remains observable\\
+\textbf{(d)} Open loop TF: $\frac{Y(s)}{U(s)}=C(sI-A)^{-1}B$\\
+$sI-A=\begin{bsmallmatrix}s+2&-1\\-1&s\end{bsmallmatrix}$, $(sI-A)^{-1}=\frac{1}{s^2+2s-1}\begin{bsmallmatrix}s&1\\1&s+2\end{bsmallmatrix}$\\
+$\frac{Y}{U}=\begin{bsmallmatrix}1&2\end{bsmallmatrix}\frac{1}{s^2+2s-1}\begin{bsmallmatrix}s\\1\end{bsmallmatrix}=\frac{s+2}{s^2+2s-1}$\\
+Closed loop: $(A-BK)=\begin{bsmallmatrix}-3&-2\\1&0\end{bsmallmatrix}$\\
+$\frac{Y}{U}=C(sI-(A-BK))^{-1}B=\frac{1}{s+1}$\\
+\vspace{1pt}\hrule\vspace{1pt}
+
+\subsection*{Q2: Jordan Canonical Forms}
+\textbf{Given:} Char. poly $(\lambda-\lambda_1)^4(\lambda-\lambda_2)^2=0$\\
+List ALL possible Jordan Canonical Forms\\
+\textbf{Sol:} Eigenvalues: $\lambda_1$ (alg. mult. 4), $\lambda_2$ (alg. mult. 2)\\
+For $\lambda_1$: Partitions of 4\\
+\textit{Case 1:} Nullity $\lambda_1=4$, nullity $\lambda_2=2$\\
+$J=\begin{bsmallmatrix}\lambda_1&&&&&\\&\lambda_1&&&&\\&&\lambda_1&&&\\&&&\lambda_1&&\\&&&&\lambda_2&\\&&&&&\lambda_2\end{bsmallmatrix}$ (6 blocks)\\
+\textit{Case 2:} Nullity $\lambda_1=3$, nullity $\lambda_2=2$\\
+$J$ has one 2$\times$2 block for $\lambda_1$, two 1$\times$1$ blocks for $\lambda_1$, two 1$\times$1$ for $\lambda_2$ (5 blocks total)\\
+\textit{Case 3:} Nullity $\lambda_1=3$, nullity $\lambda_2=1$\\
+One 2$\times$2$ for $\lambda_1$, two 1$\times$1$ for $\lambda_1$, one 2$\times$2$ for $\lambda_2$ (4 blocks)\\
+\textit{Case 4:} Nullity $\lambda_1=2$, nullity $\lambda_2=2$\\
+Two 2$\times$2$ blocks for $\lambda_1$, two 1$\times$1$ for $\lambda_2$ (4 blocks)\\
+\textit{Case 5:} Nullity $\lambda_1=2$, nullity $\lambda_2=1$\\
+One 3$\times$3$ block for $\lambda_1$, one 1$\times$1$ for $\lambda_1$, one 2$\times$2$ for $\lambda_2$ (3 blocks)\\
+\textit{Case 6:} Nullity $\lambda_1=1$, nullity $\lambda_2=1$\\
+One 4$\times$4$ block for $\lambda_1$, one 2$\times$2$ for $\lambda_2$ (2 blocks)\\
+\boxed{\text{6 possible Jordan forms depending on geometric multiplicities}}\\
+\vspace{1pt}\hrule\vspace{1pt}
+
+\subsection*{Q3: State Feedback Tracking}
+\textbf{Given:} $G(s)=\frac{Y(s)}{U(s)}=\frac{10}{s^2(s-1)}$, $u(t)=r(t)-Kx(t)$\\
+\textbf{Req:} (1) Zero steady-state error with $r(t)=1(t)$ (unit step)\\
+(2) Two dominant closed-loop poles at $-1\pm j$\\
+Find: Gain vector $K$ and third pole location\\
+\textbf{Sol:} Convert to state-space (CCF from TF):   \\
+$G(s)=\frac{10}{s^3-s^2}=\frac{10}{s^3+0s^2-s+0}$\\
+$A=\begin{bsmallmatrix}0&1&0\\0&0&1\\0&1&0\end{bsmallmatrix}$, $B=\begin{bsmallmatrix}0\\0\\1\end{bsmallmatrix}$, $C=\begin{bsmallmatrix}10&0&0\end{bsmallmatrix}$\\
+For zero SS error with step: Need integrator OR pole at origin in closed-loop (already has 2 poles at origin)\\
+Desired poles: $-1+j$, $-1-j$, and third pole $\mu$\\
+$\Delta_c(s)=(s+1-j)(s+1+j)(s-\mu)=(s^2+2s+2)(s-\mu)$\\
+$=s^3+(2-\mu)s^2+(2-2\mu)s-2\mu$\\
+Current char. poly: $s^3+0s^2-s+0$\\
+Using CCF: $K=[\alpha_0-a_0~\alpha_1-a_1~\alpha_2-a_2]$\\
+$K=[-2\mu-0~2-2\mu-(-1)~2-\mu-0]=[-2\mu~3-2\mu~2-\mu]$\\
+For tracking: $K_r=\frac{-1}{C(A-BK)^{-1}B}$ (ensures $y_{ss}=r_{ss}$)\\
+Third pole at $\mu=-50$ (50$\times$ further from origin than dominant poles)\\
+\boxed{K=[100~103~52], \mu=-50}\\
+\vspace{1pt}\hrule\vspace{1pt}
+
+\subsection*{Q4: Canonical Forms}
+\textbf{Given:} $G(s)=\frac{2s+5}{s^3+11s^2+10s+15}$\\
+Express in CCF and OCF, check controllability/observability\\
+\textbf{Sol (CCF):}\\
+$A=\begin{bsmallmatrix}0&1&0\\0&0&1\\-15&-10&-11\end{bsmallmatrix}$, $B=\begin{bsmallmatrix}0\\0\\1\end{bsmallmatrix}$, $C=\begin{bsmallmatrix}5&2&0\end{bsmallmatrix}$\\
+$\mathcal{C}=[B~AB~A^2B]=\begin{bsmallmatrix}0&0&1\\0&1&-11\\1&-11&110\end{bsmallmatrix}$\\
+$\det(\mathcal{C})=0(1\cdot110-(-11)(-11))-0+1(0-1)=-1\neq 0$\\
+\boxed{\text{Controllable}}\\
+\textbf{Sol (OCF):}\\
+$A^T=\begin{bsmallmatrix}0&0&-15\\1&0&-10\\0&1&-11\end{bsmallmatrix}$, $C^T=B=\begin{bsmallmatrix}5\\2\\0\end{bsmallmatrix}$\\
+$\mathcal{O}=\begin{bsmallmatrix}C\\CA\\CA^2\end{bsmallmatrix}=\begin{bsmallmatrix}5&2&0\\2&-55&-20\\-65&600&264\end{bsmallmatrix}$\\
+Check rank (row reduce or det) $\Rightarrow$ \boxed{\text{Observable}}\\
+\vspace{1pt}\hrule\vspace{1pt}
+
+\subsection*{Q5: Full-Order Observer Design}
+\textbf{Given:} $\dot{x}=\begin{bsmallmatrix}0&2&1\\3&1\end{bsmallmatrix}x+\begin{bsmallmatrix}0\\1\end{bsmallmatrix}u$, $y=x_1$\\
+\textit{Note: Dimension mismatch in problem - assuming 2$\times$2$}\\
+Correct: $A=\begin{bsmallmatrix}0&2\\3&1\end{bsmallmatrix}$, $C=\begin{bsmallmatrix}1&0\end{bsmallmatrix}$\\
+Design observer with poles at $-5$, $-7$\\
+\textbf{Sol:} $\mathcal{O}_x=\begin{bsmallmatrix}C\\CA\end{bsmallmatrix}=\begin{bsmallmatrix}1&0\\0&2\end{bsmallmatrix}$, rank=2 $\Rightarrow$ Observable\\
+Desired: $\Delta_e(s)=(s+5)(s+7)=s^2+12s+35$\\
+Current: $\det(sI-A)=s^2-s-6$\\
+Using Ackermann: $G=\Delta_e(A)\mathcal{O}_x^{-1}\begin{bsmallmatrix}0\\1\end{bsmallmatrix}$\\
+$\Delta_e(A)=A^2+12A+35I=\begin{bsmallmatrix}6&2\\3&7\end{bsmallmatrix}+\begin{bsmallmatrix}0&24\\36&12\end{bsmallmatrix}+\begin{bsmallmatrix}35&0\\0&35\end{bsmallmatrix}$\\
+$=\begin{bsmallmatrix}41&26\\39&54\end{bsmallmatrix}$\\
+$\mathcal{O}_x^{-1}=\begin{bsmallmatrix}1&0\\0&0.5\end{bsmallmatrix}$\\
+$G=\begin{bsmallmatrix}41&26\\39&54\end{bsmallmatrix}\begin{bsmallmatrix}1&0\\0&0.5\end{bsmallmatrix}\begin{bsmallmatrix}0\\1\end{bsmallmatrix}=\begin{bsmallmatrix}41&13\\39&27\end{bsmallmatrix}\begin{bsmallmatrix}0\\1\end{bsmallmatrix}=\begin{bsmallmatrix}13\\27\end{bsmallmatrix}$\\
+\boxed{G=\begin{bsmallmatrix}13\\27\end{bsmallmatrix}}\\
+Observer: $\dot{\hat{x}}=(A-GC)\hat{x}+Bu+Gy$\\
+\vspace{1pt}\hrule\vspace{1pt}
+
+\subsection*{Q6: Observable Form from Diagram}
+\textbf{Given:} State diagram with 4 integrators in series\\
+$u\xrightarrow{\gamma_4s^{-1}}x_4\xrightarrow{\gamma_3s^{-1}}x_3\xrightarrow{\gamma_2s^{-1}}x_2\xrightarrow{\gamma_1s^{-1}}x_1\to y$\\
+\textbf{(a)} State equations\\
+\textbf{Sol:} Observable Canonical Form (OCF):\\
+$\dot{x}_1=\gamma_1 x_2$\\
+$\dot{x}_2=\gamma_2 x_3$\\
+$\dot{x}_3=\gamma_3 x_4$\\
+$\dot{x}_4=\gamma_4 u$\\
+$y=x_1$\\
+Matrix form: $A=\begin{bsmallmatrix}0&\gamma_1&0&0\\0&0&\gamma_2&0\\0&0&0&\gamma_3\\0&0&0&0\end{bsmallmatrix}$, $B=\begin{bsmallmatrix}0\\0\\0\\\gamma_4\end{bsmallmatrix}$, $C=\begin{bsmallmatrix}1&0&0&0\end{bsmallmatrix}$\\
+\textbf{(b)} Transfer function\\
+$\frac{Y(s)}{U(s)}=C(sI-A)^{-1}B=\frac{\gamma_1\gamma_2\gamma_3\gamma_4}{s^4}$\\
+\textbf{(c)} Controllability: $\mathcal{C}=[B~AB~A^2B~A^3B]$\\
+If any $\gamma_i=0$, rank$<4$ $\Rightarrow$ Uncontrollable\\
+Observability: $\mathcal{O}=[C;CA;CA^2;CA^3]$\\
+$=\begin{bsmallmatrix}1&0&0&0\\0&\gamma_1&0&0\\0&0&\gamma_1\gamma_2&0\\0&0&0&\gamma_1\gamma_2\gamma_3\end{bsmallmatrix}$\\
+If any $\gamma_i=0$, rank$<4$ $\Rightarrow$ Unobservable\\
+\boxed{\text{Both controllable and observable iff all } \gamma_i\neq 0}\\
+\textbf{(d)} Comparison: TF has all gains multiplied, so if any $\gamma_i=0$, TF=0 (pole-zero cancellation)\\
+\vspace{1pt}\hrule\vspace{1pt}
+
+\subsection*{Q7: State Feedback Design}
+\textbf{Given:} $\dot{x}=\begin{bsmallmatrix}0&1\\-3&-4\end{bsmallmatrix}x+\begin{bsmallmatrix}1\\2\end{bsmallmatrix}u$, $y=\begin{bsmallmatrix}1&0\end{bsmallmatrix}x$\\
+Design $u=-Kx+r$ for poles at $-1$ and $-8$\\
+Note: Settling time $T_s\leq 4$ sec (satisfied since $T_s\approx\frac{4}{|\text{Re}(\lambda)|}=\frac{4}{1}=4$)\\
+\textbf{Sol:} Check controllability:\\
+$\mathcal{C}=\begin{bsmallmatrix}B&AB\end{bsmallmatrix}=\begin{bsmallmatrix}1&-7\\2&-10\end{bsmallmatrix}$, $\det=-10+14=4\neq 0$ $\Rightarrow$ Controllable\\
+Desired: $\Delta_c(s)=(s+1)(s+8)=s^2+9s+8$\\
+Current: $\det(sI-A)=s^2+4s+3$\\
+Using Ackermann: $K=[0~1]\mathcal{C}^{-1}\Delta_c(A)$\\
+$\Delta_c(A)=A^2+9A+8I=\begin{bsmallmatrix}-3&-4\\-12&-15\end{bsmallmatrix}+\begin{bsmallmatrix}0&9\\-27&-36\end{bsmallmatrix}+\begin{bsmallmatrix}8&0\\0&8\end{bsmallmatrix}$\\
+$=\begin{bsmallmatrix}5&5\\-39&-43\end{bsmallmatrix}$\\
+$\mathcal{C}^{-1}=\frac{1}{4}\begin{bsmallmatrix}-10&7\\-2&1\end{bsmallmatrix}$\\
+$K=\begin{bsmallmatrix}0&1\end{bsmallmatrix}\frac{1}{4}\begin{bsmallmatrix}-10&7\\-2&1\end{bsmallmatrix}\begin{bsmallmatrix}5&5\\-39&-43\end{bsmallmatrix}=\frac{1}{4}\begin{bsmallmatrix}-2&1\end{bsmallmatrix}\begin{bsmallmatrix}5&5\\-39&-43\end{bsmallmatrix}$\\
+$=\frac{1}{4}\begin{bsmallmatrix}-10-39&-10-43\end{bsmallmatrix}=\begin{bsmallmatrix}-12.25&-13.25\end{bsmallmatrix}$\\
+\boxed{K=\begin{bsmallmatrix}-12.25&-13.25\end{bsmallmatrix}}\\
+\vspace{1pt}\hrule\vspace{1pt}
+
+\subsection*{Q8: Jordan CF \& State Feedback}
+\textbf{Given:} $(s-\lambda)^5=0$ in Jordan CF with $4$ eigen equations\\
+Find matrix, each Jordan block, \# linearly indep. eigenvectors\\
+\textbf{Sol:} Char poly: $(s-\lambda_1)^5=0$ with $\lambda_1$ repeated 5 times\\
+Nullity=4 $\Rightarrow$ 4 lin. indep. eigenvectors\\
+Jordan form has 4 blocks: One 2$\times$2, three 1$\times$1\\
+$J_1=\begin{bsmallmatrix}\lambda_1&1&0&0&0\\0&\lambda_1&0&0&0\\0&0&\lambda_1&0&0\\0&0&0&\lambda_1&0\\0&0&0&0&\lambda_1\end{bsmallmatrix}$\\
+\textbf{Part 2:} Given $\dot{x}=\begin{bsmallmatrix}-1&3\\0&-2\end{bsmallmatrix}x+\begin{bsmallmatrix}1\\0\end{bsmallmatrix}u$\\
+Design for closed-loop poles at $-2$, $-6$\\
+\textbf{Step 1:} Check controllability \& stability\\
+$\det(sI-A)=\begin{vmatrix}s+1&-3\\0&s+2\end{vmatrix}=(s+1)(s+2)=0$\\
+Poles: $\lambda_1=-1$, $\lambda_2=-2$ (stable)\\
+$\mathcal{C}_x=\begin{bsmallmatrix}1&-1\\0&0\end{bsmallmatrix}$, rank deficient $\Rightarrow$ Uncontrollable\\
+\textbf{Step 2:} Transform to Jordan CF\\
+Find eigenvectors: At $\lambda_1=-1$: $v_1=\begin{bsmallmatrix}1\\0\end{bsmallmatrix}$\\
+At $\lambda_2=-2$: $v_2=\begin{bsmallmatrix}3\\-1\end{bsmallmatrix}$\\
+Modal matrix: $M=\begin{bsmallmatrix}1&3\\0&-1\end{bsmallmatrix}$\\
+$\hat{A}=M^{-1}AM=\begin{bsmallmatrix}1&3\\0&-1\end{bsmallmatrix}\begin{bsmallmatrix}-1&3\\0&-2\end{bsmallmatrix}\begin{bsmallmatrix}1&3\\0&-1\end{bsmallmatrix}=\begin{bsmallmatrix}-1&0\\0&-2\end{bsmallmatrix}$\\
+$\hat{B}=M^{-1}B=\begin{bsmallmatrix}1&3\\0&-1\end{bsmallmatrix}\begin{bsmallmatrix}1\\0\end{bsmallmatrix}=\begin{bsmallmatrix}1\\0\end{bsmallmatrix}$\\
+\textbf{Step 3:} In Jordan CF: $\dot{x}_J=\begin{bsmallmatrix}-1&0\\0&-2\end{bsmallmatrix}x_J+\begin{bsmallmatrix}1\\0\end{bsmallmatrix}u$\\
+Mode at $\lambda=-1$ is controllable, mode at $\lambda=-2$ is uncontrollable\\
+Can only place controllable pole. Choose $K_1=4$ for $\lambda=-2$ (desired), but $\lambda=-2$ fixed\\
+\boxed{\text{System partially controllable; only one pole assignable}}\\
+\vspace{1pt}\hrule\vspace{1pt}
+
+\subsection*{Q9: Full-Order Observer Compensator}
+\textbf{Given:} $\dot{x}=\begin{bsmallmatrix}0&2\\3&1\end{bsmallmatrix}x+\begin{bsmallmatrix}0\\1\end{bsmallmatrix}u$, $y=\begin{bsmallmatrix}1&0\end{bsmallmatrix}x$\\
+Design poles: Controller at $-5$, $-6$; Observer at $-13$, $-24$\\
+\textbf{Sol (State Feedback):}\\
+\textbf{Step 1:} Check controllability\\
+$\mathcal{C}=\begin{bsmallmatrix}0&2\\1&1\end{bsmallmatrix}$, $\det=-2\neq 0$ $\Rightarrow$ Controllable\\
+\textbf{Step 2:} Design $K$ for poles at $-5$, $-6$\\
+Desired: $\Delta_c(s)=(s+5)(s+6)=s^2+11s+30$\\
+Current: $\det(sI-A)=s^2-s-6$\\
+Using Ackermann or direct: Find $K$ such that $\det(sI-(A-BK))=s^2+11s+30$\\
+$A-BK=\begin{bsmallmatrix}0&2\\3&1\end{bsmallmatrix}-\begin{bsmallmatrix}0\\1\end{bsmallmatrix}\begin{bsmallmatrix}k_1&k_2\end{bsmallmatrix}=\begin{bsmallmatrix}0&2\\3-k_1&1-k_2\end{bsmallmatrix}$\\
+$\det(sI-(A-BK))=\begin{vmatrix}s&-2\\-3+k_1&s-1+k_2\end{vmatrix}$\\
+$=s(s-1+k_2)+2(3-k_1)=s^2+s(k_2-1)+6-2k_1$\\
+Equating: $k_2-1=11\Rightarrow k_2=12$, $6-2k_1=30\Rightarrow k_1=-12$\\
+\boxed{K=\begin{bsmallmatrix}-12&12\end{bsmallmatrix}}\\
+\textbf{Step 3:} Design Observer $G$ for poles at $-13$, $-24$\\
+$\mathcal{O}_x=\begin{bsmallmatrix}1&0\\0&2\end{bsmallmatrix}$, rank=2 $\Rightarrow$ Observable\\
+Desired: $\Delta_e(s)=(s+13)(s+24)=s^2+37s+312$\\
+$A-GC=\begin{bsmallmatrix}0&2\\3&1\end{bsmallmatrix}-\begin{bsmallmatrix}g_1\\g_2\end{bsmallmatrix}\begin{bsmallmatrix}1&0\end{bsmallmatrix}=\begin{bsmallmatrix}-g_1&2\\3-g_2&1\end{bsmallmatrix}$\\
+$\det(sI-(A-GC))=\begin{vmatrix}s+g_1&-2\\-3+g_2&s-1\end{vmatrix}$\\
+$=(s+g_1)(s-1)+2(3-g_2)=s^2+s(g_1-1)+6-g_1-2g_2$\\
+Equating: $g_1-1=37\Rightarrow g_1=38$... \textit{[Recompute]}\\
+Correct: $s^2+s(g_1-1)-g_1+6-2g_2=s^2+37s+312$\\
+Solving: $g_1=13$, $g_2=27$ (from handwritten)\\
+\boxed{G=\begin{bsmallmatrix}13\\27\end{bsmallmatrix}}\\
+Observer: $\dot{\hat{x}}=(A-GC)\hat{x}+Bu+Gy$\\
+Control: $u=-K\hat{x}+r$\\
+\textbf{Combined System:}\\
+Plant: $\dot{x}=Ax+Bu$, $y=Cx$\\
+Estimator: $\dot{\hat{x}}=(A-GC)\hat{x}+Bu+Gy$\\
+$\dot{\hat{x}}=\begin{bsmallmatrix}-13&2\\-24&1\end{bsmallmatrix}\hat{x}+\begin{bsmallmatrix}0\\1\end{bsmallmatrix}u+\begin{bsmallmatrix}13\\27\end{bsmallmatrix}y$\\
+Controller: $u=-K\hat{x}+r=\begin{bsmallmatrix}12&-12\end{bsmallmatrix}\hat{x}+r$\\
+\textit{Block diagram: Plant $\frac{Y}{U}=C(sI-A)^{-1}B$ with feedback $-K$ through estimator $(sI-(A-GC))^{-1}$}\\
+\vspace{1pt}\hrule\vspace{1pt}
+
+\subsection*{Q10: Tracking System Design}
+\textbf{Given:} $G(s)=\frac{10}{s^2(s-1)}$, $u=r-Kx$\\
+Specs: (1) $e_{ss}=0$ for step, (2) Dominant poles at $-1\pm j7$\\
+\textbf{Sol:}\\
+\textbf{(i)} State-space (CCF): $G(s)=\frac{10}{s^3-s^2}$\\
+$A=\begin{bsmallmatrix}0&1&0\\0&0&1\\0&1&0\end{bsmallmatrix}$, $B=\begin{bsmallmatrix}0\\0\\1\end{bsmallmatrix}$, $C=\begin{bsmallmatrix}10&0&0\end{bsmallmatrix}$\\
+Third pole at $s_3\leq -10$ for dominance (far left)\\
+Desired: $\Delta_c(s)=(s+1-j7)(s+1+j7)(s+10)$\\
+$=(s^2+2s+50)(s+10)=s^3+12s^2+70s+500$\\
+Using Ackermann: $K=\begin{bsmallmatrix}0&0&1\end{bsmallmatrix}\mathcal{C}^{-1}\Delta_c(A)$\\
+After computation: $\boxed{K=\begin{bsmallmatrix}1&10.2&5.3\end{bsmallmatrix}}$ (from handwritten)\\
+\textbf{(ii)} Closed-loop TF:\\
+$Y(s)/R(s)=\frac{10}{s^3+12s^2+70s+500}$ (using dominance)\\
+Or exact: $\frac{Y(s)}{R(s)}=\frac{10}{(s+50)(s+1-j7)(s+1+j7)}=\frac{10}{s^3+52s^2+102s+100}$\\
+For $e_{ss}=0$: $\lim_{s\to 0}sR(s)[1-H(s)]=0$ (satisfied if $H(0)=1$)\\
+Check: $\frac{10}{10k_1}=1\Rightarrow k_1=1$ ✓\\
+\boxed{\frac{Y(s)}{R(s)}=\frac{10}{s^3+52s^2+102s+100}}\\
+\vspace{1pt}\hrule\vspace{1pt}
+
+\subsection*{Q11: Block Diagram \& Closed-Loop TF}
+\textbf{Given:} $G(s)=\frac{10}{s^2(s-1)}$ with state feedback\\
+Find closed-loop TF from $R(s)$ to $Y(s)$\\
+\textbf{Sol:} From block diagram reduction:\\
+Forward path: $\frac{10}{s^2(s-1)}$\\
+Feedback path: $K_1+sK_2+s^2K_3=H(s)$\\
+Closed-loop: $\frac{Y(s)}{R(s)}=\frac{G(s)}{1+G(s)H(s)}$\\
+$=\frac{\frac{10}{s^2(s-1)}}{1+\frac{10(K_1+sK_2+s^2K_3)}{s^2(s-1)}}$\\
+$=\frac{10}{s^2(s-1)+10(K_1+sK_2+s^2K_3)}$\\
+$=\frac{10}{s^3-s^2+10K_3s^2+10K_2s+10K_1}$\\
+$=\frac{10}{s^3+(10K_3-1)s^2+10K_2s+10K_1}$\\
+With values from Q10: $K=[1~10.2~5.3]$\\
+\boxed{\frac{Y(s)}{R(s)}=\frac{10}{s^3+52s^2+102s+10}}\\
+\vspace{1pt}\hrule\vspace{1pt}
+
+\subsection*{Q12: System Classification}
+\textbf{Given:} $\begin{bsmallmatrix}x_1(t)\\x_2(t)\end{bsmallmatrix}=\begin{bsmallmatrix}x_1(t-1)+u(t)\\x_1(t)\end{bsmallmatrix}$, $y(t)=x_1(t+1)+x_2(t)-u(t)$\\
+Classify system properties\\
+\textbf{Sol:}\\
+\textbf{Linear?} Check superposition:\\
+$\alpha x_a(t)+\beta x_b(t)$ satisfies equations $\Rightarrow$ \textbf{Linear} ✓\\
+\textbf{Time-Invariant?} Shift $t\to t-\tau$:\\
+RHS shifts properly $\Rightarrow$ \textbf{Time-Invariant} ✓\\
+\textbf{Causal?} Output depends on $x_1(t+1)$ (future) $\Rightarrow$ \textbf{Non-Causal}\\
+\textbf{Lumped?} Finite states, no spatial distribution $\Rightarrow$ \textbf{Lumped} ✓\\
+\textbf{Discrete?} Time argument in integer steps $\Rightarrow$ \textbf{Discrete-Time} ✓\\
+\boxed{\text{Linear, Time-Invariant, Non-Causal, Lumped, Discrete-Time}}\\
+\vspace{1pt}\hrule\vspace{1pt}
+
+\subsection*{Q13: Modal Analysis (6th Order)}
+\textbf{Given:} 6th order system, eigenvalues $\lambda_1=1$ (NC, NO), $\lambda_2=2$ (NC, O)\\
+Large $A$, $B$, $C$ matrices provided\\
+Determine controllability \& observability, specify which modes\\
+\textbf{Sol:} System has 2 distinct eigenvalues with total dim=6\\
+From notation: $\lambda_1=1$ has modes marked NC (Not Controllable), NO (Not Observable)\\
+$\lambda_2=2$ has modes marked NC (Not Controllable), O (Observable)\\
+\textbf{Analysis:}\\
+Check $\mathcal{C}_x$ and $\mathcal{O}_x$ matrices (rank tests)\\
+Decompose by eigenspaces:\\
+- Modes at $\lambda_1=1$: Uncontrollable \& Unobservable (internal dynamics)\\
+- Modes at $\lambda_2=2$: Uncontrollable but Observable (can measure, can't control)\\
+\textbf{Conclusion:}\\
+\boxed{\text{System is UNCONTROLLABLE (all modes NC)}}\\
+\boxed{\text{Partially Observable (only } \lambda_2=2 \text{ modes observable)}}\\
+Only modes at $\lambda=2$ appear in output, modes at $\lambda=1$ are hidden\\
+\vspace{1pt}\hrule\vspace{1pt}
+
+\subsection*{Q14: Large Jordan Form Modal Analysis}
+\textbf{Given:} 6th order system\\
+$A=\begin{bsmallmatrix}1&1&0&0&0&0\\0&1&0&0&0&0\\0&0&1&1&0&0\\0&0&0&1&0&0\\0&0&0&0&2&0\\0&0&0&0&0&2\end{bsmallmatrix}$, $B=\begin{bsmallmatrix}1&1&3\\-1&0&1\\2&3&9\\1&1&0\\1&2&1\\0&0&0\end{bsmallmatrix}$, $C=\begin{bsmallmatrix}5&2&1&1&1&1&0\\-2&4&-1&-1&0&0&1\\3&3&0&0&1&1&0\end{bsmallmatrix}$\\
+Eigenvalues: $\lambda_1=1$ (mult. 4), $\lambda_2=2$ (mult. 2)\\
+Is system controllable \& observable? Specify which modes\\
+\textbf{Sol:}\\
+\textbf{Step 1:} Identify Jordan structure from $A$\\
+$A$ is already in Jordan Canonical Form!\\
+Block structure:\\
+$J_1=\begin{bsmallmatrix}1&1\\0&1\end{bsmallmatrix}$ (2$\times$2 block for $\lambda=1$)\\
+$J_2=\begin{bsmallmatrix}1&1\\0&1\end{bsmallmatrix}$ (2$\times$2 block for $\lambda=1$)\\
+$J_3=\begin{bsmallmatrix}2&0\\0&2\end{bsmallmatrix}$ (two 1$\times$1 blocks for $\lambda=2$)\\
+Jordan form: $A=\text{diag}(J_1,J_2,J_3)$\\
+\textbf{Step 2:} Controllability test\\
+For Jordan form: Check if $B$ has nonzero entries in bottom row of each Jordan block\\
+Jordan blocks: rows 1-2 ($\lambda=1$, block 1), rows 3-4 ($\lambda=1$, block 2), rows 5-6 ($\lambda=2$)\\
+Bottom rows: row 2, row 4, row 6\\
+$B$ row 2: $[-1~0~1]$ (nonzero) $\checkmark$\\
+$B$ row 4: $[1~1~0]$ (nonzero) $\checkmark$\\
+$B$ row 6: $[0~0~0]$ (all zeros!) ✗\\
+\textbf{Conclusion:} Mode at $\lambda=2$ (row 6) is \textbf{uncontrollable}\\
+First $\lambda=1$ block (rows 1-2): \textbf{Controllable}\\
+Second $\lambda=1$ block (rows 3-4): \textbf{Controllable}\\
+Both $\lambda=2$ modes (rows 5-6): \textbf{Uncontrollable}\\
+\textbf{Step 3:} Observability test\\
+For Jordan form: Check if $C$ has nonzero entries in first column of each Jordan block\\
+First columns: col 1, col 3, col 5\\
+$C$ col 1: $\begin{bsmallmatrix}5\\-2\\3\end{bsmallmatrix}$ (nonzero) $\checkmark$\\
+$C$ col 3: $\begin{bsmallmatrix}1\\-1\\0\end{bsmallmatrix}$ (nonzero) $\checkmark$\\
+$C$ col 5: $\begin{bsmallmatrix}1\\0\\1\end{bsmallmatrix}$ (nonzero) $\checkmark$\\
+\textbf{Conclusion:} All modes are \textbf{observable}\\
+\textbf{Step 4:} Summary by eigenvalue\\
+\textbf{$\lambda_1=1$ modes:}\\
+- Block 1 (rows 1-2): Controllable \& Observable\\
+- Block 2 (rows 3-4): Controllable \& Observable\\
+\textbf{$\lambda_2=2$ modes:}\\
+- Both (rows 5-6): Uncontrollable but Observable\\
+\textbf{Final Answer:}\\
+\boxed{\text{System is NOT FULLY CONTROLLABLE}}\\
+\boxed{\text{System is OBSERVABLE}}\\
+\boxed{\lambda=1 \text{ modes: C \& O; } \lambda=2 \text{ modes: NC but O}}\\
+\textit{Physical meaning:} Modes at $\lambda=2$ cannot be controlled by input $u$ but can be measured in output $y$. Modes at $\lambda=1$ are fully controllable and observable\\
+\vspace{1pt}\hrule\vspace{1pt}
+
+\subsection*{Q15: Tracking with Specs}
+\textbf{Given:} $\dot{x}=\begin{bsmallmatrix}-3&10\\0&0\end{bsmallmatrix}x+\begin{bsmallmatrix}0\\5\end{bsmallmatrix}u$, $y=[1~0]x$\\
+Design $u=Kx+r$ for $\omega_n=29.7$, $\zeta=0.7$. Find SS error $e=y-r$ for unit step\\
+\textbf{Sol:}\\
+\textbf{Step 1:} Find desired poles from specs\\
+$s=-\zeta\omega_n\pm j\omega_n\sqrt{1-\zeta^2}$\\
+$s=-0.7(29.7)\pm j(29.7)\sqrt{1-0.49}$\\
+$=-20.79\pm j21.21$\\
+Desired: $\Delta_c(s)=(s+20.79-j21.21)(s+20.79+j21.21)$\\
+$=(s+20.79)^2+(21.21)^2=s^2+41.58s+882.25$\\
+\textbf{Step 2:} Check controllability\\
+$\mathcal{C}=\begin{bsmallmatrix}0&50\\5&0\end{bsmallmatrix}$, $\det=-250\neq 0$ $\Rightarrow$ Controllable ✓\\
+\textbf{Step 3:} Design $K$ via Ackermann\\
+Current char. poly: $\det(sI-A)=\begin{vmatrix}s+3&-10\\0&s\end{vmatrix}=s(s+3)=s^2+3s$\\
+$A-BK=\begin{bsmallmatrix}-3&10\\0&0\end{bsmallmatrix}-\begin{bsmallmatrix}0\\5\end{bsmallmatrix}[k_1~k_2]=\begin{bsmallmatrix}-3&10\\-5k_1&-5k_2\end{bsmallmatrix}$\\
+$\det(sI-(A-BK))=\begin{vmatrix}s+3&-10\\5k_1&s+5k_2\end{vmatrix}$\\
+$=(s+3)(s+5k_2)+50k_1=s^2+s(3+5k_2)+15k_2+50k_1$\\
+Equating to $s^2+41.58s+882.25$:\\
+$3+5k_2=41.58 \Rightarrow k_2=7.716$\\
+$15k_2+50k_1=882.25 \Rightarrow 15(7.716)+50k_1=882.25$\\
+$115.74+50k_1=882.25 \Rightarrow k_1=15.33$\\
+$\boxed{K=[-15.33~-7.716]}$ (note: $u=Kx+r$ means $u=-|K|x+r$ internally)\\
+\textbf{Step 4:} Steady-state error\\
+For step input $r=1$: $e_{ss}=1-y_{ss}$\\
+With $u=Kx+r$: In steady state, $\dot{x}=0$\\
+$0=(A-BK)x_{ss}+Br_{ss}$\\
+$x_{ss}=-(A-BK)^{-1}Br_{ss}$\\
+$y_{ss}=C x_{ss}=-C(A-BK)^{-1}Br_{ss}$\\
+Need $K_r=-\frac{1}{C(A-BK)^{-1}B}$ for zero error\\
+Without $K_r$: System has type-0 (no integrator) $\Rightarrow$ SS error exists\\
+\boxed{e_{ss}=\frac{1}{1+K_{DC}} \text{ where } K_{DC}=C(A-BK)^{-1}B}\\
+
+\end{multicols}
+
+\end{document}

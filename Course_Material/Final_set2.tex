@@ -1,0 +1,1448 @@
+% ELEC 481 Practice Final Exam - Set 2 (Advanced Variants)
+\documentclass[a4paper,10pt]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{ELEC 481: Linear Systems}
+\rhead{Practice Final Exam - Set 2}
+\cfoot{\thepage}
+
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+
+\begin{document}
+
+\begin{center}
+    {\Large \textbf{ELEC 481 Practice Final Exam - Set 2}} \\
+    \vspace{0.2cm}
+    \textit{Time Limit: 150 Minutes} \\
+    \textit{Focus: Advanced Concepts, Discrete Time, Integral Control, Realizations}
+\end{center}
+
+\hrule
+\vspace{0.5cm}
+
+\textbf{Instructions:}
+\begin{itemize}
+    \item Show ALL work. Partial credit is awarded for correct methodology.
+    \item Use the algorithms defined in the course crib sheet (Ackermann, Cayley-Hamilton, etc.).
+    \item No calculators allowed.
+\end{itemize}
+
+\vspace{0.5cm}
+
+% ==========================================
+% QUESTION 1
+% ==========================================
+\section*{Question 1: Discrete-Time System Properties (20 points)}
+Consider the discrete-time system described by the difference equation:
+$$ y[k+1] - 0.5y[k] = u[k] + (-1)^k u[k-1] $$
+
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Linearity:} Is the system linear or nonlinear? Prove it using the principle of superposition.
+    \item \textbf{Time-Invariance:} Is the system time-invariant or time-varying? Prove it by shifting the input.
+    \item \textbf{Stability:} Find the homogeneous solution. Is the unforced system asymptotically stable?
+\end{enumerate}
+
+\vspace{0.5cm}
+
+% ==========================================
+% SOLUTION 1
+% ==========================================
+\subsection*{Solution 1: Discrete-Time System Properties}
+\textbf{Given System:}
+$$ y[k+1] - 0.5y[k] = u[k] + (-1)^k u[k-1] $$
+
+\vspace{0.3cm}
+\textbf{Part (a): Linearity Test}
+
+\textit{Method: Superposition Principle}
+
+Let $u_1[k] \to y_1[k]$ and $u_2[k] \to y_2[k]$ be two input-output pairs.
+
+Consider combined input: $u[k] = \alpha u_1[k] + \beta u_2[k]$
+
+RHS becomes:
+\begin{align*}
+(\alpha u_1[k] + \beta u_2[k]) + (-1)^k(\alpha u_1[k-1] + \beta u_2[k-1]) \\
+= \alpha[u_1[k] + (-1)^k u_1[k-1]] + \beta[u_2[k] + (-1)^k u_2[k-1]]
+\end{align*}
+
+The LHS is linear in $y$ (no products or nonlinear terms).
+
+\textbf{Check output:} If $y = \alpha y_1 + \beta y_2$, then:
+\begin{align*}
+LHS &= (\alpha y_1[k+1] + \beta y_2[k+1]) - 0.5(\alpha y_1[k] + \beta y_2[k]) \\
+&= \alpha(y_1[k+1] - 0.5y_1[k]) + \beta(y_2[k+1] - 0.5y_2[k]) \\
+&= \alpha \cdot RHS_1 + \beta \cdot RHS_2 = RHS
+\end{align*}
+
+\textbf{Conclusion:} \boxed{\text{Linear}} (Superposition holds)
+
+\vspace{0.3cm}
+\textbf{Part (b): Time-Invariance Test}
+
+\textit{Method: Time-shift analysis}
+
+Let original system: $y[k+1] - 0.5y[k] = u[k] + (-1)^k u[k-1]$
+
+For time-shifted input $u_{new}[k] = u[k-N]$, output should be $y_{new}[k] = y[k-N]$ if time-invariant.
+
+Substituting shifted input:
+$$ y_{new}[k+1] - 0.5y_{new}[k] = u[k-N] + (-1)^k u[k-N-1] $$
+
+But the original equation at time $k-N$ was:
+$$ y[k-N+1] - 0.5y[k-N] = u[k-N] + (-1)^{k-N} u[k-N-1] $$
+
+\textbf{Compare RHS coefficients:}
+\begin{itemize}
+\item New system: $(-1)^k u[k-N-1]$
+\item Shifted system: $(-1)^{k-N} u[k-N-1]$
+\end{itemize}
+
+Since $(-1)^k \neq (-1)^{k-N}$ (unless $N$ is even), the coefficients depend on absolute time $k$.
+
+\textbf{Conclusion:} \boxed{\text{Time-Varying}} (Coefficient $(-1)^k$ depends on $k$)
+
+\vspace{0.3cm}
+\textbf{Part (c): Stability Analysis}
+
+\textit{Method: Homogeneous solution}
+
+Homogeneous equation (set $u[k]=0$):
+$$ y[k+1] - 0.5y[k] = 0 $$
+
+Characteristic equation: $z - 0.5 = 0 \Rightarrow z = 0.5$
+
+General solution: $y[k] = C(0.5)^k$ where $C$ depends on initial conditions.
+
+\textbf{Check stability:} $|z| = |0.5| = 0.5 < 1$
+
+As $k \to \infty$: $y[k] = C(0.5)^k \to 0$
+
+\textbf{Conclusion:} \boxed{\text{Asymptotically Stable}} (Pole at $z=0.5$ inside unit circle)
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% ==========================================
+% QUESTION 2
+% ==========================================
+\section*{Question 2: Jordan Form Enumeration \& Matrix Functions (20 points)}
+A $4 \times 4$ matrix $A$ has the characteristic polynomial:
+$$ \Delta(\lambda) = (\lambda - 3)^4 $$
+
+\begin{enumerate}[label=(\alph*)]
+    \item List \textbf{ALL} possible Jordan Canonical Forms (JCF) for this matrix. (Draw the block structures).
+    \item If it is known that the minimal polynomial is $m(\lambda) = (\lambda - 3)^2$, which of the forms in part (a) are valid?
+    \item For the specific Jordan block $J_i = \begin{bmatrix} 3 & 1 \\ 0 & 3 \end{bmatrix}$, compute the state transition matrix $\Phi(t) = e^{J_i t}$ using the Cayley-Hamilton technique or definition.
+\end{enumerate}
+
+\vspace{0.5cm}
+
+% ==========================================
+% SOLUTION 2
+% ==========================================
+\subsection*{Solution 2: Jordan Form Enumeration \& Matrix Exponential}
+\textbf{Given:} Characteristic polynomial $\Delta(\lambda) = (\lambda - 3)^4$
+
+\textit{Algorithm: JORDAN CANONICAL FORM - Enumeration (Crib Sheet)}
+
+\vspace{0.3cm}
+\textbf{Part (a): List ALL Possible Jordan Forms}
+
+Eigenvalue $\lambda=3$ with Algebraic Multiplicity $n_a = 4$
+
+The sum of Jordan block sizes must equal 4. List all partitions of 4:
+
+\begin{enumerate}
+    \item \textbf{Partition 4:} One $4 \times 4$ block (Geometric Mult = 1)
+    $$ J_1 = \begin{bmatrix} 3 & 1 & 0 & 0 \\ 0 & 3 & 1 & 0 \\ 0 & 0 & 3 & 1 \\ 0 & 0 & 0 & 3 \end{bmatrix} $$
+    
+    \item \textbf{Partition 3+1:} One $3\times3$ block, one $1\times1$ block (Geo Mult = 2)
+    $$ J_2 = \begin{bmatrix} 3 & 1 & 0 & 0 \\ 0 & 3 & 1 & 0 \\ 0 & 0 & 3 & 0 \\ 0 & 0 & 0 & 3 \end{bmatrix} $$
+    
+    \item \textbf{Partition 2+2:} Two $2\times2$ blocks (Geo Mult = 2)
+    $$ J_3 = \begin{bmatrix} 3 & 1 & 0 & 0 \\ 0 & 3 & 0 & 0 \\ 0 & 0 & 3 & 1 \\ 0 & 0 & 0 & 3 \end{bmatrix} $$
+    
+    \item \textbf{Partition 2+1+1:} One $2\times2$ block, two $1\times1$ blocks (Geo Mult = 3)
+    $$ J_4 = \begin{bmatrix} 3 & 1 & 0 & 0 \\ 0 & 3 & 0 & 0 \\ 0 & 0 & 3 & 0 \\ 0 & 0 & 0 & 3 \end{bmatrix} $$
+    
+    \item \textbf{Partition 1+1+1+1:} Diagonal matrix (Geo Mult = 4)
+    $$ J_5 = \begin{bmatrix} 3 & 0 & 0 & 0 \\ 0 & 3 & 0 & 0 \\ 0 & 0 & 3 & 0 \\ 0 & 0 & 0 & 3 \end{bmatrix} $$
+\end{enumerate}
+
+\textbf{Summary:} \boxed{\text{Five possible Jordan forms}} corresponding to partitions: 4, 3+1, 2+2, 2+1+1, 1+1+1+1
+
+\vspace{0.3cm}
+\textbf{Part (b): Apply Minimal Polynomial Constraint}
+
+\textit{Theorem:} The degree of $(\lambda - \lambda_i)$ in the minimal polynomial equals the \textbf{largest Jordan block size} for eigenvalue $\lambda_i$.
+
+Given minimal polynomial: $m(\lambda) = (\lambda - 3)^2$
+
+This means: \textbf{Largest block size = 2}
+
+\textbf{Filter Jordan forms:}
+\begin{itemize}
+\item $J_1$: largest block = 4 \quad $\times$ (too large)
+\item $J_2$: largest block = 3 \quad $\times$ (too large)
+\item $J_3$: largest block = 2 \quad \checkmark (valid)
+\item $J_4$: largest block = 2 \quad \checkmark (valid)
+\item $J_5$: largest block = 1 \quad $\times$ (too small)
+\end{itemize}
+
+\textbf{Valid Forms:} \boxed{J_3 \text{ (partition 2+2) and } J_4 \text{ (partition 2+1+1)}}
+
+\vspace{0.3cm}
+\textbf{Part (c): Compute $e^{J_i t}$ using Cayley-Hamilton}
+
+\textit{Algorithm: CAYLEY-HAMILTON for Matrix Exponential (Crib Sheet)}
+
+Given: $J_i = \begin{bmatrix} 3 & 1 \\ 0 & 3 \end{bmatrix}$ (single $2\times 2$ Jordan block)
+
+\textbf{Step 1:} Identify eigenvalue and multiplicity
+
+Eigenvalue $\lambda = 3$ with multiplicity $m = 2$
+
+\textbf{Step 2:} Express matrix function
+
+For $2\times 2$ matrix: $f(J_i) = \alpha_1 J_i + \alpha_0 I$
+
+where $f(\lambda) = e^{\lambda t}$
+
+\textbf{Step 3:} Match at eigenvalue $\lambda=3$ (with derivatives for repeated eigenvalue)
+
+\textit{Condition 1 (value):} $f(3) = \alpha_1(3) + \alpha_0$
+$$ e^{3t} = 3\alpha_1 + \alpha_0 \quad \text{...(1)} $$
+
+\textit{Condition 2 (derivative):} $f'(3) = \alpha_1$
+$$ \frac{d}{d\lambda}e^{\lambda t}\Big|_{\lambda=3} = te^{3t} = \alpha_1 \quad \text{...(2)} $$
+
+\textbf{Step 4:} Solve for coefficients
+
+From (2): $\alpha_1 = te^{3t}$
+
+From (1): $\alpha_0 = e^{3t} - 3\alpha_1 = e^{3t} - 3te^{3t} = e^{3t}(1-3t)$
+
+\textbf{Step 5:} Compute $e^{J_i t}$
+
+\begin{align*}
+e^{J_i t} &= \alpha_1 J_i + \alpha_0 I \\
+&= te^{3t} \begin{bmatrix} 3 & 1 \\ 0 & 3 \end{bmatrix} + e^{3t}(1-3t) \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} \\
+&= \begin{bmatrix} 3te^{3t} & te^{3t} \\ 0 & 3te^{3t} \end{bmatrix} + \begin{bmatrix} e^{3t}(1-3t) & 0 \\ 0 & e^{3t}(1-3t) \end{bmatrix} \\
+&= \begin{bmatrix} 3te^{3t} + e^{3t} - 3te^{3t} & te^{3t} \\ 0 & 3te^{3t} + e^{3t} - 3te^{3t} \end{bmatrix}
+\end{align*}
+
+\textbf{Result:} $$\boxed{e^{J_i t} = e^{3t} \begin{bmatrix} 1 & t \\ 0 & 1 \end{bmatrix}}$$
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% ==========================================
+% QUESTION 3
+% ==========================================
+\section*{Question 3: Integral Control for Zero Steady-State Error (20 points)}
+Consider the unstable system:
+$$ \dot{x} = \begin{bmatrix} 0 & 1 \\ 2 & 1 \end{bmatrix} x + \begin{bmatrix} 0 \\ 1 \end{bmatrix} u, \quad y = \begin{bmatrix} 1 & 0 \end{bmatrix} x $$
+We wish to design a controller that tracks a step reference $r(t)$ with zero steady-state error, even in the presence of constant disturbances. We will use **Integral Control** (augmenting the state).
+
+\begin{enumerate}[label=(\alph*)]
+    \item Define a new state $x_I$ such that $\dot{x}_I = r - y$. Write the augmented state-space equations in the form $\dot{z} = \mathcal{A}z + \mathcal{B}u + \mathcal{B}_r r$, where $z = [x^T, x_I]^T$.
+    \item Check the controllability of the augmented pair $(\mathcal{A}, \mathcal{B})$.
+    \item Design a state feedback law $u = -[K \quad K_I] z$ to place the closed-loop poles of the augmented system at $\{-2, -2, -2\}$.
+\end{enumerate}
+
+\vspace{0.5cm}
+
+% ==========================================
+% SOLUTION 3
+% ==========================================
+\subsection*{Solution 3: Integral Control Design}
+\textbf{Given:} $A = \begin{bmatrix} 0 & 1 \\ 2 & 1 \end{bmatrix}$, $B = \begin{bmatrix} 0 \\ 1 \end{bmatrix}$, $C = \begin{bmatrix} 1 & 0 \end{bmatrix}$. Desired poles: $\{-2, -2, -2\}$
+
+\textit{Algorithm: INTEGRAL CONTROL with State Augmentation (Crib Sheet)}
+
+\vspace{0.3cm}
+\textbf{Step 1: Construct Augmented State Space}
+
+Introduce integrator state: $x_I = \int (r - y) dt \Rightarrow \dot{x}_I = r - Cx$
+
+Define augmented state vector: $z = \begin{bmatrix} x \\ x_I \end{bmatrix} = \begin{bmatrix} x_1 \\ x_2 \\ x_I \end{bmatrix}$
+
+\textit{Augmented Dynamics:}
+$$ \dot{z} = \begin{bmatrix} \dot{x} \\ \dot{x}_I \end{bmatrix} = \begin{bmatrix} A & 0 \\ -C & 0 \end{bmatrix} \begin{bmatrix} x \\ x_I \end{bmatrix} + \begin{bmatrix} B \\ 0 \end{bmatrix} u + \begin{bmatrix} 0 \\ 1 \end{bmatrix} r $$
+
+Substitute values:
+$$ \mathcal{A} = \begin{bmatrix} 0 & 1 & 0 \\ 2 & 1 & 0 \\ -1 & 0 & 0 \end{bmatrix}, \quad \mathcal{B} = \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix} $$
+
+\vspace{0.3cm}
+\textbf{Step 2: Verify Controllability of Augmented System}
+
+\textit{Method:} Compute controllability matrix $\mathcal{C}_z = [\mathcal{B} \quad \mathcal{A}\mathcal{B} \quad \mathcal{A}^2\mathcal{B}]$
+
+\textit{Column 1:} 
+$$ \mathcal{B} = \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix} $$
+
+\textit{Column 2:}
+$$ \mathcal{A}\mathcal{B} = \begin{bmatrix} 0 & 1 & 0 \\ 2 & 1 & 0 \\ -1 & 0 & 0 \end{bmatrix} \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix} $$
+
+\textit{Column 3:}
+$$ \mathcal{A}^2\mathcal{B} = \mathcal{A}\left(\mathcal{A}\mathcal{B}\right) = \begin{bmatrix} 0 & 1 & 0 \\ 2 & 1 & 0 \\ -1 & 0 & 0 \end{bmatrix} \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 1 \\ 3 \\ -1 \end{bmatrix} $$
+
+\textit{Check rank:}
+$$ \mathcal{C}_z = \begin{bmatrix} 0 & 1 & 1 \\ 1 & 1 & 3 \\ 0 & 0 & -1 \end{bmatrix} $$
+
+Expand along row 3: $\det(\mathcal{C}_z) = -1 \cdot \begin{vmatrix} 0 & 1 \\ 1 & 1 \end{vmatrix} = -1(0-1) = 1 \neq 0$
+
+\textbf{Conclusion:} Augmented system is controllable. Pole placement is possible.
+
+\vspace{0.3cm}
+\textbf{Step 3: Compute Characteristic Polynomial of $\mathcal{A}$}
+
+$$ \det(sI - \mathcal{A}) = \det \begin{bmatrix} s & -1 & 0 \\ -2 & s-1 & 0 \\ 1 & 0 & s \end{bmatrix} $$
+
+Expand along row 1:
+\begin{align*}
+&= s \begin{vmatrix} s-1 & 0 \\ 0 & s \end{vmatrix} - (-1) \begin{vmatrix} -2 & 0 \\ 1 & s \end{vmatrix} \\
+&= s \cdot s(s-1) + (-2s) \\
+&= s^3 - s^2 - 2s
+\end{align*}
+
+\textit{Current coefficients:} $a_2 = -1$, $a_1 = -2$, $a_0 = 0$
+
+\vspace{0.3cm}
+\textbf{Step 4: Define Desired Characteristic Polynomial}
+
+Desired poles: $\{-2, -2, -2\}$
+
+$$ \Delta_{des}(s) = (s+2)^3 = s^3 + 6s^2 + 12s + 8 $$
+
+\textit{Desired coefficients:} $\alpha_2 = 6$, $\alpha_1 = 12$, $\alpha_0 = 8$
+
+\vspace{0.3cm}
+\textbf{Step 5: Pole Placement Using Coefficient Matching}
+
+\textit{Control law:} $u = -K_{aug} z = -[k_1 \quad k_2 \quad k_I] \begin{bmatrix} x_1 \\ x_2 \\ x_I \end{bmatrix}$
+
+\textit{Closed-loop system matrix:}
+\begin{align*}
+A_{cl} &= \mathcal{A} - \mathcal{B}K_{aug} = \begin{bmatrix} 0 & 1 & 0 \\ 2 & 1 & 0 \\ -1 & 0 & 0 \end{bmatrix} - \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix} [k_1 \quad k_2 \quad k_I] \\
+&= \begin{bmatrix} 0 & 1 & 0 \\ 2-k_1 & 1-k_2 & -k_I \\ -1 & 0 & 0 \end{bmatrix}
+\end{align*}
+
+\textit{Characteristic polynomial of $A_{cl}$:}
+$$ \det(sI - A_{cl}) = \det \begin{bmatrix} s & -1 & 0 \\ k_1-2 & s-(1-k_2) & k_I \\ 1 & 0 & s \end{bmatrix} $$
+
+Expand along row 1:
+\begin{align*}
+&= s \begin{vmatrix} s-(1-k_2) & k_I \\ 0 & s \end{vmatrix} - (-1) \begin{vmatrix} k_1-2 & k_I \\ 1 & s \end{vmatrix} \\
+&= s \cdot s(s-1+k_2) + (s(k_1-2) - k_I) \\
+&= s^3 + (k_2-1)s^2 + (k_1-2)s - k_I
+\end{align*}
+
+\textit{Match coefficients with $s^3 + 6s^2 + 12s + 8$:}
+
+\begin{itemize}
+\item $s^2$ coefficient: $k_2 - 1 = 6 \Rightarrow \boxed{k_2 = 7}$
+\item $s^1$ coefficient: $k_1 - 2 = 12 \Rightarrow \boxed{k_1 = 14}$
+\item $s^0$ coefficient: $-k_I = 8 \Rightarrow \boxed{k_I = -8}$
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{Step 6: Final Control Law}
+
+$$ u = -k_1 x_1 - k_2 x_2 - k_I x_I = -14x_1 - 7x_2 - (-8)x_I $$
+
+$$\boxed{u = -14x_1 - 7x_2 + 8 \int (r-y) dt}$$
+
+where $r$ is the reference input and $y = x_1$ is the output.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% ==========================================
+% QUESTION 4
+% ==========================================
+\section*{Question 4: Observer-Based Compensator Transfer Function (20 points)}
+Given the scalar system:
+$$ \dot{x} = -x + u, \quad y = x $$
+We design an observer-based controller.
+\begin{enumerate}[label=(\alph*)]
+    \item Design a controller $u = -K\hat{x} + r$ to place the pole at $-5$.
+    \item Design an observer $\dot{\hat{x}} = A\hat{x} + Bu + L(y - C\hat{x})$ to place the observer pole at $-10$.
+    \item \textbf{Derive the Transfer Function} of the compensator $C(s) = \frac{U(s)}{Y(s)}$ (assuming $r=0$).
+    \textit{Hint: The compensator dynamics are $\dot{\hat{x}} = (A - BK - LC)\hat{x} + Ly$, $u = -K\hat{x}$.}
+\end{enumerate}
+
+\vspace{0.5cm}
+
+% ==========================================
+% SOLUTION 4
+% ==========================================
+\subsection*{Solution 4: Observer-Based Compensator Transfer Function}
+\textbf{Given:} $A = -1$, $B = 1$, $C = 1$. Controller pole: $-5$. Observer pole: $-10$.
+
+\textit{Algorithm: COMPENSATOR TRANSFER FUNCTION from State-Space (Crib Sheet)}
+
+\vspace{0.3cm}
+\textbf{Step 1: Design State Feedback Gain $K$}
+
+\textit{Method:} Pole placement for $A - BK$
+
+Desired controller pole at $s = -5$:
+$$ A - BK = -1 - 1 \cdot K = -5 $$
+
+Solve for $K$:
+$$ -1 - K = -5 \Rightarrow K = 4 $$
+
+\textbf{Result:} $\boxed{K = 4}$
+
+\vspace{0.3cm}
+\textbf{Step 2: Design Observer Gain $L$}
+
+\textit{Method:} Pole placement for $A - LC$
+
+Desired observer pole at $s = -10$:
+$$ A - LC = -1 - L \cdot 1 = -10 $$
+
+Solve for $L$:
+$$ -1 - L = -10 \Rightarrow L = 9 $$
+
+\textbf{Result:} $\boxed{L = 9}$
+
+\vspace{0.3cm}
+\textbf{Step 3: Construct Compensator Dynamics}
+
+\textit{Observer-based compensator structure:}
+\begin{align*}
+\dot{\hat{x}} &= (A - BK - LC)\hat{x} + Ly \\
+u &= -K\hat{x}
+\end{align*}
+
+\textit{Substitute numerical values:}
+$$ A - BK - LC = -1 - 1(4) - 9(1) = -1 - 4 - 9 = -14 $$
+
+\textit{Compensator state equation:}
+$$ \dot{\hat{x}} = -14\hat{x} + 9y $$
+
+\textit{Compensator output equation:}
+$$ u = -4\hat{x} $$
+
+\vspace{0.3cm}
+\textbf{Step 4: Derive Transfer Function $C(s) = \frac{U(s)}{Y(s)}$}
+
+\textit{Take Laplace transform of state equation:}
+$$ s\hat{X}(s) = -14\hat{X}(s) + 9Y(s) $$
+
+\textit{Solve for $\hat{X}(s)$:}
+$$ (s + 14)\hat{X}(s) = 9Y(s) \Rightarrow \hat{X}(s) = \frac{9}{s+14}Y(s) $$
+
+\textit{Take Laplace transform of output equation:}
+$$ U(s) = -K\hat{X}(s) = -4\hat{X}(s) $$
+
+\textit{Substitute $\hat{X}(s)$:}
+\begin{align*}
+U(s) &= -4 \left( \frac{9}{s+14} Y(s) \right) \\
+&= \frac{-36}{s+14} Y(s)
+\end{align*}
+
+\textbf{Compensator Transfer Function:}
+$$\boxed{C(s) = \frac{U(s)}{Y(s)} = \frac{-36}{s+14}}$$
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% ==========================================
+% QUESTION 5
+% ==========================================
+\section*{Question 5: Minimal Realization (20 points)}
+Consider the transfer function:
+$$ H(s) = \frac{s^2 + 3s + 2}{s^3 + 4s^2 + 5s + 2} $$
+
+\begin{enumerate}[label=(\alph*)]
+    \item Factor the numerator and denominator. Identify any pole-zero cancellations.
+    \item Find a **Minimal Realization** $(A, B, C)$ for the system (after cancellation) in Controllable Canonical Form (CCF).
+    \item Verify that your realization is both controllable and observable using the rank tests.
+\end{enumerate}
+
+\vspace{0.5cm}
+
+% ==========================================
+% SOLUTION 5
+% ==========================================
+\subsection*{Solution 5: Minimal Realization via Pole-Zero Cancellation}
+\textbf{Given:} $H(s) = \frac{s^2 + 3s + 2}{s^3 + 4s^2 + 5s + 2}$
+
+\textit{Algorithm: MINIMAL REALIZATION - Pole-Zero Cancellation Method (Crib Sheet)}
+
+\vspace{0.3cm}
+\textbf{Step 1: Factor Numerator}
+
+\textit{Find roots of $N(s) = s^2 + 3s + 2$:}
+
+Using factorization or quadratic formula:
+$$ N(s) = (s+1)(s+2) $$
+
+\textit{Zeros:} $z_1 = -1$, $z_2 = -2$
+
+\vspace{0.3cm}
+\textbf{Step 2: Factor Denominator}
+
+\textit{Find roots of $D(s) = s^3 + 4s^2 + 5s + 2$:}
+
+Test $s = -1$:
+$$ D(-1) = (-1)^3 + 4(-1)^2 + 5(-1) + 2 = -1 + 4 - 5 + 2 = 0 $$
+
+So $(s+1)$ is a factor. Perform polynomial division:
+$$ \frac{s^3 + 4s^2 + 5s + 2}{s+1} = s^2 + 3s + 2 $$
+
+\textit{Factor the quadratic:}
+$$ s^2 + 3s + 2 = (s+1)(s+2) $$
+
+\textit{Complete factorization:}
+$$ D(s) = (s+1)(s+1)(s+2) = (s+1)^2(s+2) $$
+
+\textit{Poles:} $p_1 = -1$ (multiplicity 2), $p_2 = -2$
+
+\vspace{0.3cm}
+\textbf{Step 3: Identify and Cancel Common Factors}
+
+\textit{Original transfer function:}
+$$ H(s) = \frac{(s+1)(s+2)}{(s+1)^2(s+2)} $$
+
+\textit{Common factors:} $(s+1)$ appears once in numerator and twice in denominator; $(s+2)$ appears in both
+
+\textit{Cancel common factors:}
+\begin{align*}
+H_{min}(s) &= \frac{\cancel{(s+1)}\cancel{(s+2)}}{(s+1)^{\cancel{2}}\cancel{(s+2)}} \\
+&= \frac{1}{s+1}
+\end{align*}
+
+\textbf{Minimal transfer function:} $\boxed{H_{min}(s) = \frac{1}{s+1}}$
+
+\vspace{0.3cm}
+\textbf{Step 4: Construct State-Space Realization}
+
+\textit{Method:} For first-order system $H(s) = \frac{1}{s+1}$, use direct realization
+
+\textit{Standard form:} $H(s) = C(sI - A)^{-1}B + D = \frac{CB}{s-A}$ for scalar system
+
+Matching $\frac{1}{s+1} = \frac{CB}{s-A}$:
+$$ A = -1, \quad B = 1, \quad C = 1, \quad D = 0 $$
+
+\textbf{Minimal Realization:}
+$$\boxed{\begin{cases}
+\dot{x} = -x + u \\
+y = x
+\end{cases}}$$
+
+or in matrix form: $\boxed{A = [-1], \; B = [1], \; C = [1], \; D = [0]}$
+
+\vspace{0.3cm}
+\textbf{Step 5: Verify Minimality}
+
+\textit{Controllability matrix:}
+$$ \mathcal{C} = [B] = [1] $$
+$\text{rank}(\mathcal{C}) = 1$ ✓ (full rank)
+
+\textit{Observability matrix:}
+$$ \mathcal{O} = [C] = [1] $$
+$\text{rank}(\mathcal{O}) = 1$ ✓ (full rank)
+
+\textbf{Conclusion:} System is both controllable and observable $\Rightarrow$ \textbf{Minimal realization}
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% ==========================================
+% QUESTION 6 (BONUS/TOUGH)
+% ==========================================
+\section*{Question 6: Discretization (20 points)}
+Consider the continuous-time system:
+$$ \dot{x} = \begin{bmatrix} 0 & 1 \\ 0 & 0 \end{bmatrix} x + \begin{bmatrix} 0 \\ 1 \end{bmatrix} u $$
+We want to control this system using a digital computer with sampling period $T$.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Compute the state transition matrix $\Phi(t) = e^{At}$.
+    \item Find the discrete-time system matrices $A_d = \Phi(T)$ and $B_d = \int_0^T \Phi(\tau)B d\tau$.
+    \item Write the difference equation $x[k+1] = A_d x[k] + B_d u[k]$ in terms of $T$.
+\end{enumerate}
+
+\vspace{0.5cm}
+
+% ==========================================
+% SOLUTION 6
+% ==========================================
+\subsection*{Solution 6: Exact Discretization}
+\textbf{Given:} $A = \begin{bmatrix} 0 & 1 \\ 0 & 0 \end{bmatrix}$, $B = \begin{bmatrix} 0 \\ 1 \end{bmatrix}$. Sample time: $T$
+
+\textit{Algorithm: EXACT DISCRETIZATION using Matrix Exponential (Crib Sheet)}
+
+\vspace{0.3cm}
+\textbf{Step 1: Compute State Transition Matrix $\Phi(t) = e^{At}$}
+
+\textit{Method:} Series expansion for matrix exponential
+
+\textit{Check for nilpotency:}
+$$ A^2 = \begin{bmatrix} 0 & 1 \\ 0 & 0 \end{bmatrix} \begin{bmatrix} 0 & 1 \\ 0 & 0 \end{bmatrix} = \begin{bmatrix} 0 & 0 \\ 0 & 0 \end{bmatrix} = 0 $$
+
+Since $A^2 = 0$, the matrix is \textbf{nilpotent} and the series terminates after 2 terms.
+
+\textit{Apply series expansion:}
+\begin{align*}
+e^{At} &= I + At + \frac{(At)^2}{2!} + \frac{(At)^3}{3!} + \cdots \\
+&= I + At + 0 + 0 + \cdots \\
+&= I + At
+\end{align*}
+
+\textit{Compute:}
+$$ \Phi(t) = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} + t \begin{bmatrix} 0 & 1 \\ 0 & 0 \end{bmatrix} = \begin{bmatrix} 1 & t \\ 0 & 1 \end{bmatrix} $$
+
+\textbf{Result:} $\boxed{\Phi(t) = \begin{bmatrix} 1 & t \\ 0 & 1 \end{bmatrix}}$
+
+\vspace{0.3cm}
+\textbf{Step 2: Compute Discrete-Time Matrices}
+
+\textit{Discrete state matrix $A_d$:}
+$$ A_d = \Phi(T) = \begin{bmatrix} 1 & T \\ 0 & 1 \end{bmatrix} $$
+
+\textit{Discrete input matrix $B_d$:}
+\textit{Formula:} $B_d = \int_0^T \Phi(\tau) B \, d\tau$
+
+\textit{Compute $\Phi(\tau)B$:}
+$$ \Phi(\tau)B = \begin{bmatrix} 1 & \tau \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 0 \\ 1 \end{bmatrix} = \begin{bmatrix} \tau \\ 1 \end{bmatrix} $$
+
+\textit{Integrate element-wise:}
+\begin{align*}
+B_d &= \int_0^T \begin{bmatrix} \tau \\ 1 \end{bmatrix} d\tau \\
+&= \begin{bmatrix} \int_0^T \tau \, d\tau \\ \int_0^T 1 \, d\tau \end{bmatrix} \\
+&= \begin{bmatrix} \frac{1}{2}\tau^2 \Big|_0^T \\ \tau \Big|_0^T \end{bmatrix} \\
+&= \begin{bmatrix} \frac{T^2}{2} \\ T \end{bmatrix}
+\end{align*}
+
+\textbf{Discrete-Time Model:}
+$$\boxed{A_d = \begin{bmatrix} 1 & T \\ 0 & 1 \end{bmatrix}, \quad B_d = \begin{bmatrix} \frac{T^2}{2} \\ T \end{bmatrix}}$$
+
+\vspace{0.3cm}
+\textbf{Step 3: Write Difference Equation}
+
+\textit{General form:} $x[k+1] = A_d x[k] + B_d u[k]$
+
+\textit{Substitute matrices:}
+$$ \boxed{x[k+1] = \begin{bmatrix} 1 & T \\ 0 & 1 \end{bmatrix} x[k] + \begin{bmatrix} \frac{T^2}{2} \\ T \end{bmatrix} u[k]} $$
+
+\textit{Component form:}
+\begin{align*}
+x_1[k+1] &= x_1[k] + T x_2[k] + \frac{T^2}{2} u[k] \\
+x_2[k+1] &= x_2[k] + T u[k]
+\end{align*}
+
+\end{document}
+\subsection*{Solution 1: Discrete-Time System Properties}
+\textbf{Given System:}
+$$ y[k+1] - 0.5y[k] = u[k] + (-1)^k u[k-1] $$
+
+\vspace{0.3cm}
+\textbf{Part (a): Linearity Test}
+
+\textit{Method: Superposition Principle}
+
+Let $u_1[k] \to y_1[k]$ and $u_2[k] \to y_2[k]$ be two input-output pairs.
+
+Consider combined input: $u[k] = \alpha u_1[k] + \beta u_2[k]$
+
+RHS becomes:
+\begin{align*}
+(\alpha u_1[k] + \beta u_2[k]) + (-1)^k(\alpha u_1[k-1] + \beta u_2[k-1]) \\
+= \alpha[u_1[k] + (-1)^k u_1[k-1]] + \beta[u_2[k] + (-1)^k u_2[k-1]]
+\end{align*}
+
+The LHS is linear in $y$ (no products or nonlinear terms).
+
+\textbf{Check output:} If $y = \alpha y_1 + \beta y_2$, then:
+\begin{align*}
+LHS &= (\alpha y_1[k+1] + \beta y_2[k+1]) - 0.5(\alpha y_1[k] + \beta y_2[k]) \\
+&= \alpha(y_1[k+1] - 0.5y_1[k]) + \beta(y_2[k+1] - 0.5y_2[k]) \\
+&= \alpha \cdot RHS_1 + \beta \cdot RHS_2 = RHS
+\end{align*}
+
+\textbf{Conclusion:} \boxed{\text{Linear}} (Superposition holds)
+
+\vspace{0.3cm}
+\textbf{Part (b): Time-Invariance Test}
+
+\textit{Method: Time-shift analysis}
+
+Let original system: $y[k+1] - 0.5y[k] = u[k] + (-1)^k u[k-1]$
+
+For time-shifted input $u_{new}[k] = u[k-N]$, output should be $y_{new}[k] = y[k-N]$ if time-invariant.
+
+Substituting shifted input:
+$$ y_{new}[k+1] - 0.5y_{new}[k] = u[k-N] + (-1)^k u[k-N-1] $$
+
+But the original equation at time $k-N$ was:
+$$ y[k-N+1] - 0.5y[k-N] = u[k-N] + (-1)^{k-N} u[k-N-1] $$
+
+\textbf{Compare RHS coefficients:}
+\begin{itemize}
+\item New system: $(-1)^k u[k-N-1]$
+\item Shifted system: $(-1)^{k-N} u[k-N-1]$
+\end{itemize}
+
+Since $(-1)^k \neq (-1)^{k-N}$ (unless $N$ is even), the coefficients depend on absolute time $k$.
+
+\textbf{Conclusion:} \boxed{\text{Time-Varying}} (Coefficient $(-1)^k$ depends on $k$)
+
+\vspace{0.3cm}
+\textbf{Part (c): Stability Analysis}
+
+\textit{Method: Homogeneous solution}
+
+Homogeneous equation (set $u[k]=0$):
+$$ y[k+1] - 0.5y[k] = 0 $$
+
+Characteristic equation: $z - 0.5 = 0 \Rightarrow z = 0.5$
+
+General solution: $y[k] = C(0.5)^k$ where $C$ depends on initial conditions.
+
+\textbf{Check stability:} $|z| = |0.5| = 0.5 < 1$
+
+As $k \to \infty$: $y[k] = C(0.5)^k \to 0$
+
+\textbf{Conclusion:} \boxed{\text{Asymptotically Stable}} (Pole at $z=0.5$ inside unit circle)
+The system equation forces the output to satisfy:
+$y_{new}[k+1] - 0.5y_{new}[k] = u_{new}[k] + (-1)^k u_{new}[k-1]$
+Substitute $u_{new}$:
+RHS $= u[k-N] + (-1)^k u[k-N-1]$.
+Now, shift the original output $y[k]$ by $N$: $y_{shifted}[k] = y[k-N]$.
+The original equation at time $k-N$ was:
+$y[k-N+1] - 0.5y[k-N] = u[k-N] + (-1)^{k-N} u[k-N-1]$.
+Compare RHS terms:
+Actual system: $(-1)^k u[k-N-1]$
+Shifted output req: $(-1)^{k-N} u[k-N-1]$
+Since $(-1)^k \neq (-1)^{k-N}$ (unless $N$ is even), the coefficients depend on time $k$.
+\textbf{Conclusion: Time-Varying.}
+
+\textbf{Step 3: Stability} \\
+Homogeneous equation: $y[k+1] - 0.5y[k] = 0 \Rightarrow y[k+1] = 0.5y[k]$.
+Solution: $y[k] = (0.5)^k y[0]$.
+Since $|0.5| < 1$, $y[k] \to 0$ as $k \to \infty$.
+\textbf{Conclusion: Asymptotically Stable.}
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% ==========================================
+% SOLUTION 2
+% ==========================================
+\subsection*{Solution 2: Jordan Form Enumeration \& Matrix Exponential}
+\textbf{Given:} Characteristic polynomial $\Delta(\lambda) = (\lambda - 3)^4$
+
+\textit{Algorithm: JORDAN CANONICAL FORM - Enumeration (Crib Sheet)}
+
+\vspace{0.3cm}
+\textbf{Part (a): List ALL Possible Jordan Forms}
+
+Eigenvalue $\lambda=3$ with Algebraic Multiplicity $n_a = 4$
+
+The sum of Jordan block sizes must equal 4. List all partitions of 4:
+
+\begin{enumerate}
+    \item \textbf{Partition 4:} One $4 \times 4$ block (Geometric Mult = 1)
+    $$ J_1 = \begin{bmatrix} 3 & 1 & 0 & 0 \\ 0 & 3 & 1 & 0 \\ 0 & 0 & 3 & 1 \\ 0 & 0 & 0 & 3 \end{bmatrix} $$
+    
+    \item \textbf{Partition 3+1:} One $3\times3$ block, one $1\times1$ block (Geo Mult = 2)
+    $$ J_2 = \begin{bmatrix} 3 & 1 & 0 & 0 \\ 0 & 3 & 1 & 0 \\ 0 & 0 & 3 & 0 \\ 0 & 0 & 0 & 3 \end{bmatrix} $$
+    
+    \item \textbf{Partition 2+2:} Two $2\times2$ blocks (Geo Mult = 2)
+    $$ J_3 = \begin{bmatrix} 3 & 1 & 0 & 0 \\ 0 & 3 & 0 & 0 \\ 0 & 0 & 3 & 1 \\ 0 & 0 & 0 & 3 \end{bmatrix} $$
+    
+    \item \textbf{Partition 2+1+1:} One $2\times2$ block, two $1\times1$ blocks (Geo Mult = 3)
+    $$ J_4 = \begin{bmatrix} 3 & 1 & 0 & 0 \\ 0 & 3 & 0 & 0 \\ 0 & 0 & 3 & 0 \\ 0 & 0 & 0 & 3 \end{bmatrix} $$
+    
+    \item \textbf{Partition 1+1+1+1:} Diagonal matrix (Geo Mult = 4)
+    $$ J_5 = \begin{bmatrix} 3 & 0 & 0 & 0 \\ 0 & 3 & 0 & 0 \\ 0 & 0 & 3 & 0 \\ 0 & 0 & 0 & 3 \end{bmatrix} $$
+\end{enumerate}
+
+\textbf{Summary:} \boxed{\text{Five possible Jordan forms}} corresponding to partitions: 4, 3+1, 2+2, 2+1+1, 1+1+1+1
+
+\vspace{0.3cm}
+\textbf{Part (b): Apply Minimal Polynomial Constraint}
+
+\textit{Theorem:} The degree of $(\lambda - \lambda_i)$ in the minimal polynomial equals the \textbf{largest Jordan block size} for eigenvalue $\lambda_i$.
+
+Given minimal polynomial: $m(\lambda) = (\lambda - 3)^2$
+
+This means: \textbf{Largest block size = 2}
+
+\textbf{Filter Jordan forms:}
+\begin{itemize}
+\item $J_1$: largest block = 4 \quad $\times$ (too large)
+\item $J_2$: largest block = 3 \quad $\times$ (too large)
+\item $J_3$: largest block = 2 \quad \checkmark (valid)
+\item $J_4$: largest block = 2 \quad \checkmark (valid)
+\item $J_5$: largest block = 1 \quad $\times$ (too small)
+\end{itemize}
+
+\textbf{Valid Forms:} \boxed{J_3 \text{ (partition 2+2) and } J_4 \text{ (partition 2+1+1)}}
+
+\vspace{0.3cm}
+\textbf{Part (c): Compute $e^{J_i t}$ using Cayley-Hamilton}
+
+\textit{Algorithm: CAYLEY-HAMILTON for Matrix Exponential (Crib Sheet)}
+
+Given: $J_i = \begin{bmatrix} 3 & 1 \\ 0 & 3 \end{bmatrix}$ (single $2\times 2$ Jordan block)
+
+\textbf{Step 1:} Identify eigenvalue and multiplicity
+
+Eigenvalue $\lambda = 3$ with multiplicity $m = 2$
+
+\textbf{Step 2:} Express matrix function
+
+For $2\times 2$ matrix: $f(J_i) = \alpha_1 J_i + \alpha_0 I$
+
+where $f(\lambda) = e^{\lambda t}$
+
+\textbf{Step 3:} Match at eigenvalue $\lambda=3$ (with derivatives for repeated eigenvalue)
+
+\textit{Condition 1 (value):} $f(3) = \alpha_1(3) + \alpha_0$
+$$ e^{3t} = 3\alpha_1 + \alpha_0 \quad \text{...(1)} $$
+
+\textit{Condition 2 (derivative):} $f'(3) = \alpha_1$
+$$ \frac{d}{d\lambda}e^{\lambda t}\Big|_{\lambda=3} = te^{3t} = \alpha_1 \quad \text{...(2)} $$
+
+\textbf{Step 4:} Solve for coefficients
+
+From (2): $\alpha_1 = te^{3t}$
+
+From (1): $\alpha_0 = e^{3t} - 3\alpha_1 = e^{3t} - 3te^{3t} = e^{3t}(1-3t)$
+
+\textbf{Step 5:} Compute $e^{J_i t}$
+
+\begin{align*}
+e^{J_i t} &= \alpha_1 J_i + \alpha_0 I \\
+&= te^{3t} \begin{bmatrix} 3 & 1 \\ 0 & 3 \end{bmatrix} + e^{3t}(1-3t) \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} \\
+&= \begin{bmatrix} 3te^{3t} & te^{3t} \\ 0 & 3te^{3t} \end{bmatrix} + \begin{bmatrix} e^{3t}(1-3t) & 0 \\ 0 & e^{3t}(1-3t) \end{bmatrix} \\
+&= \begin{bmatrix} 3te^{3t} + e^{3t} - 3te^{3t} & te^{3t} \\ 0 & 3te^{3t} + e^{3t} - 3te^{3t} \end{bmatrix}
+\end{align*}
+
+\textbf{Result:} $$\boxed{e^{J_i t} = e^{3t} \begin{bmatrix} 1 & t \\ 0 & 1 \end{bmatrix}}$$
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% ==========================================
+% SOLUTION 3
+% ==========================================
+\subsection*{Solution 3: Integral Control Design}
+\textbf{Given:} $A = \begin{bmatrix} 0 & 1 \\ 2 & 1 \end{bmatrix}$, $B = \begin{bmatrix} 0 \\ 1 \end{bmatrix}$, $C = \begin{bmatrix} 1 & 0 \end{bmatrix}$. Desired poles: $\{-2, -2, -2\}$
+
+\textit{Algorithm: INTEGRAL CONTROL with State Augmentation (Crib Sheet)}
+
+\vspace{0.3cm}
+\textbf{Step 1: Construct Augmented State Space}
+
+Introduce integrator state: $x_I = \int (r - y) dt \Rightarrow \dot{x}_I = r - Cx$
+
+Define augmented state vector: $z = \begin{bmatrix} x \\ x_I \end{bmatrix} = \begin{bmatrix} x_1 \\ x_2 \\ x_I \end{bmatrix}$
+
+\textit{Augmented Dynamics:}
+$$ \dot{z} = \begin{bmatrix} \dot{x} \\ \dot{x}_I \end{bmatrix} = \begin{bmatrix} A & 0 \\ -C & 0 \end{bmatrix} \begin{bmatrix} x \\ x_I \end{bmatrix} + \begin{bmatrix} B \\ 0 \end{bmatrix} u + \begin{bmatrix} 0 \\ 1 \end{bmatrix} r $$
+
+Substitute values:
+$$ \mathcal{A} = \begin{bmatrix} 0 & 1 & 0 \\ 2 & 1 & 0 \\ -1 & 0 & 0 \end{bmatrix}, \quad \mathcal{B} = \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix} $$
+
+\vspace{0.3cm}
+\textbf{Step 2: Verify Controllability of Augmented System}
+
+\textit{Method:} Compute controllability matrix $\mathcal{C}_z = [\mathcal{B} \quad \mathcal{A}\mathcal{B} \quad \mathcal{A}^2\mathcal{B}]$
+
+\textit{Column 1:} 
+$$ \mathcal{B} = \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix} $$
+
+\textit{Column 2:}
+$$ \mathcal{A}\mathcal{B} = \begin{bmatrix} 0 & 1 & 0 \\ 2 & 1 & 0 \\ -1 & 0 & 0 \end{bmatrix} \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix} $$
+
+\textit{Column 3:}
+$$ \mathcal{A}^2\mathcal{B} = \mathcal{A}\left(\mathcal{A}\mathcal{B}\right) = \begin{bmatrix} 0 & 1 & 0 \\ 2 & 1 & 0 \\ -1 & 0 & 0 \end{bmatrix} \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 1 \\ 3 \\ -1 \end{bmatrix} $$
+
+\textit{Check rank:}
+$$ \mathcal{C}_z = \begin{bmatrix} 0 & 1 & 1 \\ 1 & 1 & 3 \\ 0 & 0 & -1 \end{bmatrix} $$
+
+Expand along row 3: $\det(\mathcal{C}_z) = -1 \cdot \begin{vmatrix} 0 & 1 \\ 1 & 1 \end{vmatrix} = -1(0-1) = 1 \neq 0$
+
+\textbf{Conclusion:} Augmented system is controllable. Pole placement is possible.
+
+\vspace{0.3cm}
+\textbf{Step 3: Compute Characteristic Polynomial of $\mathcal{A}$}
+
+$$ \det(sI - \mathcal{A}) = \det \begin{bmatrix} s & -1 & 0 \\ -2 & s-1 & 0 \\ 1 & 0 & s \end{bmatrix} $$
+
+Expand along row 1:
+\begin{align*}
+&= s \begin{vmatrix} s-1 & 0 \\ 0 & s \end{vmatrix} - (-1) \begin{vmatrix} -2 & 0 \\ 1 & s \end{vmatrix} \\
+&= s \cdot s(s-1) + (-2s) \\
+&= s^3 - s^2 - 2s
+\end{align*}
+
+\textit{Current coefficients:} $a_2 = -1$, $a_1 = -2$, $a_0 = 0$
+
+\vspace{0.3cm}
+\textbf{Step 4: Define Desired Characteristic Polynomial}
+
+Desired poles: $\{-2, -2, -2\}$
+
+$$ \Delta_{des}(s) = (s+2)^3 = s^3 + 6s^2 + 12s + 8 $$
+
+\textit{Desired coefficients:} $\alpha_2 = 6$, $\alpha_1 = 12$, $\alpha_0 = 8$
+
+\vspace{0.3cm}
+\textbf{Step 5: Pole Placement Using Coefficient Matching}
+
+\textit{Control law:} $u = -K_{aug} z = -[k_1 \quad k_2 \quad k_I] \begin{bmatrix} x_1 \\ x_2 \\ x_I \end{bmatrix}$
+
+\textit{Closed-loop system matrix:}
+\begin{align*}
+A_{cl} &= \mathcal{A} - \mathcal{B}K_{aug} = \begin{bmatrix} 0 & 1 & 0 \\ 2 & 1 & 0 \\ -1 & 0 & 0 \end{bmatrix} - \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix} [k_1 \quad k_2 \quad k_I] \\
+&= \begin{bmatrix} 0 & 1 & 0 \\ 2-k_1 & 1-k_2 & -k_I \\ -1 & 0 & 0 \end{bmatrix}
+\end{align*}
+
+\textit{Characteristic polynomial of $A_{cl}$:}
+$$ \det(sI - A_{cl}) = \det \begin{bmatrix} s & -1 & 0 \\ k_1-2 & s-(1-k_2) & k_I \\ 1 & 0 & s \end{bmatrix} $$
+
+Expand along row 1:
+\begin{align*}
+&= s \begin{vmatrix} s-(1-k_2) & k_I \\ 0 & s \end{vmatrix} - (-1) \begin{vmatrix} k_1-2 & k_I \\ 1 & s \end{vmatrix} \\
+&= s \cdot s(s-1+k_2) + (s(k_1-2) - k_I) \\
+&= s^3 + (k_2-1)s^2 + (k_1-2)s - k_I
+\end{align*}
+
+\textit{Match coefficients with $s^3 + 6s^2 + 12s + 8$:}
+
+\begin{itemize}
+\item $s^2$ coefficient: $k_2 - 1 = 6 \Rightarrow \boxed{k_2 = 7}$
+\item $s^1$ coefficient: $k_1 - 2 = 12 \Rightarrow \boxed{k_1 = 14}$
+\item $s^0$ coefficient: $-k_I = 8 \Rightarrow \boxed{k_I = -8}$
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{Step 6: Final Control Law}
+
+$$ u = -k_1 x_1 - k_2 x_2 - k_I x_I = -14x_1 - 7x_2 - (-8)x_I $$
+
+$$\boxed{u = -14x_1 - 7x_2 + 8 \int (r-y) dt}$$
+
+where $r$ is the reference input and $y = x_1$ is the output.
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% ==========================================
+% SOLUTION 4
+% ==========================================
+\subsection*{Solution 4: Observer-Based Compensator Transfer Function}
+\textbf{Given:} $A = -1$, $B = 1$, $C = 1$. Controller pole: $-5$. Observer pole: $-10$.
+
+\textit{Algorithm: COMPENSATOR TRANSFER FUNCTION from State-Space (Crib Sheet)}
+
+\vspace{0.3cm}
+\textbf{Step 1: Design State Feedback Gain $K$}
+
+\textit{Method:} Pole placement for $A - BK$
+
+Desired controller pole at $s = -5$:
+$$ A - BK = -1 - 1 \cdot K = -5 $$
+
+Solve for $K$:
+$$ -1 - K = -5 \Rightarrow K = 4 $$
+
+\textbf{Result:} $\boxed{K = 4}$
+
+\vspace{0.3cm}
+\textbf{Step 2: Design Observer Gain $L$}
+
+\textit{Method:} Pole placement for $A - LC$
+
+Desired observer pole at $s = -10$:
+$$ A - LC = -1 - L \cdot 1 = -10 $$
+
+Solve for $L$:
+$$ -1 - L = -10 \Rightarrow L = 9 $$
+
+\textbf{Result:} $\boxed{L = 9}$
+
+\vspace{0.3cm}
+\textbf{Step 3: Construct Compensator Dynamics}
+
+\textit{Observer-based compensator structure:}
+\begin{align*}
+\dot{\hat{x}} &= (A - BK - LC)\hat{x} + Ly \\
+u &= -K\hat{x}
+\end{align*}
+
+\textit{Substitute numerical values:}
+$$ A - BK - LC = -1 - 1(4) - 9(1) = -1 - 4 - 9 = -14 $$
+
+\textit{Compensator state equation:}
+$$ \dot{\hat{x}} = -14\hat{x} + 9y $$
+
+\textit{Compensator output equation:}
+$$ u = -4\hat{x} $$
+
+\vspace{0.3cm}
+\textbf{Step 4: Derive Transfer Function $C(s) = \frac{U(s)}{Y(s)}$}
+
+\textit{Take Laplace transform of state equation:}
+$$ s\hat{X}(s) = -14\hat{X}(s) + 9Y(s) $$
+
+\textit{Solve for $\hat{X}(s)$:}
+$$ (s + 14)\hat{X}(s) = 9Y(s) \Rightarrow \hat{X}(s) = \frac{9}{s+14}Y(s) $$
+
+\textit{Take Laplace transform of output equation:}
+$$ U(s) = -K\hat{X}(s) = -4\hat{X}(s) $$
+
+\textit{Substitute $\hat{X}(s)$:}
+\begin{align*}
+U(s) &= -4 \left( \frac{9}{s+14} Y(s) \right) \\
+&= \frac{-36}{s+14} Y(s)
+\end{align*}
+
+\textbf{Compensator Transfer Function:}
+$$\boxed{C(s) = \frac{U(s)}{Y(s)} = \frac{-36}{s+14}}$$
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% ==========================================
+% SOLUTION 5
+% ==========================================
+\subsection*{Solution 5: Minimal Realization via Pole-Zero Cancellation}
+\textbf{Given:} $H(s) = \frac{s^2 + 3s + 2}{s^3 + 4s^2 + 5s + 2}$
+
+\textit{Algorithm: MINIMAL REALIZATION - Pole-Zero Cancellation Method (Crib Sheet)}
+
+\vspace{0.3cm}
+\textbf{Step 1: Factor Numerator}
+
+\textit{Find roots of $N(s) = s^2 + 3s + 2$:}
+
+Using factorization or quadratic formula:
+$$ N(s) = (s+1)(s+2) $$
+
+\textit{Zeros:} $z_1 = -1$, $z_2 = -2$
+
+\vspace{0.3cm}
+\textbf{Step 2: Factor Denominator}
+
+\textit{Find roots of $D(s) = s^3 + 4s^2 + 5s + 2$:}
+
+Test $s = -1$:
+$$ D(-1) = (-1)^3 + 4(-1)^2 + 5(-1) + 2 = -1 + 4 - 5 + 2 = 0 $$
+
+So $(s+1)$ is a factor. Perform polynomial division:
+$$ \frac{s^3 + 4s^2 + 5s + 2}{s+1} = s^2 + 3s + 2 $$
+
+\textit{Factor the quadratic:}
+$$ s^2 + 3s + 2 = (s+1)(s+2) $$
+
+\textit{Complete factorization:}
+$$ D(s) = (s+1)(s+1)(s+2) = (s+1)^2(s+2) $$
+
+\textit{Poles:} $p_1 = -1$ (multiplicity 2), $p_2 = -2$
+
+\vspace{0.3cm}
+\textbf{Step 3: Identify and Cancel Common Factors}
+
+\textit{Original transfer function:}
+$$ H(s) = \frac{(s+1)(s+2)}{(s+1)^2(s+2)} $$
+
+\textit{Common factors:} $(s+1)$ appears once in numerator and twice in denominator; $(s+2)$ appears in both
+
+\textit{Cancel common factors:}
+\begin{align*}
+H_{min}(s) &= \frac{\cancel{(s+1)}\cancel{(s+2)}}{(s+1)^{\cancel{2}}\cancel{(s+2)}} \\
+&= \frac{1}{s+1}
+\end{align*}
+
+\textbf{Minimal transfer function:} $\boxed{H_{min}(s) = \frac{1}{s+1}}$
+
+\vspace{0.3cm}
+\textbf{Step 4: Construct State-Space Realization}
+
+\textit{Method:} For first-order system $H(s) = \frac{1}{s+1}$, use direct realization
+
+\textit{Standard form:} $H(s) = C(sI - A)^{-1}B + D = \frac{CB}{s-A}$ for scalar system
+
+Matching $\frac{1}{s+1} = \frac{CB}{s-A}$:
+$$ A = -1, \quad B = 1, \quad C = 1, \quad D = 0 $$
+
+\textbf{Minimal Realization:}
+$$\boxed{\begin{cases}
+\dot{x} = -x + u \\
+y = x
+\end{cases}}$$
+
+or in matrix form: $\boxed{A = [-1], \; B = [1], \; C = [1], \; D = [0]}$
+
+\vspace{0.3cm}
+\textbf{Step 5: Verify Minimality}
+
+\textit{Controllability matrix:}
+$$ \mathcal{C} = [B] = [1] $$
+$\text{rank}(\mathcal{C}) = 1$ ✓ (full rank)
+
+\textit{Observability matrix:}
+$$ \mathcal{O} = [C] = [1] $$
+$\text{rank}(\mathcal{O}) = 1$ ✓ (full rank)
+
+\textbf{Conclusion:} System is both controllable and observable $\Rightarrow$ \textbf{Minimal realization}
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% ==========================================
+% SOLUTION 6
+% ==========================================
+\subsection*{Solution 6: Exact Discretization}
+\textbf{Given:} $A = \begin{bmatrix} 0 & 1 \\ 0 & 0 \end{bmatrix}$, $B = \begin{bmatrix} 0 \\ 1 \end{bmatrix}$. Sample time: $T$
+
+\textit{Algorithm: EXACT DISCRETIZATION using Matrix Exponential (Crib Sheet)}
+
+\vspace{0.3cm}
+\textbf{Step 1: Compute State Transition Matrix $\Phi(t) = e^{At}$}
+
+\textit{Method:} Series expansion for matrix exponential
+
+\textit{Check for nilpotency:}
+$$ A^2 = \begin{bmatrix} 0 & 1 \\ 0 & 0 \end{bmatrix} \begin{bmatrix} 0 & 1 \\ 0 & 0 \end{bmatrix} = \begin{bmatrix} 0 & 0 \\ 0 & 0 \end{bmatrix} = 0 $$
+
+Since $A^2 = 0$, the matrix is \textbf{nilpotent} and the series terminates after 2 terms.
+
+\textit{Apply series expansion:}
+\begin{align*}
+e^{At} &= I + At + \frac{(At)^2}{2!} + \frac{(At)^3}{3!} + \cdots \\
+&= I + At + 0 + 0 + \cdots \\
+&= I + At
+\end{align*}
+
+\textit{Compute:}
+$$ \Phi(t) = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} + t \begin{bmatrix} 0 & 1 \\ 0 & 0 \end{bmatrix} = \begin{bmatrix} 1 & t \\ 0 & 1 \end{bmatrix} $$
+
+\textbf{Result:} $\boxed{\Phi(t) = \begin{bmatrix} 1 & t \\ 0 & 1 \end{bmatrix}}$
+
+\vspace{0.3cm}
+\textbf{Step 2: Compute Discrete-Time Matrices}
+
+\textit{Discrete state matrix $A_d$:}
+$$ A_d = \Phi(T) = \begin{bmatrix} 1 & T \\ 0 & 1 \end{bmatrix} $$
+
+\textit{Discrete input matrix $B_d$:}
+\textit{Formula:} $B_d = \int_0^T \Phi(\tau) B \, d\tau$
+
+\textit{Compute $\Phi(\tau)B$:}
+$$ \Phi(\tau)B = \begin{bmatrix} 1 & \tau \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 0 \\ 1 \end{bmatrix} = \begin{bmatrix} \tau \\ 1 \end{bmatrix} $$
+
+\textit{Integrate element-wise:}
+\begin{align*}
+B_d &= \int_0^T \begin{bmatrix} \tau \\ 1 \end{bmatrix} d\tau \\
+&= \begin{bmatrix} \int_0^T \tau \, d\tau \\ \int_0^T 1 \, d\tau \end{bmatrix} \\
+&= \begin{bmatrix} \frac{1}{2}\tau^2 \Big|_0^T \\ \tau \Big|_0^T \end{bmatrix} \\
+&= \begin{bmatrix} \frac{T^2}{2} \\ T \end{bmatrix}
+\end{align*}
+
+\textbf{Discrete-Time Model:}
+$$\boxed{A_d = \begin{bmatrix} 1 & T \\ 0 & 1 \end{bmatrix}, \quad B_d = \begin{bmatrix} \frac{T^2}{2} \\ T \end{bmatrix}}$$
+
+\vspace{0.3cm}
+\textbf{Step 3: Write Difference Equation}
+
+\textit{General form:} $x[k+1] = A_d x[k] + B_d u[k]$
+
+\textit{Substitute matrices:}
+$$ \boxed{x[k+1] = \begin{bmatrix} 1 & T \\ 0 & 1 \end{bmatrix} x[k] + \begin{bmatrix} \frac{T^2}{2} \\ T \end{bmatrix} u[k]} $$
+
+\textit{Component form:}
+\begin{align*}
+x_1[k+1] &= x_1[k] + T x_2[k] + \frac{T^2}{2} u[k] \\
+x_2[k+1] &= x_2[k] + T u[k]
+\end{align*}
+
+\newpage
+
+% ==========================================
+% QUESTION 7: REDUCED-ORDER OBSERVER
+% ==========================================
+\section*{Question 7: Reduced-Order Observer Design (25 points)}
+
+Consider the third-order continuous-time system:
+$$ \dot{x} = \begin{bmatrix} -3 & 2 & 1 \\ 0 & -5 & 3 \\ 1 & 0 & -4 \end{bmatrix} x + \begin{bmatrix} 1 \\ 0 \\ 2 \end{bmatrix} u $$
+$$ y = \begin{bmatrix} 1 & 0 & 0 \end{bmatrix} x $$
+
+The output measurement $y = x_1$ is available directly. Design a \textbf{reduced-order observer} to estimate the unmeasured states $x_2$ and $x_3$ with observer poles at $\{-12, -15\}$.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Partition the system into measured and unmeasured components. Identify matrices $A_{11}, A_{12}, A_{21}, A_{22}, B_1, B_2$.
+    \item Verify that the unmeasured subsystem $(A_{22}, A_{12})$ is observable.
+    \item Design the reduced-order observer gain $G_e$ using the Ackermann formula to place the error dynamics poles at $\{-12, -15\}$.
+    \item Write the complete reduced-order observer equations in both $z$ (internal estimator state) and $\hat{x}_2$ (estimated unmeasured states) forms.
+    \item Compute the closed-loop error dynamics eigenvalues to verify the design.
+\end{enumerate}
+
+\vspace{0.5cm}
+
+\subsection*{Solution 7: Reduced-Order Observer Design}
+
+\textbf{Part (a): System Partitioning}
+
+\textit{Measured states:} $x_1$ (dimension $q=1$)\\
+\textit{Unmeasured states:} $x_2, x_3$ (dimension $n-q=2$)
+
+\textit{Partition state vector:}
+$$ x = \begin{bmatrix} x_1 \\ \hline x_2 \\ x_3 \end{bmatrix} = \begin{bmatrix} x_a \\ x_b \end{bmatrix} $$
+where $x_a = x_1$ (measured, $q=1$), $x_b = \begin{bmatrix} x_2 \\ x_3 \end{bmatrix}$ (unmeasured, $n-q=2$)
+
+\vspace{0.3cm}
+\textit{Standard reduced-order form:}
+$$ \begin{bmatrix} \dot{x}_a \\ \dot{x}_b \end{bmatrix} = \begin{bmatrix} A_{11} & A_{12} \\ A_{21} & A_{22} \end{bmatrix} \begin{bmatrix} x_a \\ x_b \end{bmatrix} + \begin{bmatrix} B_1 \\ B_2 \end{bmatrix} u $$
+$$ y = \begin{bmatrix} I_q & 0 \end{bmatrix} \begin{bmatrix} x_a \\ x_b \end{bmatrix} = x_a $$
+
+\vspace{0.3cm}
+\textit{Identify blocks from given $A$ and $B$:}
+$$ A = \begin{bmatrix} -3 & \vert & 2 & 1 \\ \hline 0 & \vert & -5 & 3 \\ 1 & \vert & 0 & -4 \end{bmatrix}, \quad B = \begin{bmatrix} 1 \\ \hline 0 \\ 2 \end{bmatrix} $$
+
+\textit{Extract submatrices:}
+\begin{align*}
+A_{11} &= -3 \quad \text{(scalar, $1 \times 1$)} \\
+A_{12} &= \begin{bmatrix} 2 & 1 \end{bmatrix} \quad \text{(row vector, $1 \times 2$)} \\
+A_{21} &= \begin{bmatrix} 0 \\ 1 \end{bmatrix} \quad \text{(column vector, $2 \times 1$)} \\
+A_{22} &= \begin{bmatrix} -5 & 3 \\ 0 & -4 \end{bmatrix} \quad \text{(matrix, $2 \times 2$)} \\
+B_1 &= 1 \quad \text{(scalar)} \\
+B_2 &= \begin{bmatrix} 0 \\ 2 \end{bmatrix} \quad \text{(column vector, $2 \times 1$)}
+\end{align*}
+
+\textbf{Physical Meaning:}
+\begin{itemize}
+    \item $A_{11}$: Describes dynamics of measured state $x_1$ influenced by itself
+    \item $A_{12}$: Describes how unmeasured states $x_2, x_3$ affect measured state $x_1$ (this coupling makes observation possible!)
+    \item $A_{21}$: Describes how measured state $x_1$ affects unmeasured states
+    \item $A_{22}$: Describes internal dynamics of unmeasured states (this is what we need to stabilize with observer)
+    \item $B_1$: Control input's direct effect on measured state
+    \item $B_2$: Control input's direct effect on unmeasured states
+\end{itemize}
+
+$$\boxed{\begin{aligned}
+A_{11} &= -3, \quad A_{12} = \begin{bmatrix} 2 & 1 \end{bmatrix} \\
+A_{21} &= \begin{bmatrix} 0 \\ 1 \end{bmatrix}, \quad A_{22} = \begin{bmatrix} -5 & 3 \\ 0 & -4 \end{bmatrix} \\
+B_1 &= 1, \quad B_2 = \begin{bmatrix} 0 \\ 2 \end{bmatrix}
+\end{aligned}}$$
+
+\vspace{0.5cm}
+\textbf{Part (b): Observability Check}
+
+For reduced-order observer to work, the \textbf{unmeasured subsystem} must be observable from the measured state. This requires checking observability of the pair $(A_{22}, A_{12})$.
+
+\vspace{0.3cm}
+\textit{Observability criterion:} rank$(\mathcal{O}_b) = n-q = 2$
+
+\textit{Form observability matrix:}
+$$ \mathcal{O}_b = \begin{bmatrix} A_{12} \\ A_{12} A_{22} \end{bmatrix} $$
+
+\textit{Note:} This is analogous to standard observability $\mathcal{O} = \begin{bmatrix} C \\ CA \end{bmatrix}$, but here $A_{12}$ plays role of "output matrix" and $A_{22}$ is the "system matrix" for unmeasured states.
+
+\vspace{0.3cm}
+\textit{Compute $A_{12} A_{22}$:}
+\begin{align*}
+A_{12} A_{22} &= \begin{bmatrix} 2 & 1 \end{bmatrix} \begin{bmatrix} -5 & 3 \\ 0 & -4 \end{bmatrix} \\
+&= \begin{bmatrix} 2(-5) + 1(0) & 2(3) + 1(-4) \end{bmatrix} \\
+&= \begin{bmatrix} -10 & 2 \end{bmatrix}
+\end{align*}
+
+\textit{Form observability matrix:}
+$$ \mathcal{O}_b = \begin{bmatrix} 2 & 1 \\ -10 & 2 \end{bmatrix} $$
+
+\textit{Check rank via determinant:}
+$$ \det(\mathcal{O}_b) = (2)(2) - (1)(-10) = 4 + 10 = 14 \neq 0 $$
+
+\textbf{Conclusion:} rank$(\mathcal{O}_b) = 2$ $\Rightarrow$ \boxed{\text{Unmeasured subsystem is OBSERVABLE}}
+
+\textit{Why this matters:} Since $(A_{22}, A_{12})$ is observable, we can design an observer that reconstructs $x_2, x_3$ from measurements of $x_1$. The coupling through $A_{12}$ provides the necessary information.
+
+\vspace{0.5cm}
+\textbf{Part (c): Design Observer Gain $G_e$}
+
+\textit{Goal:} Find gain $G_e$ (dimension $2 \times 1$) to place error dynamics poles at $\{-12, -15\}$.
+
+\vspace{0.3cm}
+\textit{Error dynamics equation:}
+$$ \dot{e} = (A_{22} - G_e A_{12}) e $$
+where $e = x_b - \hat{x}_b$ is the estimation error for unmeasured states.
+
+\textit{Note:} This is analogous to full-order observer $\dot{e} = (A - GC)e$, but here:
+\begin{itemize}
+    \item $A_{22}$ plays role of system matrix (instead of $A$)
+    \item $A_{12}$ plays role of output matrix (instead of $C$)
+    \item $G_e$ is the reduced-order observer gain (instead of $G$)
+\end{itemize}
+
+\vspace{0.3cm}
+\textit{Step 1: Desired characteristic polynomial}
+
+Poles: $\{-12, -15\}$
+$$ \Delta_e(s) = (s + 12)(s + 15) = s^2 + 27s + 180 $$
+
+Coefficients: $\beta_1 = 27$, $\beta_0 = 180$
+
+\vspace{0.3cm}
+\textit{Step 2: Ackermann formula for reduced-order observer}
+
+\textit{Formula:} 
+$$ G_e = \Delta_e(A_{22}) \mathcal{O}_b^{-1} \begin{bmatrix} 0 \\ 1 \end{bmatrix} $$
+
+\textit{Physical meaning:} We evaluate desired characteristic polynomial at the unmeasured system matrix $A_{22}$, then use observability matrix to transform into observer gain space. The vector $\begin{bmatrix} 0 \\ 1 \end{bmatrix}$ selects the appropriate column (standard Ackermann convention).
+
+\vspace{0.3cm}
+\textit{Step 3: Compute $\mathcal{O}_b^{-1}$}
+
+$$ \mathcal{O}_b^{-1} = \frac{1}{14} \begin{bmatrix} 2 & -1 \\ 10 & 2 \end{bmatrix} = \begin{bmatrix} 1/7 & -1/14 \\ 5/7 & 1/7 \end{bmatrix} $$
+
+\vspace{0.3cm}
+\textit{Step 4: Compute $\Delta_e(A_{22}) = A_{22}^2 + 27 A_{22} + 180 I$}
+
+\textit{Compute $A_{22}^2$:}
+\begin{align*}
+A_{22}^2 &= \begin{bmatrix} -5 & 3 \\ 0 & -4 \end{bmatrix} \begin{bmatrix} -5 & 3 \\ 0 & -4 \end{bmatrix} \\
+&= \begin{bmatrix} 25 + 0 & -15 - 12 \\ 0 + 0 & 0 + 16 \end{bmatrix} \\
+&= \begin{bmatrix} 25 & -27 \\ 0 & 16 \end{bmatrix}
+\end{align*}
+
+\textit{Compute $27 A_{22}$:}
+$$ 27 A_{22} = \begin{bmatrix} -135 & 81 \\ 0 & -108 \end{bmatrix} $$
+
+\textit{Compute $180 I$:}
+$$ 180 I = \begin{bmatrix} 180 & 0 \\ 0 & 180 \end{bmatrix} $$
+
+\textit{Sum all terms:}
+\begin{align*}
+\Delta_e(A_{22}) &= \begin{bmatrix} 25 & -27 \\ 0 & 16 \end{bmatrix} + \begin{bmatrix} -135 & 81 \\ 0 & -108 \end{bmatrix} + \begin{bmatrix} 180 & 0 \\ 0 & 180 \end{bmatrix} \\
+&= \begin{bmatrix} 25 - 135 + 180 & -27 + 81 + 0 \\ 0 + 0 + 0 & 16 - 108 + 180 \end{bmatrix} \\
+&= \begin{bmatrix} 70 & 54 \\ 0 & 88 \end{bmatrix}
+\end{align*}
+
+\vspace{0.3cm}
+\textit{Step 5: Apply Ackermann formula}
+
+\begin{align*}
+G_e &= \Delta_e(A_{22}) \mathcal{O}_b^{-1} \begin{bmatrix} 0 \\ 1 \end{bmatrix} \\
+&= \begin{bmatrix} 70 & 54 \\ 0 & 88 \end{bmatrix} \begin{bmatrix} 1/7 & -1/14 \\ 5/7 & 1/7 \end{bmatrix} \begin{bmatrix} 0 \\ 1 \end{bmatrix}
+\end{align*}
+
+\textit{First multiply $\Delta_e(A_{22}) \mathcal{O}_b^{-1}$:}
+\begin{align*}
+&= \begin{bmatrix} 70(1/7) + 54(5/7) & 70(-1/14) + 54(1/7) \\ 0(1/7) + 88(5/7) & 0(-1/14) + 88(1/7) \end{bmatrix} \\
+&= \begin{bmatrix} 10 + 270/7 & -5 + 54/7 \\ 440/7 & 88/7 \end{bmatrix} \\
+&= \begin{bmatrix} 340/7 & -35/7 + 54/7 \\ 440/7 & 88/7 \end{bmatrix} \\
+&= \begin{bmatrix} 340/7 & 19/7 \\ 440/7 & 88/7 \end{bmatrix}
+\end{align*}
+
+\textit{Now multiply by $\begin{bmatrix} 0 \\ 1 \end{bmatrix}$:}
+$$ G_e = \begin{bmatrix} 0 + 19/7 \\ 0 + 88/7 \end{bmatrix} = \begin{bmatrix} 19/7 \\ 88/7 \end{bmatrix} $$
+
+$$\boxed{G_e = \begin{bmatrix} 19/7 \\ 88/7 \end{bmatrix} \approx \begin{bmatrix} 2.714 \\ 12.571 \end{bmatrix}}$$
+
+\vspace{0.5cm}
+\textbf{Part (d): Complete Observer Equations}
+
+The reduced-order observer uses an \textbf{internal state} $z$ to avoid direct dependence on measured state derivatives.
+
+\vspace{0.3cm}
+\textit{Observer internal state definition:}
+$$ z = \hat{x}_b - G_e y = \hat{x}_b - G_e x_1 $$
+
+\textit{Physical meaning:} $z$ represents the "innovation" or corrected estimate that removes the direct measurement coupling. This allows us to implement the observer using only $y$ and $u$, without needing $\dot{y}$.
+
+\vspace{0.3cm}
+\textit{Internal state dynamics:}
+$$ \dot{z} = (A_{22} - G_e A_{12}) z + (A_{22} - G_e A_{12}) G_e y + (A_{21} - G_e A_{11}) y + (B_2 - G_e B_1) u $$
+
+\textit{Derivation insight:} From $\dot{\hat{x}}_b = A_{22} \hat{x}_b + A_{21} y + B_2 u + G_e (A_{12} \hat{x}_b + A_{11} y + B_1 u - \dot{y})$, we eliminate $\dot{y}$ by defining $z = \hat{x}_b - G_e y$.
+
+\vspace{0.3cm}
+\textit{Compute coefficient matrices:}
+
+\textit{(i) $A_{22} - G_e A_{12}$:}
+\begin{align*}
+A_{22} - G_e A_{12} &= \begin{bmatrix} -5 & 3 \\ 0 & -4 \end{bmatrix} - \begin{bmatrix} 19/7 \\ 88/7 \end{bmatrix} \begin{bmatrix} 2 & 1 \end{bmatrix} \\
+&= \begin{bmatrix} -5 & 3 \\ 0 & -4 \end{bmatrix} - \begin{bmatrix} 38/7 & 19/7 \\ 176/7 & 88/7 \end{bmatrix} \\
+&= \begin{bmatrix} -35/7 - 38/7 & 21/7 - 19/7 \\ 0 - 176/7 & -28/7 - 88/7 \end{bmatrix} \\
+&= \begin{bmatrix} -73/7 & 2/7 \\ -176/7 & -116/7 \end{bmatrix}
+\end{align*}
+
+\textit{(ii) $(A_{22} - G_e A_{12}) G_e$:}
+$$ = \begin{bmatrix} -73/7 & 2/7 \\ -176/7 & -116/7 \end{bmatrix} \begin{bmatrix} 19/7 \\ 88/7 \end{bmatrix} = \begin{bmatrix} (-73/7)(19/7) + (2/7)(88/7) \\ (-176/7)(19/7) + (-116/7)(88/7) \end{bmatrix} $$
+$$ = \begin{bmatrix} (-1387 + 176)/49 \\ (-3344 - 10208)/49 \end{bmatrix} = \begin{bmatrix} -1211/49 \\ -13552/49 \end{bmatrix} $$
+
+\textit{(iii) $A_{21} - G_e A_{11}$:}
+$$ A_{21} - G_e A_{11} = \begin{bmatrix} 0 \\ 1 \end{bmatrix} - \begin{bmatrix} 19/7 \\ 88/7 \end{bmatrix} (-3) = \begin{bmatrix} 0 \\ 1 \end{bmatrix} + \begin{bmatrix} 57/7 \\ 264/7 \end{bmatrix} = \begin{bmatrix} 57/7 \\ 271/7 \end{bmatrix} $$
+
+\textit{(iv) $B_2 - G_e B_1$:}
+$$ B_2 - G_e B_1 = \begin{bmatrix} 0 \\ 2 \end{bmatrix} - \begin{bmatrix} 19/7 \\ 88/7 \end{bmatrix} (1) = \begin{bmatrix} -19/7 \\ 14/7 - 88/7 \end{bmatrix} = \begin{bmatrix} -19/7 \\ -74/7 \end{bmatrix} $$
+
+\vspace{0.3cm}
+\textbf{Observer Equations (Form 1: Internal State $z$):}
+$$\boxed{\begin{aligned}
+\dot{z} &= \begin{bmatrix} -73/7 & 2/7 \\ -176/7 & -116/7 \end{bmatrix} z + \begin{bmatrix} -1211/49 + 57/7 \\ -13552/49 + 271/7 \end{bmatrix} y + \begin{bmatrix} -19/7 \\ -74/7 \end{bmatrix} u
+\end{aligned}}$$
+
+\vspace{0.3cm}
+\textbf{Observer Equations (Form 2: Estimated States $\hat{x}_b$):}
+
+\textit{Recover unmeasured state estimates:}
+$$ \hat{x}_b = z + G_e y $$
+$$ \boxed{\begin{bmatrix} \hat{x}_2 \\ \hat{x}_3 \end{bmatrix} = z + \begin{bmatrix} 19/7 \\ 88/7 \end{bmatrix} y} $$
+
+\textit{Full state estimate:}
+$$ \boxed{\hat{x} = \begin{bmatrix} y \\ \hat{x}_2 \\ \hat{x}_3 \end{bmatrix} = \begin{bmatrix} x_1 \\ z_1 + (19/7) x_1 \\ z_2 + (88/7) x_1 \end{bmatrix}} $$
+
+\vspace{0.5cm}
+\textbf{Part (e): Verify Error Dynamics Eigenvalues}
+
+\textit{Error dynamics matrix:}
+$$ A_{22} - G_e A_{12} = \begin{bmatrix} -73/7 & 2/7 \\ -176/7 & -116/7 \end{bmatrix} $$
+
+\textit{Characteristic equation:}
+$$ \det(sI - (A_{22} - G_e A_{12})) = \det \begin{bmatrix} s + 73/7 & -2/7 \\ 176/7 & s + 116/7 \end{bmatrix} $$
+
+\textit{Compute determinant:}
+\begin{align*}
+&= (s + 73/7)(s + 116/7) - (-2/7)(176/7) \\
+&= s^2 + s(73/7 + 116/7) + (73/7)(116/7) + 352/49 \\
+&= s^2 + s(189/7) + (8468/49 + 352/49) \\
+&= s^2 + 27s + (8820/49) \\
+&= s^2 + 27s + 180
+\end{align*}
+
+\textit{Factor:}
+$$ s^2 + 27s + 180 = (s + 12)(s + 15) $$
+
+$$\boxed{\text{Eigenvalues: } \lambda_1 = -12, \quad \lambda_2 = -15 \quad \checkmark}$$
+
+\textbf{Conclusion:} Observer design is verified. Error dynamics have desired poles at $\{-12, -15\}$, ensuring exponential convergence of state estimates with time constants $\tau_1 = 1/12 \approx 0.083$ s and $\tau_2 = 1/15 \approx 0.067$ s.
+
+\end{document}

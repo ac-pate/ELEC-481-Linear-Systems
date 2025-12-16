@@ -1,0 +1,903 @@
+% ELEC 481 Practice Final Exam - Set 1
+\documentclass[a4paper,10pt]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{ELEC 481: Linear Systems}
+\rhead{Practice Final Exam - Set 1}
+\cfoot{\thepage}
+
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+
+\begin{document}
+
+\begin{center}
+    {\Large \textbf{ELEC 481 Practice Final Exam - Set 1}} \\
+    \vspace{0.2cm}
+    \textit{Time Limit: 150 Minutes}
+\end{center}
+
+\hrule
+\vspace{0.5cm}
+
+\textbf{Instructions:}
+\begin{itemize}
+    \item Show ALL work. Partial credit is awarded for correct methodology.
+    \item No calculators allowed (as per standard exam policy).
+    \item Assume all systems are continuous-time unless specified otherwise.
+\end{itemize}
+
+\vspace{0.5cm}
+
+% ==========================================
+% QUESTION 1
+% ==========================================
+\section*{Question 1: System Properties (20 points)}
+Consider the single-input single-output (SISO) system described by the following differential equation:
+$$ \ddot{y}(t) + 2t\dot{y}(t) + y(t)\sin(t) = u(t-1) + \dot{u}(t) $$
+
+Determine whether the system is:
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Linear or Nonlinear}. Justify your answer using the principle of superposition or by inspecting the terms.
+    \item \textbf{Time-Invariant or Time-Varying}. Justify your answer.
+    \item \textbf{Causal or Noncausal}. Justify your answer.
+    \item \textbf{Lumped or Distributed}. Justify your answer.
+\end{enumerate}
+
+\vspace{0.5cm}
+
+% ==========================================
+% SOLUTION 1
+% ==========================================
+\subsection*{Solution 1: System Properties Analysis}
+\textbf{Given System:}
+$$ \dot{y}(t) - 2y(t) = u(t) + t \cdot u(t-1) $$
+
+\vspace{0.3cm}
+\textbf{Part (a): Linearity Test}
+
+\textit{Method: Superposition Principle}
+
+Let $u_1(t) \to y_1(t)$ and $u_2(t) \to y_2(t)$ be two input-output pairs.
+
+Consider combined input: $u(t) = \alpha u_1(t) + \beta u_2(t)$
+
+\textit{Check if output is $y(t) = \alpha y_1(t) + \beta y_2(t)$:}
+
+LHS with combined output:
+\begin{align*}
+\dot{y}(t) - 2y(t) &= \frac{d}{dt}[\alpha y_1(t) + \beta y_2(t)] - 2[\alpha y_1(t) + \beta y_2(t)] \\
+&= \alpha[\dot{y}_1(t) - 2y_1(t)] + \beta[\dot{y}_2(t) - 2y_2(t)]
+\end{align*}
+
+RHS with combined input:
+\begin{align*}
+u(t) + t \cdot u(t-1) &= [\alpha u_1(t) + \beta u_2(t)] + t[\alpha u_1(t-1) + \beta u_2(t-1)] \\
+&= \alpha[u_1(t) + t \cdot u_1(t-1)] + \beta[u_2(t) + t \cdot u_2(t-1)]
+\end{align*}
+
+Since both sides satisfy superposition (linear combination of inputs produces linear combination of outputs):
+
+\textbf{Conclusion:} \boxed{\text{Linear System}}
+
+\vspace{0.3cm}
+\textbf{Part (b): Time-Invariance Test}
+
+\textit{Method: Time-shift analysis}
+
+For original system with input $u(t)$, output satisfies:
+$$ \dot{y}(t) - 2y(t) = u(t) + t \cdot u(t-1) $$
+
+For time-shifted input $u_{shifted}(t) = u(t - \tau)$, the expected output should be $y_{shifted}(t) = y(t-\tau)$ if time-invariant.
+
+\textit{Substitute shifted input into system equation:}
+$$ \dot{y}_{new}(t) - 2y_{new}(t) = u(t-\tau) + t \cdot u(t-\tau-1) $$
+
+\textit{Compare with original equation evaluated at $t-\tau$:}
+$$ \dot{y}(t-\tau) - 2y(t-\tau) = u(t-\tau) + (t-\tau) \cdot u(t-\tau-1) $$
+
+\textit{Compare RHS coefficients:}
+\begin{itemize}
+\item Shifted system: $t \cdot u(t-\tau-1)$
+\item Expected time-invariant: $(t-\tau) \cdot u(t-\tau-1)$
+\end{itemize}
+
+Since the coefficient of $u(t-\tau-1)$ is $t$ (not $t-\tau$), it depends on absolute time.
+
+\textbf{Conclusion:} \boxed{\text{Time-Varying System}} (coefficient $t$ depends on absolute time)
+
+\vspace{0.3cm}
+\textbf{Part (c): Causality Test}
+
+\textit{Method: Check if output depends only on past/present inputs}
+
+From the system equation:
+$$ \dot{y}(t) = 2y(t) + u(t) + t \cdot u(t-1) $$
+
+\textit{Analysis:}
+\begin{itemize}
+\item RHS contains $u(t)$ (current input) and $u(t-1)$ (past input at $t-1$)
+\item No terms like $u(t+\delta)$ for $\delta > 0$ (future inputs)
+\item Output at time $t$ depends only on input values at $t$ and earlier times
+\end{itemize}
+
+\textbf{Conclusion:} \boxed{\text{Causal System}} (depends only on present and past inputs)
+
+\vspace{0.3cm}
+\textbf{Part (d): Stability Test}
+
+\textit{Method: Analyze homogeneous solution}
+
+Set $u(t) = 0$ (unforced system):
+$$ \dot{y}(t) - 2y(t) = 0 $$
+
+\textit{Characteristic equation:} $s - 2 = 0 \Rightarrow s = 2$
+
+\textit{General solution:} $y(t) = Ce^{2t}$ where $C$ depends on initial conditions
+
+\textit{Stability check:}
+\begin{itemize}
+\item As $t \to \infty$: $y(t) = Ce^{2t} \to \infty$ for any $C \neq 0$
+\item The pole at $s = +2$ is in the right half-plane (positive real part)
+\end{itemize}
+
+\textbf{Conclusion:} \boxed{\text{Unstable System}} (pole at $s=2 > 0$ causes exponential growth)
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% ==========================================
+% QUESTION 2
+% ==========================================
+\section*{Question 2: Jordan Canonical Form (20 points)}
+Given the system matrix $A$:
+$$ A = \begin{bmatrix} 3 & 1 & 0 \\ -1 & 5 & 0 \\ 0 & 0 & 4 \end{bmatrix} $$
+
+\begin{enumerate}[label=(\alph*)]
+    \item Find the characteristic polynomial and determine the eigenvalues and their algebraic multiplicities.
+    \item Determine the geometric multiplicity (number of linearly independent eigenvectors) for each eigenvalue.
+    \item Find the generalized eigenvectors required to form the basis.
+    \item Construct the Modal Matrix $M$ and the Jordan Canonical Form $J$ such that $J = M^{-1}AM$.
+\end{enumerate}
+
+\vspace{0.5cm}
+
+% ==========================================
+% SOLUTION 2
+% ==========================================
+\subsection*{Solution 2: Jordan Canonical Form Construction}
+\textbf{Given:} Eigenvalue $\lambda = 4$ with Algebraic Multiplicity $n_a = 3$. Geometric Multiplicity $n_g = 1$.
+
+\textit{Algorithm: JORDAN CANONICAL FORM Construction (Crib Sheet)}
+
+\vspace{0.3cm}
+\textbf{Step 1: Determine Jordan Block Structure}
+
+\textit{Key Theorem:} Number of Jordan blocks = Geometric Multiplicity = $n_g = 1$
+
+Since $n_g = 1$, there is \textbf{exactly one Jordan block}.
+
+\textit{Block size:} Must equal Algebraic Multiplicity = 3
+
+\textbf{Conclusion:} One $3 \times 3$ Jordan block with eigenvalue $\lambda = 4$
+
+\vspace{0.3cm}
+\textbf{Step 2: Construct Jordan Block}
+
+\textit{Structure:} $3 \times 3$ block with $\lambda$ on diagonal, 1's on superdiagonal
+
+$$ J = \begin{bmatrix} 4 & 1 & 0 \\ 0 & 4 & 1 \\ 0 & 0 & 4 \end{bmatrix} $$
+
+\textbf{Result:} \boxed{J = \begin{bmatrix} 4 & 1 & 0 \\ 0 & 4 & 1 \\ 0 & 0 & 4 \end{bmatrix}}
+
+\vspace{0.3cm}
+\textbf{Step 3: Find Generalized Eigenvectors (Jordan Chain)}
+
+\textit{Method:} Construct chain $\{v_1, v_2, v_3\}$ satisfying:
+\begin{itemize}
+\item $(A - 4I)v_1 = 0$ (regular eigenvector)
+\item $(A - 4I)v_2 = v_1$ (generalized eigenvector, grade 2)
+\item $(A - 4I)v_3 = v_2$ (generalized eigenvector, grade 3)
+\end{itemize}
+
+\textit{Given matrix:}
+$$ A = \begin{bmatrix} 5 & 1 & 0 \\ 0 & 4 & 0 \\ -1 & 2 & 4 \end{bmatrix} $$
+
+\textit{Compute $A - 4I$:}
+$$ A - 4I = \begin{bmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ -1 & 2 & 0 \end{bmatrix} $$
+
+\textbf{Step 3a: Find $v_1$ (regular eigenvector)}
+
+Solve $(A - 4I)v_1 = 0$:
+$$ \begin{bmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ -1 & 2 & 0 \end{bmatrix} \begin{bmatrix} x \\ y \\ z \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \\ 0 \end{bmatrix} $$
+
+From row 1: $x + y = 0 \Rightarrow y = -x$
+
+From row 3: $-x + 2y = 0 \Rightarrow y = \frac{x}{2}$
+
+\textit{Check consistency:} Setting $y = -x$ and $y = x/2$ gives $-x = x/2 \Rightarrow x = 0$, so $y = 0$
+
+Third component $z$ is free.
+
+\textit{Choose:} $v_1 = \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix}$
+
+\textbf{Step 3b: Find $v_2$ (solve $(A-4I)v_2 = v_1$)}
+
+$$ \begin{bmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ -1 & 2 & 0 \end{bmatrix} \begin{bmatrix} x \\ y \\ z \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} $$
+
+From row 3: $-x + 2y = 1$
+
+From row 1: $x + y = 0 \Rightarrow x = -y$
+
+Substitute: $-(-y) + 2y = 1 \Rightarrow 3y = 1 \Rightarrow y = \frac{1}{3}$, $x = -\frac{1}{3}$
+
+$z$ is free; choose $z = 0$.
+
+\textit{Choose:} $v_2 = \begin{bmatrix} -1/3 \\ 1/3 \\ 0 \end{bmatrix}$ or scaled: $v_2 = \begin{bmatrix} -1 \\ 1 \\ 0 \end{bmatrix}$
+
+\textbf{Step 3c: Find $v_3$ (solve $(A-4I)v_3 = v_2$)}
+
+$$ \begin{bmatrix} 1 & 1 & 0 \\ 0 & 0 & 0 \\ -1 & 2 & 0 \end{bmatrix} \begin{bmatrix} x \\ y \\ z \end{bmatrix} = \begin{bmatrix} -1 \\ 1 \\ 0 \end{bmatrix} $$
+
+From row 1: $x + y = -1$
+
+From row 3: $-x + 2y = 0 \Rightarrow x = 2y$
+
+Substitute: $2y + y = -1 \Rightarrow y = -\frac{1}{3}$, $x = -\frac{2}{3}$
+
+Choose $z = 0$.
+
+\textit{Choose:} $v_3 = \begin{bmatrix} -2 \\ -1 \\ 0 \end{bmatrix}$
+
+\vspace{0.3cm}
+\textbf{Step 4: Construct Transformation Matrix}
+
+\textit{Jordan chain order:} $P = [v_3 \quad v_2 \quad v_1]$ (reverse order for standard form)
+
+$$ P = \begin{bmatrix} -2 & -1 & 0 \\ -1 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix} $$
+
+\vspace{0.3cm}
+\textbf{Step 5: Verification (Optional)}
+
+Check $AP = PJ$:
+- Column 1: $Av_3 = 4v_3 + v_2$ ✓
+- Column 2: $Av_2 = 4v_2 + v_1$ ✓
+- Column 3: $Av_1 = 4v_1$ ✓
+
+\textbf{Final Answer:}
+$$\boxed{J = \begin{bmatrix} 4 & 1 & 0 \\ 0 & 4 & 1 \\ 0 & 0 & 4 \end{bmatrix}, \quad P = \begin{bmatrix} -2 & -1 & 0 \\ -1 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix}}$$
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% ==========================================
+% QUESTION 3
+% ==========================================
+\section*{Question 3: State Feedback Controller (20 points)}
+Consider the system given by:
+$$ \dot{x} = \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ -6 & -11 & -6 \end{bmatrix} x + \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} u, \quad y = \begin{bmatrix} 1 & 0 & 0 \end{bmatrix} x $$
+
+\begin{enumerate}[label=(\alph*)]
+    \item Verify that the system is controllable.
+    \item Design a state feedback control law $u = -Kx$ to place the closed-loop poles at $\lambda_{1,2,3} = \{-2, -1+j\sqrt{3}, -1-j\sqrt{3}\}$.
+    \item Determine the required reference gain $K_r$ in the control law $u = -Kx + K_r r$ to ensure zero steady-state error for a step reference input $r(t) = 1(t)$.
+\end{enumerate}
+
+\vspace{0.5cm}
+
+% ==========================================
+% SOLUTION 3
+% ==========================================
+\subsection*{Solution 3: State Feedback Controller Design}
+\textbf{Given:} $A = \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ -1 & -2 & -3 \end{bmatrix}$, $B = \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix}$. Desired poles: $\{-1, -2, -3\}$
+
+\textit{Algorithm: STATE FEEDBACK DESIGN using Ackermann's Formula (Crib Sheet)}
+
+\vspace{0.3cm}
+\textbf{Step 1: Verify System is in Controllable Canonical Form (CCF)}
+
+\textit{CCF Structure Check:}
+$$ A = \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ -a_0 & -a_1 & -a_2 \end{bmatrix}, \quad B = \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} $$
+
+Comparing with given $A$: $a_0 = 1$, $a_1 = 2$, $a_2 = 3$
+
+\textbf{Conclusion:} System is already in CCF ✓
+
+\vspace{0.3cm}
+\textbf{Step 2: Compute Current Characteristic Polynomial}
+
+From CCF structure:
+$$ \Delta(s) = s^3 + a_2 s^2 + a_1 s + a_0 = s^3 + 3s^2 + 2s + 1 $$
+
+\textit{Current coefficients:} $[a_0, a_1, a_2] = [1, 2, 3]$
+
+\vspace{0.3cm}
+\textbf{Step 3: Compute Desired Characteristic Polynomial}
+
+Desired poles: $\{-1, -2, -3\}$
+
+$$ \Delta_{des}(s) = (s+1)(s+2)(s+3) $$
+
+Expand:
+\begin{align*}
+&= (s+1)[(s+2)(s+3)] \\
+&= (s+1)[s^2 + 5s + 6] \\
+&= s^3 + 5s^2 + 6s + s^2 + 5s + 6 \\
+&= s^3 + 6s^2 + 11s + 6
+\end{align*}
+
+\textit{Desired coefficients:} $[\alpha_0, \alpha_1, \alpha_2] = [6, 11, 6]$
+
+\vspace{0.3cm}
+\textbf{Step 4: Apply CCF Direct Formula}
+
+\textit{For systems in CCF, the feedback gain is:}
+$$ K = [\alpha_0 - a_0 \quad \alpha_1 - a_1 \quad \alpha_2 - a_2] $$
+
+\textit{Compute each component:}
+\begin{align*}
+k_1 &= \alpha_0 - a_0 = 6 - 1 = 5 \\
+k_2 &= \alpha_1 - a_1 = 11 - 2 = 9 \\
+k_3 &= \alpha_2 - a_2 = 6 - 3 = 3
+\end{align*}
+
+\textbf{Feedback Gain:} $K = [5 \quad 9 \quad 3]$
+
+\vspace{0.3cm}
+\textbf{Step 5: Write Control Law}
+
+$$ u = -Kx = -5x_1 - 9x_2 - 3x_3 $$
+
+\textbf{Result:} $$\boxed{K = \begin{bmatrix} 5 & 9 & 3 \end{bmatrix}}$$
+
+$$\boxed{u = -5x_1 - 9x_2 - 3x_3}$$
+
+\vspace{0.3cm}
+\textbf{Step 6: Verification (Closed-Loop Eigenvalues)}
+
+\textit{Closed-loop matrix:}
+$$ A - BK = \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ -1 & -2 & -3 \end{bmatrix} - \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} [5 \quad 9 \quad 3] = \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ -6 & -11 & -6 \end{bmatrix} $$
+
+\textit{Characteristic polynomial:}
+$$ \det(sI - (A-BK)) = s^3 + 6s^2 + 11s + 6 = (s+1)(s+2)(s+3) $$
+
+Eigenvalues: $\{-1, -2, -3\}$ ✓ (matches desired poles)
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% ==========================================
+% QUESTION 4
+% ==========================================
+\section*{Question 4: Full-Order Observer (20 points)}
+Using the same system from Question 3:
+$$ A = \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ -6 & -11 & -6 \end{bmatrix}, \quad B = \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix}, \quad C = \begin{bmatrix} 1 & 0 & 0 \end{bmatrix} $$
+
+\begin{enumerate}[label=(\alph*)]
+    \item Verify that the system is observable.
+    \item Design a full-order observer with poles placed at $\mu_{1,2,3} = \{-10, -10, -10\}$. Find the observer gain matrix $G$.
+    \item Write the complete state-space equations for the observer dynamics $\dot{\hat{x}}$.
+\end{enumerate}
+
+\vspace{0.5cm}
+
+% ==========================================
+% SOLUTION 4
+% ==========================================
+\subsection*{Solution 4: Full-Order Observer Design}
+\textbf{Given:} $A = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}$, $B = \begin{bmatrix} 0 \\ 1 \end{bmatrix}$, $C = \begin{bmatrix} 1 & 0 \end{bmatrix}$. Desired observer poles: $\{-5, -6\}$
+
+\textit{Algorithm: FULL-ORDER OBSERVER DESIGN (Crib Sheet)}
+
+\vspace{0.3cm}
+\textbf{Step 1: Verify Observability}
+
+\textit{Method:} Compute observability matrix $\mathcal{O} = \begin{bmatrix} C \\ CA \end{bmatrix}$
+
+\textit{Compute $CA$:}
+$$ CA = \begin{bmatrix} 1 & 0 \end{bmatrix} \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} = \begin{bmatrix} 1 & 2 \end{bmatrix} $$
+
+\textit{Observability matrix:}
+$$ \mathcal{O} = \begin{bmatrix} 1 & 0 \\ 1 & 2 \end{bmatrix} $$
+
+\textit{Check rank:} $\det(\mathcal{O}) = 1(2) - 0(1) = 2 \neq 0$
+
+\textbf{Conclusion:} System is observable. Observer design is possible.
+
+\vspace{0.3cm}
+\textbf{Step 2: Compute Current Characteristic Polynomial of $A$}
+
+$$ \det(sI - A) = \det \begin{bmatrix} s-1 & -2 \\ -3 & s-4 \end{bmatrix} = (s-1)(s-4) - 6 = s^2 - 5s + 4 - 6 = s^2 - 5s - 2 $$
+
+\textit{Coefficients:} $a_1 = -5$, $a_0 = -2$
+
+\vspace{0.3cm}
+\textbf{Step 3: Compute Desired Characteristic Polynomial}
+
+Desired observer poles: $\{-5, -6\}$
+
+$$ \Delta_{obs}(s) = (s+5)(s+6) = s^2 + 11s + 30 $$
+
+\textit{Desired coefficients:} $\alpha_1 = 11$, $\alpha_0 = 30$
+
+\vspace{0.3cm}
+\textbf{Step 4: Dual System for Observer Gain}
+
+\textit{Observer gain design is dual to state feedback for $(A^T, C^T)$}
+
+For the dual system in observer canonical form (OCF), we need observer gain $L$.
+
+\textit{Strategy:} Use column-wise computation or Ackermann's formula for observers:
+$$ L = \Delta_{obs}(A) \mathcal{O}^{-1} \begin{bmatrix} 0 \\ 1 \end{bmatrix} $$
+
+\textbf{Step 4a: Compute $\mathcal{O}^{-1}$}
+
+$$ \mathcal{O}^{-1} = \frac{1}{2} \begin{bmatrix} 2 & 0 \\ -1 & 1 \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ -0.5 & 0.5 \end{bmatrix} $$
+
+\textbf{Step 4b: Compute $\Delta_{obs}(A) = A^2 + 11A + 30I$}
+
+\textit{Compute $A^2$:}
+$$ A^2 = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} = \begin{bmatrix} 7 & 10 \\ 15 & 22 \end{bmatrix} $$
+
+\textit{Compute $11A$:}
+$$ 11A = \begin{bmatrix} 11 & 22 \\ 33 & 44 \end{bmatrix} $$
+
+\textit{Compute $30I$:}
+$$ 30I = \begin{bmatrix} 30 & 0 \\ 0 & 30 \end{bmatrix} $$
+
+\textit{Sum:}
+$$ \Delta_{obs}(A) = \begin{bmatrix} 7+11+30 & 10+22+0 \\ 15+33+0 & 22+44+30 \end{bmatrix} = \begin{bmatrix} 48 & 32 \\ 48 & 96 \end{bmatrix} $$
+
+\textbf{Step 4c: Compute $L$}
+
+$$ L = \begin{bmatrix} 48 & 32 \\ 48 & 96 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ -0.5 & 0.5 \end{bmatrix} \begin{bmatrix} 0 \\ 1 \end{bmatrix} $$
+
+\textit{First multiplication:}
+$$ \begin{bmatrix} 48 & 32 \\ 48 & 96 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ -0.5 & 0.5 \end{bmatrix} = \begin{bmatrix} 48-16 & 0+16 \\ 48-48 & 0+48 \end{bmatrix} = \begin{bmatrix} 32 & 16 \\ 0 & 48 \end{bmatrix} $$
+
+\textit{Second multiplication:}
+$$ L = \begin{bmatrix} 32 & 16 \\ 0 & 48 \end{bmatrix} \begin{bmatrix} 0 \\ 1 \end{bmatrix} = \begin{bmatrix} 16 \\ 48 \end{bmatrix} $$
+
+\textbf{Observer Gain:} $$\boxed{L = \begin{bmatrix} 16 \\ 48 \end{bmatrix}}$$
+
+\vspace{0.3cm}
+\textbf{Step 5: Write Observer Equations}
+
+$$ \dot{\hat{x}} = A\hat{x} + Bu + L(y - C\hat{x}) $$
+
+Substituting values:
+$$ \dot{\hat{x}} = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} \hat{x} + \begin{bmatrix} 0 \\ 1 \end{bmatrix} u + \begin{bmatrix} 16 \\ 48 \end{bmatrix} (y - \begin{bmatrix} 1 & 0 \end{bmatrix} \hat{x}) $$
+
+\textbf{Component form:}
+\begin{align*}
+\dot{\hat{x}}_1 &= \hat{x}_1 + 2\hat{x}_2 + 16(y - \hat{x}_1) \\
+\dot{\hat{x}}_2 &= 3\hat{x}_1 + 4\hat{x}_2 + u + 48(y - \hat{x}_1)
+\end{align*}
+
+\vspace{0.3cm}
+\textbf{Step 6: Verification}
+
+\textit{Observer error dynamics matrix:}
+$$ A - LC = \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} - \begin{bmatrix} 16 \\ 48 \end{bmatrix} \begin{bmatrix} 1 & 0 \end{bmatrix} = \begin{bmatrix} 1-16 & 2 \\ 3-48 & 4 \end{bmatrix} = \begin{bmatrix} -15 & 2 \\ -45 & 4 \end{bmatrix} $$
+
+\textit{Check eigenvalues:}
+$$ \det(sI - (A-LC)) = \det \begin{bmatrix} s+15 & -2 \\ 45 & s-4 \end{bmatrix} = (s+15)(s-4) + 90 = s^2 + 11s + 30 $$
+
+Poles: $(s+5)(s+6) = 0 \Rightarrow s = -5, -6$ ✓
+
+\vspace{0.5cm}
+\hrule
+\vspace{0.5cm}
+
+% ==========================================
+% QUESTION 5
+% ==========================================
+\section*{Question 5: Reduced-Order Observer (20 points)}
+Consider the system:
+$$ \dot{x} = \begin{bmatrix} -1 & 1 \\ 0 & -2 \end{bmatrix} x + \begin{bmatrix} 0 \\ 1 \end{bmatrix} u, \quad y = x_1 $$
+
+Assume that state $x_1$ is measured directly ($y=x_1$), but $x_2$ is not.
+\begin{enumerate}[label=(\alph*)]
+    \item Partition the system matrices ($A_{11}, A_{12}, \dots$) appropriate for a reduced-order observer design.
+    \item Design a reduced-order observer to estimate $x_2$ such that the observer error dynamics have a pole at $\lambda = -5$.
+    \item Give the differential equation for the observer state $z$ and the algebraic equation for the estimate $\hat{x}_2$.
+\end{enumerate}
+
+\newpage
+\section*{SOLUTIONS}
+
+\subsection*{Solution 1: System Properties}
+\textbf{Given System:}
+$$ \ddot{y}(t) + 2t\dot{y}(t) + y(t)\sin(t) = u(t-1) + \dot{u}(t) $$
+
+\vspace{0.3cm}
+\textbf{Part (a): Linearity Test}
+
+\textit{Method: Check Superposition Principle}
+
+Let $u_1(t) \to y_1(t)$ and $u_2(t) \to y_2(t)$ be two input-output pairs.
+
+For input $u(t) = \alpha u_1(t) + \beta u_2(t)$, the system gives:
+\begin{align*}
+\ddot{y} + 2t\dot{y} + y\sin(t) &= [\alpha u_1(t-1) + \beta u_2(t-1)] + [\alpha \dot{u}_1(t) + \beta \dot{u}_2(t)] \\
+&= \alpha[u_1(t-1) + \dot{u}_1(t)] + \beta[u_2(t-1) + \dot{u}_2(t)]
+\end{align*}
+
+The differential operator on LHS is linear in $y$. Coefficients ($2t$, $\sin(t)$) depend only on time $t$, not on $y$ or $u$.
+
+\textbf{Conclusion:} \boxed{\text{Linear}} (Superposition holds)
+
+\vspace{0.3cm}
+\textbf{Part (b): Time-Invariance Test}
+
+\textit{Method: Check if time-shifted input produces time-shifted output}
+
+The coefficients $2t$ and $\sin(t)$ depend explicitly on time $t$.
+
+For shifted input $u(t-\tau)$, the equation becomes:
+$$ \ddot{y} + 2t\dot{y} + y(t)\sin(t) = u(t-\tau-1) + \dot{u}(t-\tau) $$
+
+But the original equation at time $(t-\tau)$ would have coefficients $2(t-\tau)$ and $\sin(t-\tau)$, which are different.
+
+\textbf{Conclusion:} \boxed{\text{Time-Varying}} (Coefficients depend on $t$)
+
+\vspace{0.3cm}
+\textbf{Part (c): Causality Test}
+
+\textit{Method: Check if output depends only on present/past inputs}
+
+Examine each input term:
+\begin{itemize}
+\item $u(t-1)$: Delayed input (past value) \checkmark
+\item $\dot{u}(t)$: Derivative of current input (instantaneous rate) \checkmark
+\end{itemize}
+
+In continuous-time systems, $\dot{u}(t) = \lim_{\epsilon\to 0} \frac{u(t)-u(t-\epsilon)}{\epsilon}$ depends only on current and infinitesimally past values. No future values (like $u(t+1)$) are present.
+
+\textbf{Conclusion:} \boxed{\text{Causal}} (Output depends on present/past inputs only)
+
+\vspace{0.3cm}
+\textbf{Part (d): Lumped vs. Distributed}
+
+\textit{Method: Check system dimension}
+
+The presence of time delay $u(t-1)$ requires storing the input history over interval $[t-1, t]$. This makes the state space infinite-dimensional.
+
+Systems with time delays are classified as distributed parameter systems, even though the PDE nature is not explicit.
+
+\textbf{Conclusion:} \boxed{\text{Distributed}} (Infinite-dimensional due to delay $u(t-1)$)
+
+\subsection*{Solution 2: Jordan Canonical Form}
+\textbf{Given:} $$ A = \begin{bmatrix} 3 & 1 & 0 \\ -1 & 5 & 0 \\ 0 & 0 & 4 \end{bmatrix} $$
+
+\textit{Algorithm: JORDAN CANONICAL FORM (Crib Sheet)}
+
+\vspace{0.3cm}
+\textbf{Step 1: Find Characteristic Polynomial and Eigenvalues}
+
+Observe block diagonal structure:
+\begin{align*}
+\det(sI-A) &= \det\begin{bmatrix} s-3 & -1 & 0 \\ 1 & s-5 & 0 \\ 0 & 0 & s-4 \end{bmatrix} \\
+&= (s-4) \cdot \det\begin{bmatrix} s-3 & -1 \\ 1 & s-5 \end{bmatrix} \\
+&= (s-4)[(s-3)(s-5) + 1] \\
+&= (s-4)[s^2 - 8s + 15 + 1] \\
+&= (s-4)(s^2 - 8s + 16) \\
+&= (s-4)(s-4)^2 = (s-4)^3
+\end{align*}
+
+\textbf{Result:} Eigenvalue $\lambda = 4$ with \boxed{\text{Algebraic Multiplicity } n_a = 3}
+
+\vspace{0.3cm}
+\textbf{Step 2: Compute Geometric Multiplicity}
+
+\textit{Method: Find nullity of } $(\lambda I - A)$
+
+$$ A - 4I = \begin{bmatrix} -1 & 1 & 0 \\ -1 & 1 & 0 \\ 0 & 0 & 0 \end{bmatrix} $$
+
+Row reduce:
+\begin{itemize}
+\item Row 2 = Row 1 (dependent)
+\item Row 3 = zero row
+\item Rank$(A-4I) = 1$
+\end{itemize}
+
+Geometric Multiplicity: $n_g = n - \text{Rank} = 3 - 1 = 2$
+
+\textbf{Conclusion:} \boxed{n_g = 2 < n_a = 3} $\Rightarrow$ Need generalized eigenvectors
+
+\textbf{Jordan Structure:} Two blocks totaling size 3: one $2\times 2$ block, one $1\times 1$ block
+
+\vspace{0.3cm}
+\textbf{Step 3: Find Eigenvectors (Nullspace of $A-4I$)}
+
+Solve $(A-4I)v = 0$:
+$$ \begin{bmatrix} -1 & 1 & 0 \\ -1 & 1 & 0 \\ 0 & 0 & 0 \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \\ x_3 \end{bmatrix} = 0 \quad \Rightarrow \quad -x_1 + x_2 = 0 $$
+
+General solution: $x_2 = x_1$, $x_3$ free
+
+Two linearly independent eigenvectors:
+$$ v_1^{(eigen)} = \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix}, \quad v_3^{(eigen)} = \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} $$
+
+\vspace{0.3cm}
+\textbf{Step 4: Find Generalized Eigenvector for Chain of Length 2}
+
+\textit{Chain structure:} $(A-4I)v_2 = v_1$, $(A-4I)v_1 = 0$
+
+Choose $v_1 = v_1^{(eigen)} = [1; 1; 0]^T$. Find $v_2$ such that:
+$$ \begin{bmatrix} -1 & 1 & 0 \\ -1 & 1 & 0 \\ 0 & 0 & 0 \end{bmatrix} \begin{bmatrix} x \\ y \\ z \end{bmatrix} = \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix} $$
+
+From first equation: $-x + y = 1$. Choose $x=0$, then $y=1$, $z=0$ (free).
+
+$$ v_2 = \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix} $$
+
+Verify: $(A-4I)v_2 = \begin{bmatrix} -1 & 1 & 0 \\ -1 & 1 & 0 \\ 0 & 0 & 0 \end{bmatrix} \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 1 \\ 1 \\ 0 \end{bmatrix} = v_1 \quad \checkmark$
+
+\textbf{Chain 1:} $\{v_1, v_2\}$ where $v_1 = [1,1,0]^T$, $v_2 = [0,1,0]^T$
+
+\textbf{Chain 2:} $\{v_3\}$ where $v_3 = [0,0,1]^T$ (independent eigenvector)
+
+\vspace{0.3cm}
+\textbf{Step 5: Form Modal Matrix $M$ and Jordan Form $J$}
+
+Modal matrix (columns are chain vectors):
+$$ \boxed{M = [v_1 \quad v_2 \quad v_3] = \begin{bmatrix} 1 & 0 & 0 \\ 1 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix}} $$
+
+Jordan Canonical Form:
+$$ \boxed{J = M^{-1}AM = \begin{bmatrix} 4 & 1 & 0 \\ 0 & 4 & 0 \\ 0 & 0 & 4 \end{bmatrix}} $$
+
+(Two blocks: one $2\times 2$ with eigenvalue 4, one $1\times 1$ with eigenvalue 4)
+
+\subsection*{Solution 3: State Feedback Controller Design}
+\textbf{Given:} $$ A = \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ -6 & -11 & -6 \end{bmatrix}, \quad B = \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix}, \quad C = \begin{bmatrix} 1 & 0 & 0 \end{bmatrix} $$
+
+\textit{Algorithm: STATE FEEDBACK DESIGN (Crib Sheet)}
+
+\vspace{0.3cm}
+\textbf{Part (a): Verify Controllability}
+
+\textbf{Step 1:} Form controllability matrix
+$$ \mathcal{C}_x = [B \quad AB \quad A^2B] $$
+
+Compute columns:
+\begin{align*}
+B &= \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} \\
+AB &= \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ -6 & -11 & -6 \end{bmatrix} \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} = \begin{bmatrix} 0 \\ 1 \\ -6 \end{bmatrix} \\
+A^2B &= A(AB) = \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ -6 & -11 & -6 \end{bmatrix} \begin{bmatrix} 0 \\ 1 \\ -6 \end{bmatrix} = \begin{bmatrix} 1 \\ -6 \\ 25 \end{bmatrix}
+\end{align*}
+
+$$ \mathcal{C}_x = \begin{bmatrix} 0 & 0 & 1 \\ 0 & 1 & -6 \\ 1 & -6 & 25 \end{bmatrix} $$
+
+\textbf{Step 2:} Check rank
+$$ \det(\mathcal{C}_x) = 0(1 \cdot 25 - (-6)(-6)) - 0 + 1(0-1) = -1 \neq 0 $$
+
+\textbf{Conclusion:} \boxed{\text{Rank}(\mathcal{C}_x) = 3 = n} $\Rightarrow$ System is controllable \checkmark
+
+\vspace{0.3cm}
+\textbf{Part (b): Design State Feedback Gain $K$ using Ackermann's Formula}
+
+\textbf{Step 1:} Identify current system (in CCF)
+
+Characteristic polynomial of $A$:
+$$ \det(sI-A) = s^3 + 6s^2 + 11s + 6 $$
+Coefficients: $a_2=6$, $a_1=11$, $a_0=6$
+
+\textbf{Step 2:} Specify desired closed-loop poles
+$$ \{\lambda_1, \lambda_2, \lambda_3\} = \{-2, -1+j\sqrt{3}, -1-j\sqrt{3}\} $$
+
+\textbf{Step 3:} Expand desired characteristic polynomial $\Delta_c(s)$
+\begin{align*}
+\Delta_c(s) &= (s+2)[(s+1)^2 + (\sqrt{3})^2] \\
+&= (s+2)(s^2 + 2s + 1 + 3) \\
+&= (s+2)(s^2 + 2s + 4) \\
+&= s^3 + 2s^2 + 4s + 2s^2 + 4s + 8 \\
+&= s^3 + 4s^2 + 8s + 8
+\end{align*}
+
+Desired coefficients: $\alpha_2=4$, $\alpha_1=8$, $\alpha_0=8$
+
+\textbf{Step 4:} For CCF, use direct formula
+$$ K = [\alpha_0 - a_0 \quad \alpha_1 - a_1 \quad \alpha_2 - a_2] $$
+\begin{align*}
+K &= [8-6 \quad 8-11 \quad 4-6] \\
+&= [2 \quad -3 \quad -2]
+\end{align*}
+
+\textbf{Result:} \boxed{K = \begin{bmatrix} 2 & -3 & -2 \end{bmatrix}}
+
+\vspace{0.3cm}
+\textbf{Part (c): Find Tracking Gain $K_r$ (Crib Sheet Algorithm)}
+
+\textit{Goal:} Zero steady-state error for step reference $r(t) = 1(t)$
+
+\textbf{Formula:} $\displaystyle K_r = -\frac{1}{C(A-BK)^{-1}B}$
+
+\textbf{Alternative (DC Gain Method):}
+
+Closed-loop transfer function from $r$ to $y$:
+$$ G_{cl}(s) = \frac{C(sI-(A-BK))^{-1}B \cdot K_r}{1} = \frac{K_r \cdot C \text{ adj}(sI-A_{cl})B}{\det(sI-A_{cl})} $$
+
+Desired characteristic polynomial: $\det(sI-A_{cl}) = s^3 + 4s^2 + 8s + 8$
+
+For system in CCF with $C=[1 \ 0 \ 0]$ and $B=[0; 0; 1]^T$:
+$$ G_{cl}(s) = \frac{K_r}{s^3 + 4s^2 + 8s + 8} $$
+
+DC gain ($s\to 0$): $\displaystyle G_{cl}(0) = \frac{K_r}{8}$
+
+For unity tracking: $G_{cl}(0) = 1 \Rightarrow \frac{K_r}{8} = 1$
+
+\textbf{Result:} \boxed{K_r = 8}
+
+\subsection*{Solution 4: Full-Order Observer Design}
+\textbf{Given:} Same system from Q3
+$$ A = \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ -6 & -11 & -6 \end{bmatrix}, \quad B = \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix}, \quad C = \begin{bmatrix} 1 & 0 & 0 \end{bmatrix} $$
+
+\textit{Algorithm: FULL-ORDER OBSERVER (Crib Sheet)}
+
+\vspace{0.3cm}
+\textbf{Part (a): Verify Observability}
+
+\textbf{Step 1:} Form observability matrix
+$$ \mathcal{O}_x = \begin{bmatrix} C \\ CA \\ CA^2 \end{bmatrix} $$
+
+Compute rows:
+\begin{align*}
+C &= \begin{bmatrix} 1 & 0 & 0 \end{bmatrix} \\
+CA &= \begin{bmatrix} 1 & 0 & 0 \end{bmatrix} \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ -6 & -11 & -6 \end{bmatrix} = \begin{bmatrix} 0 & 1 & 0 \end{bmatrix} \\
+CA^2 &= \begin{bmatrix} 0 & 1 & 0 \end{bmatrix} \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ -6 & -11 & -6 \end{bmatrix} = \begin{bmatrix} 0 & 0 & 1 \end{bmatrix}
+\end{align*}
+
+$$ \mathcal{O}_x = \begin{bmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix} = I $$
+
+\textbf{Step 2:} Check rank
+$$ \det(\mathcal{O}_x) = 1 \neq 0 $$
+
+\textbf{Conclusion:} \boxed{\text{Rank}(\mathcal{O}_x) = 3 = n} $\Rightarrow$ System is observable \checkmark
+
+\vspace{0.3cm}
+\textbf{Part (b): Design Observer Gain $G$ using Ackermann's Formula}
+
+\textbf{Step 1:} Choose observer poles (2-4$\times$ faster than controller)
+$$ \{\mu_1, \mu_2, \mu_3\} = \{-10, -10, -10\} $$
+
+\textbf{Step 2:} Expand desired observer characteristic polynomial $\Delta_e(s)$
+\begin{align*}
+\Delta_e(s) &= (s+10)^3 \\
+&= s^3 + 30s^2 + 300s + 1000
+\end{align*}
+
+Coefficients: $\beta_2=30$, $\beta_1=300$, $\beta_0=1000$
+
+\textbf{Step 3:} Ackermann's formula for observer
+$$ G = \Delta_e(A) \mathcal{O}_x^{-1} \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} $$
+
+Since $\mathcal{O}_x = I$, we have $\mathcal{O}_x^{-1} = I$, so:
+$$ G = \Delta_e(A) \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} = \text{(last column of } \Delta_e(A)\text{)} $$
+
+\textbf{Step 4:} Compute $\Delta_e(A) = A^3 + 30A^2 + 300A + 1000I$
+
+\textit{Strategy:} Compute only the 3rd column (saves computation)
+
+Let $e_3 = [0; 0; 1]^T$. Then $Col_3(\Delta_e(A)) = \Delta_e(A) e_3$.
+
+\begin{align*}
+Col_3(I) &= e_3 = \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} \\
+Col_3(A) &= Ae_3 = \begin{bmatrix} 0 \\ 1 \\ -6 \end{bmatrix} \\
+Col_3(A^2) &= A(Ae_3) = \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ -6 & -11 & -6 \end{bmatrix} \begin{bmatrix} 0 \\ 1 \\ -6 \end{bmatrix} = \begin{bmatrix} 1 \\ -6 \\ 25 \end{bmatrix} \\
+Col_3(A^3) &= A(A^2e_3) = \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ -6 & -11 & -6 \end{bmatrix} \begin{bmatrix} 1 \\ -6 \\ 25 \end{bmatrix} = \begin{bmatrix} -6 \\ 25 \\ -222 \end{bmatrix}
+\end{align*}
+
+Now compute:
+\begin{align*}
+G &= Col_3(A^3) + 30 \cdot Col_3(A^2) + 300 \cdot Col_3(A) + 1000 \cdot Col_3(I) \\
+&= \begin{bmatrix} -6 \\ 25 \\ -222 \end{bmatrix} + 30 \begin{bmatrix} 1 \\ -6 \\ 25 \end{bmatrix} + 300 \begin{bmatrix} 0 \\ 1 \\ -6 \end{bmatrix} + 1000 \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix}
+\end{align*}
+
+Element-wise:
+\begin{align*}
+G_1 &= -6 + 30(1) + 300(0) + 1000(0) = 24 \\
+G_2 &= 25 + 30(-6) + 300(1) + 1000(0) = 25 - 180 + 300 = 145 \\
+G_3 &= -222 + 30(25) + 300(-6) + 1000(1) = -222 + 750 - 1800 + 1000 = -272
+\end{align*}
+
+\textbf{Result:} \boxed{G = \begin{bmatrix} 24 \\ 145 \\ -272 \end{bmatrix}}
+
+\vspace{0.3cm}
+\textbf{Part (c): Write Observer Equations}
+
+\textit{Observer dynamics:} $\dot{\hat{x}} = (A - GC)\hat{x} + Bu + Gy$
+
+Compute $A - GC$:
+\begin{align*}
+GC &= \begin{bmatrix} 24 \\ 145 \\ -272 \end{bmatrix} \begin{bmatrix} 1 & 0 & 0 \end{bmatrix} = \begin{bmatrix} 24 & 0 & 0 \\ 145 & 0 & 0 \\ -272 & 0 & 0 \end{bmatrix} \\
+A - GC &= \begin{bmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ -6 & -11 & -6 \end{bmatrix} - \begin{bmatrix} 24 & 0 & 0 \\ 145 & 0 & 0 \\ -272 & 0 & 0 \end{bmatrix} = \begin{bmatrix} -24 & 1 & 0 \\ -145 & 0 & 1 \\ 266 & -11 & -6 \end{bmatrix}
+\end{align*}
+
+\textbf{Complete Observer Equations:}
+$$ \boxed{\dot{\hat{x}} = \begin{bmatrix} -24 & 1 & 0 \\ -145 & 0 & 1 \\ 266 & -11 & -6 \end{bmatrix} \hat{x} + \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} u + \begin{bmatrix} 24 \\ 145 \\ -272 \end{bmatrix} y} $$
+
+\subsection*{Solution 5: Reduced-Order Observer Design}
+\textbf{Given:} $$ A = \begin{bmatrix} -1 & 1 \\ 0 & -2 \end{bmatrix}, \quad B = \begin{bmatrix} 0 \\ 1 \end{bmatrix}, \quad y = x_1 $$
+
+Measured state: $x_1$, Unmeasured state: $x_2$
+
+\textit{Algorithm: REDUCED-ORDER OBSERVER (Crib Sheet)}
+
+\vspace{0.3cm}
+\textbf{Part (a): Partition System Matrices}
+
+Partition according to measured ($x_1$) and unmeasured ($x_2$) states:
+$$ x = \begin{bmatrix} x_1 \\ x_2 \end{bmatrix}, \quad \dot{x} = \begin{bmatrix} \dot{x}_1 \\ \dot{x}_2 \end{bmatrix} = \begin{bmatrix} A_{11} & A_{12} \\ A_{21} & A_{22} \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \end{bmatrix} + \begin{bmatrix} B_1 \\ B_2 \end{bmatrix} u $$
+
+Identify partitions:
+\begin{align*}
+A_{11} &= -1 \quad (\text{measured to measured}) \\
+A_{12} &= 1 \quad (\text{unmeasured to measured}) \\
+A_{21} &= 0 \quad (\text{measured to unmeasured}) \\
+A_{22} &= -2 \quad (\text{unmeasured to unmeasured}) \\
+B_1 &= 0, \quad B_2 = 1
+\end{align*}
+
+\textbf{Result:} \boxed{\begin{aligned}
+& A_{11}=-1, \ A_{12}=1, \ A_{21}=0, \ A_{22}=-2 \\
+& B_1=0, \ B_2=1
+\end{aligned}}
+
+\vspace{0.3cm}
+\textbf{Part (b): Design Reduced-Order Observer Gain $G_e$}
+
+\textbf{Step 1:} Specify desired observer pole
+$$ \mu = -5 $$
+
+\textbf{Step 2:} Error dynamics equation
+
+Estimation error $e = x_2 - \hat{x}_2$ satisfies:
+$$ \dot{e} = (A_{22} - G_e A_{12})e $$
+
+\textbf{Step 3:} Place pole by solving
+$$ A_{22} - G_e A_{12} = \mu $$
+
+\begin{align*}
+-2 - G_e(1) &= -5 \\
+-2 - G_e &= -5 \\
+G_e &= 3
+\end{align*}
+
+\textbf{Result:} \boxed{G_e = 3}
+
+\vspace{0.3cm}
+\textbf{Part (c): Reduced-Order Observer Equations}
+
+\textbf{Step 1:} Define observer state $z$
+$$ z = \hat{x}_2 - G_e y = \hat{x}_2 - 3y $$
+
+\textbf{Step 2:} Differential equation for $z$ (Crib Sheet formula)
+$$ \dot{z} = (A_{22} - G_e A_{12})z + [(A_{22} - G_e A_{12})G_e + A_{21} - G_e A_{11}]y + (B_2 - G_e B_1)u $$
+
+Substitute values:
+\begin{align*}
+\text{Coefficient of } z: \quad & A_{22} - G_e A_{12} = -2 - 3(1) = -5 \\
+\text{Coefficient of } y: \quad & (A_{22}-G_eA_{12})G_e + A_{21} - G_eA_{11} \\
+& = (-5)(3) + 0 - 3(-1) \\
+& = -15 + 0 + 3 = -12 \\
+\text{Coefficient of } u: \quad & B_2 - G_e B_1 = 1 - 3(0) = 1
+\end{align*}
+
+\textbf{Observer Differential Equation:}
+$$ \boxed{\dot{z} = -5z - 12y + u} $$
+
+\textbf{Step 3:} Recover estimate $\hat{x}_2$
+$$ \boxed{\hat{x}_2 = z + 3y} $$
+
+\textbf{Full State Estimate:}
+$$ \boxed{\hat{x} = \begin{bmatrix} y \\ z + 3y \end{bmatrix}} $$
+
+\end{document}
